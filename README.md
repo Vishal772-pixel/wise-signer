@@ -1,3 +1,7 @@
+> [!NOTE]
+> This repo is a work in progress
+
+
 # Wise Signer
 
 This is a website for teaching people how to sign transactions, and how to make sure they are signing what's correct. It's broken down into 2 segments.
