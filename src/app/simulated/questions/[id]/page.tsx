@@ -54,6 +54,7 @@ export default function QuestionPage() {
                 fakeWebsiteEdition={question.fakeWebsiteEdition}
                 walletType={question.walletType}
                 transactionDetails={question.transactionData}
+                wrongAnswerPopupContent={question.wrongAnswerPopupContent}
             />
         );
     }

@@ -3,6 +3,7 @@
 import { FakeWebsiteType } from "@/types";
 import dynamic from 'next/dynamic';
 import { useMemo } from 'react';
+import { DefaultSite } from '@/components/fakeWebsites';
 
 
 interface SimulatedWebsiteProps {
@@ -12,6 +13,7 @@ interface SimulatedWebsiteProps {
     onPrimaryButtonClick: () => void;
     buttonDisabled?: boolean;
 }
+
 
 export default function SimulatedWebsite({
     fakeWebsiteType,
@@ -36,7 +38,7 @@ export default function SimulatedWebsite({
                     return import('@/components/fakeWebsites/DefaultSite');
             }
         }, {
-            loading: () => <div>Loading...</div>,
+            loading: () => <div><DefaultSite /></div>,
             ssr: false
         });
     }, [fakeWebsiteType]);

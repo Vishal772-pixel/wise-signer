@@ -1,6 +1,6 @@
 "use client";
 
-import { FaChevronLeft, FaChevronRight, FaLightbulb } from "react-icons/fa";
+import { FaChevronLeft, FaChevronRight, FaLightbulb, FaTimes } from "react-icons/fa";
 import { useState, useRef } from "react";
 import { useRouter } from "next/navigation";
 import QuestionComponent from "./QuestionComponent";
@@ -44,6 +44,7 @@ interface SingleQuestionPageProps {
         safeRequiresAdditionalConfirmation?: boolean;
         safeAdditionalWalletType?: WalletType;
     };
+    wrongAnswerPopupContent?: string;
 }
 
 // Forward ref to allow parent components to call methods on QuestionComponent
@@ -55,6 +56,7 @@ const SingleQuestionPage = forwardRef((props: SingleQuestionPageProps, ref) => {
     const [feedbackPage, setFeedbackPage] = useState(1);
     const [isCorrect, setIsCorrect] = useState(false);
     const [hasAnswered, setHasAnswered] = useState(false);
+    const [showWrongAnswerPopup, setShowWrongAnswerPopup] = useState(false);
     const router = useRouter();
 
     // Extract common props
@@ -70,6 +72,7 @@ const SingleQuestionPage = forwardRef((props: SingleQuestionPageProps, ref) => {
     // Extract type-specific props
     const options = type === 'single' || type === 'multi' ? props.options : [];
     const correctAnswers = type === 'single' || type === 'multi' ? props.correctAnswers : [];
+    const wrongAnswerPopupContent = 'wrongAnswerPopupContent' in props ? props.wrongAnswerPopupContent : undefined;
     const expectedAction = type === 'signOrReject' ? props.expectedAction : undefined;
     const walletType = type === 'signOrReject' ? props.walletType : undefined;
     const transactionDetails = type === 'signOrReject' ? props.transactionDetails : undefined;
@@ -78,18 +81,6 @@ const SingleQuestionPage = forwardRef((props: SingleQuestionPageProps, ref) => {
 
     // Reference to the actual question component for multi-choice questions
     const questionComponentRef = useRef(null);
-
-    // Forward the handleWalletInteractionResult method to parent components
-    useImperativeHandle(ref, () => ({
-        handleWalletInteractionResult: (action: "sign" | "reject") => {
-            if (type === "signOrReject") {
-                handleWalletAction(action);
-            } else if (questionComponentRef.current) {
-                // @ts-ignore
-                questionComponentRef.current.handleWalletInteractionResult(action);
-            }
-        }
-    }));
 
     const handlePrevQuestion = () => {
         if (prevPageUrl) {
@@ -112,10 +103,16 @@ const SingleQuestionPage = forwardRef((props: SingleQuestionPageProps, ref) => {
         setShowWalletPopup(false);
 
         if (type === "signOrReject" && expectedAction) {
-            setIsCorrect(action === expectedAction);
+            const isActionCorrect = action === expectedAction;
+            setIsCorrect(isActionCorrect);
             setShowFeedback(true);
             setFeedbackPage(1);
             setHasAnswered(true);
+
+            // Show wrong answer popup if incorrect and popup content exists
+            if (!isActionCorrect && wrongAnswerPopupContent) {
+                setShowWrongAnswerPopup(true);
+            }
         }
     };
 
@@ -131,9 +128,6 @@ const SingleQuestionPage = forwardRef((props: SingleQuestionPageProps, ref) => {
             setFeedbackPage(feedbackPage - 1);
         }
     };
-
-    console.log("Fake website type:", fakeWebsiteType);
-    console.log("Fake website edition:", fakeWebsiteEdition);
 
     return (
         <div className="min-h-screen bg-gray-50 pb-20 relative">
@@ -181,6 +175,7 @@ const SingleQuestionPage = forwardRef((props: SingleQuestionPageProps, ref) => {
                         question={`${questionNumber}. ${question}`}
                         options={options}
                         correctAnswers={correctAnswers}
+                        wrongAnswerPopupContent={wrongAnswerPopupContent}
                         type={type}
                         feedbackContent={feedbackContent}
                         onPrevQuestion={prevPageUrl ? handlePrevQuestion : undefined}
@@ -283,6 +278,37 @@ const SingleQuestionPage = forwardRef((props: SingleQuestionPageProps, ref) => {
                     amount="0 ETH"
                     estimatedFee={{ usd: "$3.1902", eth: "0.00127608ETH" }}
                 />
+            )}
+
+            {showWrongAnswerPopup && wrongAnswerPopupContent && (
+                <div className="fixed inset-0 flex items-center justify-center z-50" onClick={() => setShowWrongAnswerPopup(false)}>
+                    <div className="fixed inset-0 bg-black bg-opacity-50" />
+                    <div
+                        className="bg-white rounded-lg shadow-xl p-6 max-w-md w-full mx-4 relative z-10"
+                        onClick={(e) => e.stopPropagation()}
+                    >
+                        <button
+                            onClick={() => setShowWrongAnswerPopup(false)}
+                            className="absolute top-4 right-4 text-gray-400 hover:text-gray-600"
+                        >
+                            <FaTimes />
+                        </button>
+                        <div className="bg-red-50 border-l-4 border-red-500 p-4 mb-4">
+                            <div className="flex">
+                                <div className="ml-3">
+                                    <p className="text-red-800 font-medium">You signed something you shouldn't have!</p>
+                                    <p className="text-red-700 mt-1">{wrongAnswerPopupContent}</p>
+                                </div>
+                            </div>
+                        </div>
+                        <button
+                            onClick={() => setShowWrongAnswerPopup(false)}
+                            className="w-full mt-4 inline-flex justify-center px-4 py-2 text-sm font-medium text-white bg-red-600 border border-transparent rounded-md hover:bg-red-700 focus:outline-none"
+                        >
+                            I understand
+                        </button>
+                    </div>
+                </div>
             )}
         </div>
     );

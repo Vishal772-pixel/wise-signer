@@ -24,6 +24,7 @@ export interface SignOrRejectQuestionData extends BaseQuestionData {
     interactionButtonText: string;
     // Wallet transaction data
     transactionData: TransactionDetails;
+    wrongAnswerPopupContent?: string;
 }
 
 export type QuestionData = MultiChoiceQuestionData | SignOrRejectQuestionData;
@@ -83,6 +84,7 @@ export const questions: QuestionData[] = [
         interactionButtonText: "Review Transaction",
         fakeWebsiteType: "OpenSea",
         fakeWebsiteEdition: 1,
+        wrongAnswerPopupContent: "Oops! You've been drained of all your money!",
         feedbackContent: {
             pages: [
                 "You should reject this transaction! The transaction is attempting to approve an attacker to spend an unlimited amount of your DAI tokens.",

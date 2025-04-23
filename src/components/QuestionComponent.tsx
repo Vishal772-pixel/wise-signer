@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import Link from "next/link";
-import { FaLightbulb, FaChevronLeft, FaChevronRight } from "react-icons/fa";
+import { FaLightbulb, FaChevronLeft, FaChevronRight, FaTimes } from "react-icons/fa";
 
 interface Option {
     id: string;
@@ -26,6 +26,7 @@ interface QuestionProps {
     onInteractWithWallet?: () => void;
     interactionButtonText?: string;
     expectedAction?: "sign" | "reject";
+    wrongAnswerPopupContent?: string;
 }
 
 import React, { forwardRef, useImperativeHandle } from "react";
@@ -42,12 +43,15 @@ const QuestionComponent = forwardRef(({
     onInteractWithWallet,
     interactionButtonText,
     expectedAction,
+    wrongAnswerPopupContent,
 }: QuestionProps, ref) => {
     const [selectedOptions, setSelectedOptions] = useState<string[]>([]);
     const [showFeedback, setShowFeedback] = useState(false);
     const [feedbackPage, setFeedbackPage] = useState(1);
     const [isCorrect, setIsCorrect] = useState(false);
     const [hasAnswered, setHasAnswered] = useState(false);
+    // New state for wrong answer popup
+    const [showWrongAnswerPopup, setShowWrongAnswerPopup] = useState(false);
 
     const toggleOption = (optionId: string) => {
         if (hasAnswered) return;
@@ -66,7 +70,6 @@ const QuestionComponent = forwardRef(({
     };
 
     const checkAnswer = () => {
-        // If it's a signOrReject type, we'll handle this differently
         if (type === "signOrReject") {
             if (onInteractWithWallet) {
                 onInteractWithWallet();
@@ -87,21 +90,6 @@ const QuestionComponent = forwardRef(({
         setFeedbackPage(1);
         setHasAnswered(true);
     };
-
-    // For signOrReject type questions - call this after wallet interaction
-    const handleWalletInteractionResult = (userAction: "sign" | "reject") => {
-        if (type !== "signOrReject" || !expectedAction) return;
-
-        setIsCorrect(userAction === expectedAction);
-        setShowFeedback(true);
-        setFeedbackPage(1);
-        setHasAnswered(true);
-    };
-
-    // Expose the handleWalletInteractionResult method to parent components
-    useImperativeHandle(ref, () => ({
-        handleWalletInteractionResult
-    }));
 
     const nextFeedbackPage = () => {
         if (feedbackPage < feedbackContent.pages.length) {
