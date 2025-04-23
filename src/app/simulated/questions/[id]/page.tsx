@@ -52,6 +52,7 @@ export default function QuestionPage() {
                 expectedAction={question.expectedAction}
                 fakeWebsiteType={question.fakeWebsiteType}
                 fakeWebsiteEdition={question.fakeWebsiteEdition}
+                interactionButtonText={question.interactionButtonText}
                 walletType={question.walletType}
                 transactionDetails={question.transactionData}
                 wrongAnswerPopupContent={question.wrongAnswerPopupContent}

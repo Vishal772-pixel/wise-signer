@@ -77,7 +77,7 @@ export const questions: QuestionData[] = [
     },
     {
         id: 3,
-        question: "Should you sign this transaction?",
+        question: "Sign or Reject",
         type: "signOrReject",
         expectedAction: "reject",
         walletType: "metamask",
