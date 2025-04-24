@@ -1,7 +1,7 @@
 // Wallet types
 export type WalletType = "metamask" | "safeWallet" | "trezor";
 
-export type FakeWebsiteType = "Uniswap" | "OpenSea";
+export type FakeWebsiteType = "Uniswap" | "OpenSea" | "SendEth";
 
 export type FakeWebsiteComponentProps = {
     fakeWebsiteEdition: number;
@@ -9,6 +9,11 @@ export type FakeWebsiteComponentProps = {
     onPrimaryButtonClick: () => void;
     buttonDisabled?: boolean;
 };
+
+export interface SignatureDetails {
+    requestFrom: string;
+    message: string;
+}
 
 // Transaction details type
 export interface TransactionDetails {
@@ -59,7 +64,7 @@ export interface SignOrRejectQuestionProps extends BaseQuestionProps {
     onInteractWithWallet?: () => void;
     interactionButtonText?: string;
     // Transaction details
-    transactionDetails: TransactionDetails;
+    transactionOrSignatureDetails: TransactionDetails | SignatureDetails;
 }
 
 export type QuestionProps = MultiChoiceQuestionProps | SignOrRejectQuestionProps;

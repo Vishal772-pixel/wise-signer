@@ -34,6 +34,8 @@ export default function SimulatedWebsite({
                     return import('@/components/fakeWebsites/OpenSea');
                 case "uniswap":
                     return import('@/components/fakeWebsites/Uniswap');
+                case "sendeth":
+                    return import('@/components/fakeWebsites/SendEth');
                 default:
                     return import('@/components/fakeWebsites/DefaultSite');
             }

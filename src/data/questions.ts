@@ -1,6 +1,5 @@
 // Import shared types
-import { WalletType, TransactionDetails, FeedbackContent, FakeWebsiteType } from "@/types";
-import { ReactNode } from "react";
+import { WalletType, TransactionDetails, FeedbackContent, FakeWebsiteType, SignatureDetails } from "@/types";
 
 // Define question types for TypeScript
 export interface BaseQuestionData {
@@ -9,6 +8,7 @@ export interface BaseQuestionData {
     feedbackContent: FeedbackContent;
     fakeWebsiteType?: FakeWebsiteType;
     fakeWebsiteEdition?: number;
+    questionContext?: string;
 }
 
 export interface MultiChoiceQuestionData extends BaseQuestionData {
@@ -23,9 +23,12 @@ export interface SignOrRejectQuestionData extends BaseQuestionData {
     walletType: WalletType;
     interactionButtonText: string;
     // Wallet transaction data
-    transactionData: TransactionDetails;
+    transactionOrSignatureData: TransactionDetails | SignatureDetails;
     wrongAnswerPopupContent?: string;
 }
+
+
+const YOUR_WALLET = "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266"
 
 export type QuestionData = MultiChoiceQuestionData | SignOrRejectQuestionData;
 
@@ -46,9 +49,7 @@ export const questions: QuestionData[] = [
                 "The key security difference between browser wallets and hardware wallets is their physical separation from your computer and connection to the internet.",
                 "Browser wallets (like MetaMask, Rabby, Phantom) operate directly within your internet-connected browser or computer environment. This makes them inherently vulnerable to malware, phishing attacks, and browser vulnerabilities that could compromise your private keys.",
                 "Hardware wallets (like Trezor, Ledger, Grid+) offer stronger security because they're physically separated from your computer on a hardware level. While some hardware wallets can connect to the internet, they remain disconnected most of the time, significantly reducing the attack surface. This ability to operate offline makes them much more resistant to malware attacks compared to browser wallets.",
-                "Option A is incorrect because browser wallets' constant connection to the internet is actually a security weakness, not a strength. While hardware devices can be lost or damaged, they typically come with recovery phrases that can restore your wallet.",
-                "Option C is incorrect because there is a significant security difference between the two types of wallets - hardware wallets' physical separation and ability to remain offline provides substantially better protection against malware.",
-                "Option D is incorrect because while manufacturer trust is a consideration, the security benefit of having a physically separate device that can operate offline far outweighs potential trust issues with manufacturers. Additionally, many hardware wallets are also open-source."
+                "Option A is incorrect because browser wallets' constant connection to the internet is actually a security weakness, not a strength. While hardware devices can be lost or damaged, they typically come with recovery phrases that can restore your wallet.\n\nOption C is incorrect because there is a significant security difference between the two types of wallets - hardware wallets' physical separation and ability to remain offline provides substantially better protection against malware.\n\nOption D is incorrect because while manufacturer trust is a consideration, the security benefit of having a physically separate device that can operate offline far outweighs potential trust issues with manufacturers. Additionally, many hardware wallets are also open-source."
             ]
         }
     },
@@ -78,58 +79,56 @@ export const questions: QuestionData[] = [
     {
         id: 3,
         question: "Sign or Reject",
+        questionContext: `Assume your wallet address is ${YOUR_WALLET}. You want to sign into Opensea to see your NFTs. Will signing this accomplish that?`,
         type: "signOrReject",
         expectedAction: "reject",
         walletType: "metamask",
-        interactionButtonText: "Review Transaction",
+        interactionButtonText: "Sign in with Ethereum",
         fakeWebsiteType: "OpenSea",
         fakeWebsiteEdition: 1,
-        wrongAnswerPopupContent: "Oops! You've been drained of all your money!",
+        wrongAnswerPopupContent: "Oops! You allowed this site to impersonate you on Gnosis Pay!",
         feedbackContent: {
             pages: [
-                "You should reject this transaction! The transaction is attempting to approve an attacker to spend an unlimited amount of your DAI tokens.",
-                "Looking at the transaction details, you can see it's calling the 'approve' function with a very suspicious address, and the amount is set to the maximum possible value (all f's in hex).",
-                "Always carefully check transaction details before signing, especially when interacting with unfamiliar websites. This was a phishing attempt that tried to trick you into giving away access to your tokens."
+                "You should reject this signature! Even though you're on what appears to be OpenSea, the signature is requesting you to authenticate with app.gnosispay.com, not opensea.io.\nThis is a common phishing technique called 'domain spoofing' where the attacker presents a message that looks legitimate but actually authorizes login to a completely different website.",
+                "Notice the mismatch: The website appears to be opensea.io (as shown in requestFrom), but the signature message is requesting authentication for app.gnosispay.com. This is a major red flag.\n\nIf you had signed this message, you would have authenticated to Gnosis Pay with your wallet, potentially giving attackers access to your funds or allowing them to impersonate you on that platform.\n\nAlways carefully check the actual domain in the message content before signing. The domain in the message should match the site you're actually trying to use.",
             ]
         },
-        transactionData: {
-            fromAccount: "0x03FdC65e...25dEA",
-            toAccount: "0x6b175474...71d0f", // DAI token contract
-            amount: "0 ETH",
-            estimatedFee: {
-                usd: "$3.1902",
-                eth: "0.00127608ETH"
-            },
-            functionName: "approve(address,uint256)",
-            data: "0x095ea7b3000000000000000000000000f39fd6e51aad88f6f4ce6ab8827279cfffb92266ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff"
+        transactionOrSignatureData: {
+            requestFrom: "opensea.io",
+            message: `app.gnosispay.com/ wants you to sign in with your account:
+0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266
+
+URI: https://app.gnosispay.com
+Version: 1
+Chain ID: 100
+Nonce: 8dc58hp767of54o1uptoe76v2r
+Issued At: ${new Date().toISOString()}`
         }
     },
     {
         id: 4,
-        question: "This transaction requires your Trezor hardware wallet. Should you sign it?",
+        question: `This transaction requires your Trezor hardware wallet. You're attempting to send your friend \`0x70997970C51812dc3A010C7d01b50e0d17dc79C8\` \`0.5 ETH\`. Assume your wallet is \`${YOUR_WALLET}\`. Should you execute it?`,
         type: "signOrReject",
-        expectedAction: "sign",
+        expectedAction: "reject",
         walletType: "trezor",
-        interactionButtonText: "Connect Hardware Wallet",
-        fakeWebsiteType: "Uniswap",
+        interactionButtonText: "Transfer",
+        fakeWebsiteType: "SendEth",
         fakeWebsiteEdition: 1,
         feedbackContent: {
             pages: [
-                "Correct! This is a legitimate transaction to deposit ETH into Aave, a well-established DeFi lending protocol.",
-                "Using a hardware wallet like Trezor provides an extra layer of security since your private keys never leave the device.",
-                "When using DeFi protocols, it's important to verify the website URL and understand what the transaction is doing before signing."
+
             ]
         },
-        transactionData: {
-            fromAccount: "0x03FdC65e...25dEA",
-            toAccount: "0x7d2768dE...b0fF",  // Aave contract
+        transactionOrSignatureData: {
+            fromAccount: "0x70997970C51812dc3A010C7d01b50e0d17dc79C8",
+            toAccount: "0x3C44CdDdB6a900fa2b585dd299e03d12FA4293BC",
             amount: "5 ETH",
             estimatedFee: {
                 usd: "$4.52",
                 eth: "0.00198ETH"
             },
-            functionName: "deposit(address,uint256,address,uint16)",
-            data: "0xe8eda9df0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000004563918244f4000000000000000000000000000003fdc65e71c5a19d82649deefe5b8c644c3815f550000000000000000000000000000000000000000000000000000000000000000"
+            functionName: "",
+            data: ""
         }
     },
     {
@@ -148,7 +147,7 @@ export const questions: QuestionData[] = [
                 "Safe wallets are commonly used by DAOs and organizations to manage treasury funds, as they prevent any single person from controlling the funds. Always verify the destination and amount before signing."
             ]
         },
-        transactionData: {
+        transactionOrSignatureData: {
             fromAccount: "0xDAOTreas...F3a4",
             toAccount: "0xProject...c532",
             amount: "5 ETH",

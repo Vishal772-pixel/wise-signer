@@ -3,6 +3,7 @@
 import { useState } from "react";
 import Link from "next/link";
 import { FaLightbulb, FaChevronLeft, FaChevronRight, FaTimes } from "react-icons/fa";
+import FeedbackComponent from "./FeedbackComponent";
 
 interface Option {
     id: string;
@@ -24,9 +25,14 @@ interface QuestionProps {
     showNavigationButtons?: boolean;
     // For signOrReject type
     onInteractWithWallet?: () => void;
-    interactionButtonText?: string;
     expectedAction?: "sign" | "reject";
     wrongAnswerPopupContent?: string;
+    questionContext?: string; // Added back for context display
+    // State props passed from parent 
+    hasAnswered?: boolean;
+    isCorrect?: boolean;
+    // Callback for when an answer is checked
+    onCheckAnswer?: (isCorrect: boolean) => void;
 }
 
 import React, { forwardRef, useImperativeHandle } from "react";
@@ -41,20 +47,23 @@ const QuestionComponent = forwardRef(({
     onPrevQuestion,
     showNavigationButtons = true,
     onInteractWithWallet,
-    interactionButtonText,
-    expectedAction,
-    wrongAnswerPopupContent,
+    questionContext,
+    // Accept the states from parent
+    hasAnswered: externalHasAnswered,
+    isCorrect: externalIsCorrect,
+    onCheckAnswer // Properly destructured here
 }: QuestionProps, ref) => {
     const [selectedOptions, setSelectedOptions] = useState<string[]>([]);
     const [showFeedback, setShowFeedback] = useState(false);
-    const [feedbackPage, setFeedbackPage] = useState(1);
-    const [isCorrect, setIsCorrect] = useState(false);
-    const [hasAnswered, setHasAnswered] = useState(false);
-    // New state for wrong answer popup
-    const [showWrongAnswerPopup, setShowWrongAnswerPopup] = useState(false);
+    // For non-signOrReject types, we'll use internal state
+    // For signOrReject type, we'll use the props passed from parent
+    // We'll use the external states passed as props if provided,
+    // otherwise default to false (for backward compatibility)
+    const effectiveHasAnswered = externalHasAnswered ?? false;
+    const effectiveIsCorrect = externalIsCorrect ?? false;
 
     const toggleOption = (optionId: string) => {
-        if (hasAnswered) return;
+        if (effectiveHasAnswered) return;
 
         if (type === "single") {
             setSelectedOptions([optionId]);
@@ -74,6 +83,7 @@ const QuestionComponent = forwardRef(({
             if (onInteractWithWallet) {
                 onInteractWithWallet();
             }
+
             return;
         }
 
@@ -85,26 +95,16 @@ const QuestionComponent = forwardRef(({
             selectedOptions.length === correctAnswers.length &&
             correctAnswers.every(item => selectedOptions.includes(item));
 
-        setIsCorrect(isEqual);
+        // Call the parent's onCheckAnswer handler with the result
+        if (onCheckAnswer) {
+            onCheckAnswer(isEqual);
+        }
+
         setShowFeedback(true);
-        setFeedbackPage(1);
-        setHasAnswered(true);
-    };
-
-    const nextFeedbackPage = () => {
-        if (feedbackPage < feedbackContent.pages.length) {
-            setFeedbackPage(feedbackPage + 1);
-        }
-    };
-
-    const prevFeedbackPage = () => {
-        if (feedbackPage > 1) {
-            setFeedbackPage(feedbackPage - 1);
-        }
     };
 
     const getOptionClass = (optionId: string) => {
-        if (!hasAnswered) {
+        if (!effectiveHasAnswered) {
             return selectedOptions.includes(optionId)
                 ? 'bg-green-100 border-green-500 text-gray-900'
                 : 'bg-white border-gray-300 hover:bg-gray-50 text-gray-900';
@@ -130,8 +130,14 @@ const QuestionComponent = forwardRef(({
             <div className="max-w-6xl mx-auto">
                 <h1 className="text-2xl font-bold mb-6 text-gray-900">{question}</h1>
 
-                {/* Different UI based on question type */}
-                {type !== "signOrReject" ? (
+                {/* Question context display */}
+                {questionContext && (
+                    <p className="mb-4 text-gray-700">
+                        {questionContext}
+                    </p>
+                )}
+
+                {type !== "signOrReject" && (
                     <>
                         <p className="mb-4 text-gray-700">
                             Please select <span className="font-bold">
@@ -144,7 +150,7 @@ const QuestionComponent = forwardRef(({
                                 <button
                                     key={option.id}
                                     onClick={() => toggleOption(option.id)}
-                                    disabled={hasAnswered}
+                                    disabled={effectiveHasAnswered}
                                     className={`p-4 text-left rounded-md shadow-sm border transition duration-150 ${getOptionClass(option.id)}`}
                                 >
                                     {option.id}) {option.text}
@@ -152,20 +158,6 @@ const QuestionComponent = forwardRef(({
                             ))}
                         </div>
                     </>
-                ) : (
-                    <div className="mb-8">
-                        <p className="mb-4 text-gray-700">
-                            This question requires you to interact with a wallet. Review the scenario below and decide whether to sign or reject the transaction.
-                        </p>
-                        {!hasAnswered && (
-                            <button
-                                onClick={checkAnswer}
-                                className="inline-flex items-center rounded-md bg-purple-500 px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-purple-600"
-                            >
-                                {interactionButtonText || "Interact with Wallet"}
-                            </button>
-                        )}
-                    </div>
                 )}
 
                 {showNavigationButtons && (
@@ -180,7 +172,7 @@ const QuestionComponent = forwardRef(({
                             </button>
                         )}
 
-                        {!hasAnswered ? (
+                        {!effectiveHasAnswered ? (
                             type !== "signOrReject" && (
                                 <button
                                     onClick={checkAnswer}
@@ -204,47 +196,13 @@ const QuestionComponent = forwardRef(({
                     </div>
                 )}
 
-                {/* Feedback displayed directly below (not as a popup) */}
-                {showFeedback && (
-                    <div className="mt-8 bg-blue-50 border border-blue-200 rounded-lg p-6">
-                        <div className="flex items-start">
-                            <FaLightbulb className="text-yellow-500 mt-1 flex-shrink-0" />
-                            <div className="ml-4">
-                                <h3 className="text-lg font-medium text-gray-900">
-                                    That's {isCorrect ? "correct" : "incorrect"}. Let's see why:
-                                </h3>
-
-                                <div className="mt-2 text-gray-700">
-                                    <p>{feedbackContent.pages[feedbackPage - 1]}</p>
-                                </div>
-                            </div>
-                        </div>
-
-                        <div className="mt-6 flex items-center justify-between">
-                            <span className="text-sm text-gray-500">
-                                Page {feedbackPage} of {feedbackContent.pages.length}
-                            </span>
-
-                            <div className="flex space-x-2">
-                                {feedbackPage > 1 && (
-                                    <button
-                                        onClick={prevFeedbackPage}
-                                        className="px-3 py-1 border border-gray-300 rounded-md text-sm text-gray-700 hover:bg-gray-50"
-                                    >
-                                        <FaChevronLeft />
-                                    </button>
-                                )}
-
-                                {feedbackPage < feedbackContent.pages.length && (
-                                    <button
-                                        onClick={nextFeedbackPage}
-                                        className="px-3 py-1 bg-blue-600 rounded-md text-sm text-white hover:bg-blue-700"
-                                    >
-                                        <FaChevronRight />
-                                    </button>
-                                )}
-                            </div>
-                        </div>
+                {/* Show feedback for multi/single question types */}
+                {type !== "signOrReject" && showFeedback && (
+                    <div className="mt-8">
+                        <FeedbackComponent
+                            isCorrect={effectiveIsCorrect}
+                            feedbackContent={feedbackContent}
+                        />
                     </div>
                 )}
             </div>

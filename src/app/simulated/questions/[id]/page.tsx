@@ -1,7 +1,7 @@
 "use client";
 
 import { useParams, notFound } from "next/navigation";
-import SingleQuestionPage from "@/components/SingleQuestionPage";
+import PageRenderer from "@/components/PageRenderer";
 import { getQuestionById, getNextQuestionId, getPrevQuestionId } from "@/data/questions";
 
 export default function QuestionPage() {
@@ -24,11 +24,12 @@ export default function QuestionPage() {
     const nextPageUrl = nextId ? `/simulated/questions/${nextId}` : undefined;
     const prevPageUrl = prevId ? `/simulated/questions/${prevId}` : undefined;
 
-    // Create the props for the SingleQuestionPage component based on question type
+    // Create the props for the PageRenderer component based on question type
     const commonProps = {
         questionNumber: question.id,
         question: question.question,
         feedbackContent: question.feedbackContent,
+        questionContext: question.questionContext, // Add context to common props
         prevPageUrl,
         nextPageUrl
     };
@@ -36,7 +37,7 @@ export default function QuestionPage() {
     if (question.type === "single" || question.type === "multi") {
         // Multiple choice question
         return (
-            <SingleQuestionPage
+            <PageRenderer
                 {...commonProps}
                 type={question.type}
                 options={question.options}
@@ -46,7 +47,7 @@ export default function QuestionPage() {
     } else if (question.type === "signOrReject") {
         // Sign or Reject question
         return (
-            <SingleQuestionPage
+            <PageRenderer
                 {...commonProps}
                 type="signOrReject"
                 expectedAction={question.expectedAction}
@@ -54,7 +55,7 @@ export default function QuestionPage() {
                 fakeWebsiteEdition={question.fakeWebsiteEdition}
                 interactionButtonText={question.interactionButtonText}
                 walletType={question.walletType}
-                transactionDetails={question.transactionData}
+                transactionOrSignatureDetails={question.transactionOrSignatureData}
                 wrongAnswerPopupContent={question.wrongAnswerPopupContent}
             />
         );
