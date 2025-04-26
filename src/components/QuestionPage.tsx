@@ -1,13 +1,10 @@
 "use client";
 
-import { useParams, notFound } from "next/navigation";
+import { notFound } from "next/navigation";
 import PageRenderer from "@/components/PageRenderer";
-import { getQuestionById, getNextQuestionId, getPrevQuestionId, questions } from "@/data/questions";
+import { getQuestionById, getNextQuestionId, getPrevQuestionId } from "@/data/questions";
 
-export default function QuestionPage() {
-    const params = useParams();
-    const questionId = parseInt(params.id as string);
-
+export default function QuestionPage({ questionId }: { questionId: number }) {
     // Get question data
     const question = getQuestionById(questionId);
 
@@ -39,7 +36,6 @@ export default function QuestionPage() {
     };
 
     if (question.type === "single" || question.type === "multi") {
-        // Multiple choice question
         return (
             <PageRenderer
                 {...commonProps}
@@ -49,7 +45,6 @@ export default function QuestionPage() {
             />
         );
     } else if (question.type === "signOrReject") {
-        // Sign or Reject question
         return (
             <PageRenderer
                 {...commonProps}
@@ -65,6 +60,5 @@ export default function QuestionPage() {
         );
     }
 
-    // Fallback - should never reach here
     return notFound();
 }
