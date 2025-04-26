@@ -251,6 +251,7 @@ const WalletPopupComponent = ({
                 currentScreen={currentTrezorScreen}
                 onNavigate={handleTrezorNavigation}
                 onSignTransaction={onConfirm}
+                onRejectTransaction={onReject}
             />
         );
     };

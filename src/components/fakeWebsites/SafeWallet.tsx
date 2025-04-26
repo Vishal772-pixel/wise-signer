@@ -108,7 +108,7 @@ const dataOne: SiteData = {
     "amount": "1",
     "wadValue": "1000000000000000000",
     "nonce": 29,
-    "rawData": "0xa9059cbb000000000000000000000000908b2413893ed4f1518ffb9847d69f49f59aa359000000000000000000000000000000000000000000000000002386f26fc10000",
+    "rawData": "0xa9059cbb000000000000000000000000d8da6bf26964af9d7eed9e03e53415d37aa960450000000000000000000000000000000000000000000000000de0b6b3a7640000",
     "title": "Send tokens",
     "rawDataSize": "68 bytes",
     "targetContract": "WETH 1",
@@ -134,7 +134,6 @@ const siteDatas: SiteDatas = {
     2: dataTwo
 }
 
-const RAW_DATA = "0xa9059cbb000000000000000000000000908b2413893ed4f1518ffb9847d69f49f59aa359000000000000000000000000000000000000000000000000002386f26fc10000"
 
 export default function SafeWallet({
     fakeWebsiteEdition,
@@ -599,7 +598,7 @@ export default function SafeWallet({
                                                     <span>{rawDataSize}</span>
                                                     <button
                                                         className="ml-2 text-gray-400 hover:text-gray-300 cursor-pointer"
-                                                        onClick={() => copyToClipboard(RAW_DATA)}
+                                                        onClick={() => copyToClipboard(rawData)}
                                                     >
                                                         <FaCopy size={14} />
                                                     </button>
@@ -610,13 +609,13 @@ export default function SafeWallet({
                                     {showTransactionDetails && fakeWebsiteEdition == 2 && (
                                         <div className="p-4 bg-[#111]">
                                             <div className="text-white-400 font-bold mb-1">Transaction Data
-
                                                 <button
                                                     className="p-2 bg-[#222] hover:bg-[#333] rounded-md cursor-pointer"
                                                     onClick={() => copyToClipboard(JSON.stringify(typedData))}
                                                 >
                                                     <FaCopy size={14} />
                                                 </button>
+                                                &larr; JSON
                                             </div>
                                             <div className="flex justify-between items-center mb-2">
                                                 <span className="text-gray-400">to:</span>

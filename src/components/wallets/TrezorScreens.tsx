@@ -9,13 +9,15 @@ export interface TrezorScreensProps {
     currentScreen: number;
     onNavigate: (direction: 'next' | 'prev') => void;
     onSignTransaction: () => void;
+    onRejectTransaction: () => void;
 }
 
 const TrezorScreens = ({
     transactionDetails,
     currentScreen,
     onNavigate,
-    onSignTransaction
+    onSignTransaction,
+    onRejectTransaction
 }: TrezorScreensProps) => {
     // Render the appropriate screen content based on current screen index
     const renderScreenContent = () => {
@@ -120,12 +122,20 @@ const TrezorScreens = ({
                             Swipe Up
                         </button>
                     ) : (
-                        <button
-                            onClick={onSignTransaction}
-                            className="cursor-pointer text-black px-8 py-3 bg-green-600 text-white rounded-md hover:bg-green-700 text-lg"
-                        >
-                            Hold to Sign
-                        </button>
+                        <div>
+                            <button
+                                onClick={onRejectTransaction}
+                                className="cursor-pointer text-black px-8 py-3 bg-red-600 text-white rounded-md hover:bg-red-700 text-lg"
+                            >
+                                Reject
+                            </button>
+                            <button
+                                onClick={onSignTransaction}
+                                className="cursor-pointer text-black px-8 py-3 bg-green-600 text-white rounded-md hover:bg-green-700 text-lg"
+                            >
+                                Sign
+                            </button>
+                        </div>
                     )}
                 </div>
             </div>

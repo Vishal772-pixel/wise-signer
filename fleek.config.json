@@ -1,0 +1,9 @@
+{
+  "sites": [
+    {
+      "slug": "thundering-zettabyte-long",
+      "distDir": "out",
+      "buildCommand": "npm run build"
+    }
+  ]
+}
