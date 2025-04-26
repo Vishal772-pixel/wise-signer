@@ -3,6 +3,8 @@
 import { useState } from "react";
 import { FaLock, FaChevronDown, FaTimes } from "react-icons/fa";
 import { SignatureDetails, TransactionDetails, WalletType } from "@/types";
+import ChainButton from "@/components/ChainButton";
+import TrezorScreens, { TrezorScreensProps } from "@/components/wallets/TrezorScreens";
 
 // Type guard to check if the data is a SignatureDetails
 const isSignatureDetails = (data: any): data is SignatureDetails => {
@@ -27,6 +29,7 @@ interface WalletPopupProps {
     safeConfirmations?: number;
     safeRequiresAdditionalConfirmation?: boolean;
     safeAdditionalWalletType?: WalletType;
+    networkName?: string;
 }
 
 const WalletPopupComponent = ({
@@ -39,16 +42,22 @@ const WalletPopupComponent = ({
     safeThreshold = 2,
     safeConfirmations = 0,
     safeRequiresAdditionalConfirmation = false,
-    safeAdditionalWalletType = "metamask"
+    safeAdditionalWalletType = "metamask",
 }: WalletPopupProps) => {
     const [showTransactionDetails, setShowTransactionDetails] = useState(false);
     const [showSecondaryWallet, setShowSecondaryWallet] = useState(false);
+    // State for Trezor screen navigation
+    const [currentTrezorScreen, setCurrentTrezorScreen] = useState(0);
 
     if (!isOpen) return null;
 
     // Determine the type of details we're dealing with
     const isSignature = isSignatureDetails(transactionOrSignatureDetails);
     const isTransaction = isTransactionDetails(transactionOrSignatureDetails);
+    let networkName = "";
+    if (isTransaction) {
+        networkName = transactionOrSignatureDetails.networkName || "Ethereum Mainnet";
+    }
 
     // Handle confirmation for Safe wallets differently
     const handleConfirm = () => {
@@ -63,6 +72,15 @@ const WalletPopupComponent = ({
     const handleSecondaryConfirm = () => {
         setShowSecondaryWallet(false);
         onConfirm();
+    };
+
+    // Handle Trezor screen navigation
+    const handleTrezorNavigation = (direction: 'next' | 'prev') => {
+        if (direction === 'next' && currentTrezorScreen < 3) {
+            setCurrentTrezorScreen(currentTrezorScreen + 1);
+        } else if (direction === 'prev' && currentTrezorScreen > 0) {
+            setCurrentTrezorScreen(currentTrezorScreen - 1);
+        }
     };
 
     // Different UI elements based on wallet type
@@ -175,7 +193,7 @@ const WalletPopupComponent = ({
                 <div className="mb-4">
                     <button
                         onClick={() => setShowTransactionDetails(!showTransactionDetails)}
-                        className="w-full text-blue-600 text-sm border border-blue-600 rounded-md px-3 py-1 flex items-center justify-center"
+                        className="cursor-pointer w-full text-blue-600 text-sm border border-blue-600 rounded-md px-3 py-1 flex items-center justify-center"
                     >
                         View details <FaChevronDown className={`ml-1 text-xs transition-transform duration-200 ${showTransactionDetails ? 'transform rotate-180' : ''}`} />
                     </button>
@@ -223,6 +241,20 @@ const WalletPopupComponent = ({
         );
     };
 
+    // Render the Trezor device UI for transactions
+    const renderTrezorTransactionUI = () => {
+        if (!isTransaction) return null;
+
+        return (
+            <TrezorScreens
+                transactionDetails={transactionOrSignatureDetails as TransactionDetails}
+                currentScreen={currentTrezorScreen}
+                onNavigate={handleTrezorNavigation}
+                onSignTransaction={onConfirm}
+            />
+        );
+    };
+
     // Render the primary wallet popup
     const renderPrimaryWallet = () => {
         return (
@@ -232,7 +264,7 @@ const WalletPopupComponent = ({
                     backgroundColor: 'rgba(0, 0, 0, 0.5)'
                 }}
             >
-                <div className="w-full max-w-md bg-white rounded-xl shadow-xl overflow-hidden">
+                <div className={`w-full ${walletType === "trezor" && isTransaction ? "max-w-lg" : "max-w-md"} bg-white rounded-xl shadow-xl overflow-hidden`}>
                     <div className="p-4 border-b border-gray-200 flex justify-between items-center">
                         {renderWalletHeader()}
                         <button onClick={onClose} className="text-gray-400 hover:text-gray-500">
@@ -240,42 +272,45 @@ const WalletPopupComponent = ({
                         </button>
                     </div>
 
-                    <div className="p-4">
-                        <div className="mb-4">
-                            <h3 className="text-lg font-medium text-gray-900">
-                                {isSignature ? "Sign message" : "Confirm transaction"}
-                            </h3>
-                            <div className="text-sm text-gray-500">Ethereum mainnet</div>
+                    {/* For Trezor wallet, show special device UI */}
+                    {walletType === "trezor" && isTransaction ? (
+                        <div>
+                            {renderTrezorTransactionUI()}
                         </div>
+                    ) : (
+                        <div className="p-4">
+                            <div className="mb-4">
+                                <h3 className="text-lg font-medium text-gray-900">
+                                    {isSignature ? "Sign message" : "Confirm transaction"}
+                                </h3>
+                                <div className="text-sm text-gray-500">{networkName}</div>
+                            </div>
 
-                        {/* Render Safe-specific UI if applicable */}
-                        {isTransaction && walletType === "safeWallet" && renderSafeDetails()}
+                            {/* Render Safe-specific UI if applicable */}
+                            {isTransaction && walletType === "safeWallet" && renderSafeDetails()}
 
-                        {/* Render content based on type */}
-                        {isTransaction && renderTransactionWallet(transactionOrSignatureDetails as TransactionDetails)}
-                        {isSignature && renderSignatureWallet(transactionOrSignatureDetails as SignatureDetails)}
+                            {/* Render content based on type */}
+                            {isTransaction && renderTransactionWallet(transactionOrSignatureDetails as TransactionDetails)}
+                            {isSignature && renderSignatureWallet(transactionOrSignatureDetails as SignatureDetails)}
 
-                        <div className="flex gap-3 mt-6">
-                            <button
-                                onClick={onReject}
-                                className="flex-1 py-2 px-4 border border-gray-300 rounded-md text-gray-700 font-medium hover:bg-gray-50 transition"
-                            >
-                                Reject
-                            </button>
-                            <button
-                                onClick={handleConfirm}
-                                className="flex-1 py-2 px-4 bg-blue-600 text-white rounded-md font-medium hover:bg-blue-700 transition"
-                            >
-                                {isSignature
-                                    ? "Sign"
-                                    : walletType === "safeWallet" && safeConfirmations === 0
-                                        ? "Propose & Sign"
-                                        : walletType === "safeWallet"
-                                            ? "Confirm"
-                                            : "Sign"}
-                            </button>
+                            <div className="flex gap-3 mt-6">
+                                <ChainButton
+                                    onClick={onReject}
+                                    className="bg-white text-black hover:bg-gray-50 hover:text-gray-800 border border-gray-300"
+                                >
+                                    Reject
+                                </ChainButton>
+                                <ChainButton
+                                    onClick={handleConfirm}
+                                    className="bg-blue-600 text-white hover:bg-blue-700 hover:text-white border border-blue-600"
+                                >
+                                    {isSignature
+                                        ? "Sign"
+                                        : "Confirm"}
+                                </ChainButton>
+                            </div>
                         </div>
-                    </div>
+                    )}
                 </div>
             </div>
         );

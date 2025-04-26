@@ -67,6 +67,7 @@ const PageRenderer = forwardRef((props: PageRendererProps, ref) => {
     const fakeWebsiteType = 'fakeWebsiteType' in props ? props.fakeWebsiteType : undefined;
     const fakeWebsiteEdition = 'fakeWebsiteEdition' in props ? props.fakeWebsiteEdition : undefined;
 
+
     // Reference to the actual question component for multi-choice questions
     const questionComponentRef = useRef(null);
 
@@ -204,7 +205,7 @@ const PageRenderer = forwardRef((props: PageRendererProps, ref) => {
                         </div>
                         <button
                             onClick={() => setShowWrongAnswerPopup(false)}
-                            className="w-full mt-4 inline-flex justify-center px-4 py-2 text-sm font-medium text-white bg-red-600 border border-transparent rounded-md hover:bg-red-700 focus:outline-none"
+                            className="cursor-pointer w-full mt-4 inline-flex justify-center px-4 py-2 text-sm font-medium text-white bg-red-600 border border-transparent rounded-md hover:bg-red-700 focus:outline-none"
                         >
                             I understand
                         </button>

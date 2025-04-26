@@ -4,6 +4,7 @@ import { useState } from "react";
 import Link from "next/link";
 import { FaLightbulb, FaChevronLeft, FaChevronRight, FaTimes } from "react-icons/fa";
 import FeedbackComponent from "./FeedbackComponent";
+import ReactMarkdown from 'react-markdown';
 
 interface Option {
     id: string;
@@ -132,9 +133,9 @@ const QuestionComponent = forwardRef(({
 
                 {/* Question context display */}
                 {questionContext && (
-                    <p className="mb-4 text-gray-700">
-                        {questionContext}
-                    </p>
+                    <div className="mb-4 text-gray-700">
+                        <ReactMarkdown>{questionContext}</ReactMarkdown>
+                    </div>
                 )}
 
                 {type !== "signOrReject" && (
@@ -165,7 +166,7 @@ const QuestionComponent = forwardRef(({
                         {onPrevQuestion && (
                             <button
                                 onClick={onPrevQuestion}
-                                className="inline-flex items-center rounded-md bg-white px-4 py-2 text-sm font-medium text-gray-700 shadow-sm border border-gray-300 hover:bg-gray-50"
+                                className="cursor-pointer inline-flex items-center rounded-md bg-white px-4 py-2 text-sm font-medium text-gray-700 shadow-sm border border-gray-300 hover:bg-gray-50"
                             >
                                 <FaChevronLeft className="mr-2" />
                                 Previous
@@ -176,7 +177,7 @@ const QuestionComponent = forwardRef(({
                             type !== "signOrReject" && (
                                 <button
                                     onClick={checkAnswer}
-                                    className="inline-flex items-center rounded-md bg-blue-600 px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-blue-700"
+                                    className="cursor-pointer inline-flex items-center rounded-md bg-blue-600 px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-blue-700"
                                     disabled={selectedOptions.length === 0}
                                 >
                                     Check Answer
@@ -186,7 +187,7 @@ const QuestionComponent = forwardRef(({
                             onNextQuestion && (
                                 <button
                                     onClick={onNextQuestion}
-                                    className="inline-flex items-center rounded-md bg-blue-600 px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-blue-700"
+                                    className="cursor-pointer inline-flex items-center rounded-md bg-blue-600 px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-blue-700"
                                 >
                                     Next
                                     <FaChevronRight className="ml-2" />

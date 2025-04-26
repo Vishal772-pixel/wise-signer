@@ -4,6 +4,7 @@ import { useState } from "react";
 import { FaSearch, FaRegCopy, FaWallet, FaUser, FaCube, FaChartLine, FaList, FaCog, FaQuestion } from "react-icons/fa";
 import { FakeWebsiteComponentProps } from "@/types";
 import BrowserNavBar from "@/components/fakeWebsites/BrowserNavBar";
+import ChainButton from "@/components/ChainButton";
 
 const URL = "https://opensea.io";
 const WALLET_ADDRESS = "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266";
@@ -47,15 +48,14 @@ export default function Opensea({
 
                     {/* Right Side - Sign In Button */}
                     <div className="flex items-center space-x-4">
-                        <button
+                        <ChainButton
                             onClick={onPrimaryButtonClick}
                             disabled={buttonDisabled}
-                            className={`px-4 py-2 rounded-lg flex items-center justify-center ${buttonDisabled ? 'bg-gray-700 text-gray-400' : 'bg-white text-black hover:bg-gray-100'
-                                }`}
+                            icon={<FaWallet />}
+                            className="bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 px-4 rounded-lg flex items-center"
                         >
-                            <FaWallet className="mr-2" />
                             {primaryButtonText}
-                        </button>
+                        </ChainButton>
                         <div className="w-8 h-8 bg-gray-800 rounded-full flex items-center justify-center">
                             <FaUser className="text-gray-400" />
                         </div>

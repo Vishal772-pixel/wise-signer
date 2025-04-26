@@ -29,6 +29,7 @@ export interface SignOrRejectQuestionData extends BaseQuestionData {
 
 
 const YOUR_WALLET = "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266"
+const ZKSYNC_AAVE_WRAPPED_TOKEN_GATEWAY_V3 = "0x9F07eEBdf3675f60dCeC65a092F1821Fb99726F3"
 
 export type QuestionData = MultiChoiceQuestionData | SignOrRejectQuestionData;
 
@@ -78,7 +79,7 @@ export const questions: QuestionData[] = [
     },
     {
         id: 3,
-        question: "Sign or Reject",
+        question: "Sign or reject this signature.",
         questionContext: `Assume your wallet address is ${YOUR_WALLET}. You want to sign into Opensea to see your NFTs. Will signing this accomplish that?`,
         type: "signOrReject",
         expectedAction: "reject",
@@ -107,22 +108,25 @@ Issued At: ${new Date().toISOString()}`
     },
     {
         id: 4,
-        question: `This transaction requires your Trezor hardware wallet. You're attempting to send your friend \`0x70997970C51812dc3A010C7d01b50e0d17dc79C8\` \`0.5 ETH\`. Assume your wallet is \`${YOUR_WALLET}\`. Should you execute it?`,
+        question: `Execute or reject this transaction.`,
+        questionContext: `This transaction requires your Trezor hardware wallet. You're attempting to send your friend \`0x70997970C51812dc3A010C7d01b50e0d17dc79C8\` \`0.5 ETH\` on the Ethereum chain. Assume your wallet is \`${YOUR_WALLET}.\``,
         type: "signOrReject",
-        expectedAction: "reject",
+        expectedAction: "sign",
         walletType: "trezor",
         interactionButtonText: "Transfer",
         fakeWebsiteType: "SendEth",
         fakeWebsiteEdition: 1,
         feedbackContent: {
             pages: [
-
+                "It's good to sign this transaction! This appears to be a legitimate ETH transfer to your friend's address.\nEven though the website gave the wrong information, the information on the actual wallet is correct.",
+                "When evaluating a transaction, consider these key factors which were all aligned here:\n\n1. Expected action: You intended to send ETH to your friend\n2. Correct recipient: The address matches your friend's known address\n3. Reasonable amount: The amount (0.5 ETH) matches what you intended to send\n4. Appropriate network fee: The gas fees look reasonable for an ETH transfer\n5. Transaction origin: You initiated this transaction yourself from a trusted interface\n6. Hardware wallet verification: Your Trezor showed the same transaction details as the website",
+                "Using a hardware wallet like Trezor provides an additional security layer, as it lets you verify transaction details on a separate secure device. Always verify that the recipient address and amount match what you expect before confirming any transaction.\n\n\nAdditionally, `m/44'/60'/0'/0/0` is the standard derivation path for Ethereum accounts.This means that the transaction is being sent from your first Ethereum account, which is what you expect.",
             ]
         },
         transactionOrSignatureData: {
-            fromAccount: "0x70997970C51812dc3A010C7d01b50e0d17dc79C8",
-            toAccount: "0x3C44CdDdB6a900fa2b585dd299e03d12FA4293BC",
-            amount: "5 ETH",
+            fromAccount: `${YOUR_WALLET}`,
+            toAccount: "0x70997970C51812dc3A010C7d01b50e0d17dc79C8",
+            amount: "0.5 ETH",
             estimatedFee: {
                 usd: "$4.52",
                 eth: "0.00198ETH"
@@ -133,54 +137,58 @@ Issued At: ${new Date().toISOString()}`
     },
     {
         id: 5,
-        question: "You need to approve a multi-signature treasury transaction. Should you sign it?",
+        question: "Execute or reject this transaction.",
+        questionContext: `Assume your wallet address is ${YOUR_WALLET}. You want to deposit 1 ETH into Aave to begin gaining interest on the ZKsync Era network. Will signing this accomplish that?`,
         type: "signOrReject",
-        expectedAction: "sign",
-        walletType: "safeWallet",
-        interactionButtonText: "Review Safe Transaction",
-        fakeWebsiteType: "Uniswap",
+        expectedAction: "reject",
+        wrongAnswerPopupContent: "Oh no!\n\nYou just deposited ETH in Aave for someone else!",
+        walletType: "metamask",
+        interactionButtonText: "Deposit ETH",
+        fakeWebsiteType: "Aave",
         fakeWebsiteEdition: 1,
         feedbackContent: {
             pages: [
-                "You should sign this transaction. This is a legitimate transaction from your DAO's Safe wallet to fund a project that was approved by governance.",
-                "Notice how Safe wallets provide additional security through their multi-signature requirement. This transaction needs 3 out of 5 signatures to execute.",
-                "Safe wallets are commonly used by DAOs and organizations to manage treasury funds, as they prevent any single person from controlling the funds. Always verify the destination and amount before signing."
+                `The following were correct on this transaction:
+                
+                1. Address: It is the correct ZKsync Era Aave contract.
+                2. Correct amount: The amoount of ETH is the amount you want to deposit.
+                3. Website: You initiated this transaction yourself from a trusted website URL.
+However, the transaction calldata is not correct!
+This could happen if the Aave UI is compromised. Website interfaces compromises unfourtunately are all too common.`,
+                `For this transaction, the calldata was: 
+
+\`\`\`bash
+0x474cf53d000000000000000000000000f39fd6e51aad88f6f4ce6ab8827279cfffb9226600000000000000000000000023618e81e3f5cdf7f54c3d65f7fbc0abf5b21e8f0000000000000000000000000000000000000000000000000000000000000000
+\`\`\` 
+
+and if we decode this with [foundry's cast tool](https://book.getfoundry.sh/):
+
+\`\`\`bash
+cast calldata-decode "depositEth(address,address,uint16)" 0x474cf53d000000000000000000000000f39fd6e51aad88f6f4ce6ab8827279cfffb9226600000000000000000000000023618e81e3f5cdf7f54c3d65f7fbc0abf5b21e8f0000000000000000000000000000000000000000000000000000000000000000
+\`\`\`
+
+We get: 
+
+\`\`\`bash
+0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266
+0x23618e81E3f5cdF7f54C3d65f7FBc0aBf5B21E8f # Wrong!!
+0
+\`\`\`
+
+The second parameter stands for \`onbehalfOf\`, meaning we are depositing ETH for someone else. It should match our wallet address, and it does not!`,
             ]
         },
         transactionOrSignatureData: {
-            fromAccount: "0xDAOTreas...F3a4",
-            toAccount: "0xProject...c532",
-            amount: "5 ETH",
+            networkName: "ZKsync Era",
+            fromAccount: YOUR_WALLET,
+            toAccount: ZKSYNC_AAVE_WRAPPED_TOKEN_GATEWAY_V3,
+            amount: "1 ETH",
             estimatedFee: {
-                usd: "$4.87",
-                eth: "0.00234ETH"
+                usd: "$0.02",
+                eth: "0.00004ETH"
             },
-            functionName: "transfer(address,uint256)",
-            data: "0xa9059cbb000000000000000000000000bac40c08f8a42071dcd3cc52569eb7b58f04b31a0000000000000000000000000000000000000000000000004563918244f40000",
-            safeThreshold: 3,
-            safeConfirmations: 2,
-            safeRequiresAdditionalConfirmation: true,
-            safeAdditionalWalletType: "metamask"
-        }
-    },
-    // The phishing question from the original code
-    {
-        id: 7,
-        question: "If this is a phishing site, then what's the phishing transaction attempting to do?",
-        type: "multi",
-        options: [
-            { id: "A", text: "Interact with the DAI smart contract" },
-            { id: "B", text: "Instantly transfer all my funds to an attacker" },
-            { id: "C", text: "Approve an attacker to spend all my DAI" },
-            { id: "D", text: "Approve an attacker to spend all my ETH" },
-        ],
-        correctAnswers: ["A", "C"],
-        feedbackContent: {
-            pages: [
-                "We have to analyze the transaction's target and details to understand what it's doing. While experts could do this, most users don't check — or don't understand — the data field of transactions.",
-                "So what can you do?\n• Double-check websites before connecting your wallet.\n• Avoid signing transactions on suspicious websites.\n• Be aware of the risks of signing transactions you don't fully understand.\n• Only use wallets that provide risk alerts and user-friendly messages when sending transactions.",
-                "Always verify the website and transaction before signing. If something looks suspicious, it probably is!"
-            ]
+            functionName: "function depositETH(address,address,uint16)",
+            data: "0x474cf53d000000000000000000000000f39fd6e51aad88f6f4ce6ab8827279cfffb9226600000000000000000000000023618e81e3f5cdf7f54c3d65f7fbc0abf5b21e8f0000000000000000000000000000000000000000000000000000000000000000",
         }
     }
 ];
