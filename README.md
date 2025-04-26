@@ -12,9 +12,9 @@ This is a website for teaching people how to sign transactions, and how to make 
 
 Simulated Wallet Challenges (leave for Updraft):
 - EOA
-  - Sign in with Ethereum (MetaMask side pop up) ✅
-  - Basic ETH transfer (Trezor pop up) ✅
-  - Aave Deposit (MetaMask side pop up) ✅
+  - Sign in with Ethereum (MetaMask side pop up) ✅ 
+  - Basic ETH transfer (Trezor pop up) ✅ 
+  - Aave Deposit (MetaMask side pop up) ✅ 
   - EIP-712 signature (MetaMask side pop up) 
     - Screw up the domain hash (only show domain & message hash) 
 - Smart contract wallet 

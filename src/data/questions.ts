@@ -79,7 +79,7 @@ export const questions: QuestionData[] = [
     },
     {
         id: 3,
-        question: "Sign or Reject",
+        question: "Sign or reject this signature.",
         questionContext: `Assume your wallet address is ${YOUR_WALLET}. You want to sign into Opensea to see your NFTs. Will signing this accomplish that?`,
         type: "signOrReject",
         expectedAction: "reject",
@@ -108,7 +108,7 @@ Issued At: ${new Date().toISOString()}`
     },
     {
         id: 4,
-        question: `Should you execute this transaction?`,
+        question: `Execute or reject this transaction.`,
         questionContext: `This transaction requires your Trezor hardware wallet. You're attempting to send your friend \`0x70997970C51812dc3A010C7d01b50e0d17dc79C8\` \`0.5 ETH\` on the Ethereum chain. Assume your wallet is \`${YOUR_WALLET}.\``,
         type: "signOrReject",
         expectedAction: "sign",
@@ -137,7 +137,7 @@ Issued At: ${new Date().toISOString()}`
     },
     {
         id: 5,
-        question: "Sign or reject?",
+        question: "Execute or reject this transaction.",
         questionContext: `Assume your wallet address is ${YOUR_WALLET}. You want to deposit 1 ETH into Aave to begin gaining interest on the ZKsync Era network. Will signing this accomplish that?`,
         type: "signOrReject",
         expectedAction: "reject",
