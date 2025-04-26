@@ -15,12 +15,10 @@ Simulated Wallet Challenges (leave for Updraft):
   - Sign in with Ethereum (MetaMask side pop up) ✅ 
   - Basic ETH transfer (Trezor pop up) ✅ 
   - Aave Deposit (MetaMask side pop up) ✅ 
-  - EIP-712 signature (MetaMask side pop up) 
-    - Screw up the domain hash (only show domain & message hash) 
+  - EIP-712 signature (MetaMask side pop up) ✅ 
 - Smart contract wallet 
-  - Basic ETH transfer, first signer (MetaMask & trezor side pop up) 
-  - Basic ETH transfer, sign & execute (MetaMask & trezor side pop up) 
   - Basic Token transfer, first signer (MetaMask & trezor side pop up) 
+    - Show
   - Token transfer with confusing phishing token (MetaMask & trezor side pop up) 
   - EIP-712 signature (Trezor) 
     - Do it correct, only show data 

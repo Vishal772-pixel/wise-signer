@@ -38,6 +38,8 @@ export default function SimulatedWebsite({
                     return import('@/components/fakeWebsites/SendEth');
                 case "aave":
                     return import('@/components/fakeWebsites/Aave');
+                case "safewallet":
+                    return import('@/components/fakeWebsites/SafeWallet');
                 default:
                     return import('@/components/fakeWebsites/DefaultSite');
             }

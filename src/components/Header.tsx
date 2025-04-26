@@ -57,12 +57,12 @@ const Header = () => {
                             >
                                 Simulated Wallet
                             </a>
-                            <a
-                                href="/connected/welcome"
-                                className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 rounded-b-md"
+                            <div
+                                className="block px-4 py-2 text-sm text-gray-400 bg-gray-50 rounded-b-md flex items-center gap-1"
                             >
                                 Tenderly Virtualnet
-                            </a>
+                                <span className="ml-1 bg-yellow-100 text-yellow-800 text-xs px-1.5 py-0.5 rounded">Coming Soon</span>
+                            </div>
                         </div>
                     )}
                 </div>

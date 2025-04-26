@@ -1,7 +1,7 @@
 // Wallet types
 export type WalletType = "metamask" | "safeWallet" | "trezor";
 
-export type FakeWebsiteType = "Uniswap" | "OpenSea" | "SendEth" | "Aave";
+export type FakeWebsiteType = "Uniswap" | "OpenSea" | "SendEth" | "Aave" | "SafeWallet";
 
 export type FakeWebsiteComponentProps = {
     fakeWebsiteEdition: number;
@@ -11,6 +11,7 @@ export type FakeWebsiteComponentProps = {
 };
 
 export interface SignatureDetails {
+    networkName?: string;
     requestFrom: string;
     message: string;
 }

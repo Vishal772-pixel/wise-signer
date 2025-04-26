@@ -50,7 +50,10 @@ export default function Home() {
           </div>
 
           {/* Tenderly Mode */}
-          <div className="bg-zinc-900 rounded-xl p-6 border border-zinc-800 hover:border-blue-500 transition">
+          <div className="bg-zinc-900 rounded-xl p-6 border border-zinc-800 hover:border-blue-500 transition relative">
+            <div className="absolute -rotate-12 top-10 left-0 right-0 text-center">
+              <span className="bg-yellow-600 text-black font-bold py-1 px-4 rounded-md text-sm uppercase">Under Construction</span>
+            </div>
             <div className="flex justify-center mb-4">
               <div className="bg-blue-600/20 p-3 rounded-full">
                 <FaMicrochip size={28} className="text-blue-500" />
@@ -63,12 +66,9 @@ export default function Home() {
               risking real assets.
             </p>
             <div className="mt-4 text-center">
-              <a
-                href="/connected/welcome"
-                className="text-blue-400 hover:text-blue-300 font-medium"
-              >
-                Play with Tenderly →
-              </a>
+              <span className="text-gray-500 cursor-not-allowed">
+                Coming Soon
+              </span>
             </div>
           </div>
         </div>

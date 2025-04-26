@@ -2,7 +2,7 @@
 
 import { useParams, notFound } from "next/navigation";
 import PageRenderer from "@/components/PageRenderer";
-import { getQuestionById, getNextQuestionId, getPrevQuestionId } from "@/data/questions";
+import { getQuestionById, getNextQuestionId, getPrevQuestionId, questions } from "@/data/questions";
 
 export default function QuestionPage() {
     const params = useParams();
@@ -24,14 +24,18 @@ export default function QuestionPage() {
     const nextPageUrl = nextId ? `/simulated/questions/${nextId}` : undefined;
     const prevPageUrl = prevId ? `/simulated/questions/${prevId}` : undefined;
 
+    // Check if this is the last question
+    const isLastQuestion = nextId === null;
+
     // Create the props for the PageRenderer component based on question type
     const commonProps = {
         questionNumber: question.id,
         question: question.question,
         feedbackContent: question.feedbackContent,
-        questionContext: question.questionContext, // Add context to common props
+        questionContext: question.questionContext,
         prevPageUrl,
-        nextPageUrl
+        nextPageUrl,
+        isLastQuestion
     };
 
     if (question.type === "single" || question.type === "multi") {

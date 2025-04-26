@@ -28,8 +28,11 @@ export interface SignOrRejectQuestionData extends BaseQuestionData {
 }
 
 
-const YOUR_WALLET = "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266"
-const ZKSYNC_AAVE_WRAPPED_TOKEN_GATEWAY_V3 = "0x9F07eEBdf3675f60dCeC65a092F1821Fb99726F3"
+export const ZKSYNC_AAVE_WRAPPED_TOKEN_GATEWAY_V3 = "0x9F07eEBdf3675f60dCeC65a092F1821Fb99726F3"
+export const FRIEND_WALLET = "0xd8dA6BF26964aF9D7eEd9e03E53415D37aA96045"
+export const YOUR_WALLET = "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266"
+const MULTI_SIGNATURE_WALLET = "0x4087d2046A7435911fC26DCFac1c2Db26957Ab72"
+const ARBITRUM_WETH = "0x82af49447d8a07e3bd95bd0d56f35241523fbab1"
 
 export type QuestionData = MultiChoiceQuestionData | SignOrRejectQuestionData;
 
@@ -80,7 +83,7 @@ export const questions: QuestionData[] = [
     {
         id: 3,
         question: "Sign or reject this signature.",
-        questionContext: `Assume your wallet address is ${YOUR_WALLET}. You want to sign into Opensea to see your NFTs. Will signing this accomplish that?`,
+        questionContext: `Assume your wallet address is ${YOUR_WALLET}. You want to sign into Opensea to see your NFTs. Will signing this accomplish that? If so, please sign, otherwise reject.`,
         type: "signOrReject",
         expectedAction: "reject",
         walletType: "metamask",
@@ -138,7 +141,7 @@ Issued At: ${new Date().toISOString()}`
     {
         id: 5,
         question: "Execute or reject this transaction.",
-        questionContext: `Assume your wallet address is ${YOUR_WALLET}. You want to deposit 1 ETH into Aave to begin gaining interest on the ZKsync Era network. Will signing this accomplish that?`,
+        questionContext: `Assume your wallet address is ${YOUR_WALLET}. You want to deposit 1 ETH into Aave to begin gaining interest on the ZKsync Era network. Will signing this accomplish that? If so, please sign, otherwise reject.`,
         type: "signOrReject",
         expectedAction: "reject",
         wrongAnswerPopupContent: "Oh no!\n\nYou just deposited ETH in Aave for someone else!",
@@ -164,7 +167,7 @@ This could happen if the Aave UI is compromised. Website interfaces compromises 
 and if we decode this with [foundry's cast tool](https://book.getfoundry.sh/):
 
 \`\`\`bash
-cast calldata-decode "depositEth(address,address,uint16)" 0x474cf53d000000000000000000000000f39fd6e51aad88f6f4ce6ab8827279cfffb9226600000000000000000000000023618e81e3f5cdf7f54c3d65f7fbc0abf5b21e8f0000000000000000000000000000000000000000000000000000000000000000
+cast calldata-decode "depositETH(address,address,uint16)" 0x474cf53d000000000000000000000000f39fd6e51aad88f6f4ce6ab8827279cfffb9226600000000000000000000000023618e81e3f5cdf7f54c3d65f7fbc0abf5b21e8f0000000000000000000000000000000000000000000000000000000000000000
 \`\`\`
 
 We get: 
@@ -189,6 +192,178 @@ The second parameter stands for \`onbehalfOf\`, meaning we are depositing ETH fo
             },
             functionName: "function depositETH(address,address,uint16)",
             data: "0x474cf53d000000000000000000000000f39fd6e51aad88f6f4ce6ab8827279cfffb9226600000000000000000000000023618e81e3f5cdf7f54c3d65f7fbc0abf5b21e8f0000000000000000000000000000000000000000000000000000000000000000",
+        }
+    },
+    {
+        id: 6,
+        question: "Sign or reject this signature.",
+        questionContext: `Assume your wallet address is ${YOUR_WALLET}, and you are a signer on a valid mutlisig wallet at address ${MULTI_SIGNATURE_WALLET}. You are attempting to send 1 WETH to address: ${FRIEND_WALLET}. On the Arbitrum network. Please sign or reject this transaction, if doing so will bring you closer to executing.`,
+        type: "signOrReject",
+        expectedAction: "sign",
+        walletType: "metamask",
+        interactionButtonText: "Sign",
+        fakeWebsiteType: "SafeWallet",
+        fakeWebsiteEdition: 1,
+        feedbackContent: {
+            pages: [
+                `It's correct to sign this transaction. This is a valid EIP-712 structured message for a multisig transaction with Safe{Wallet} (formerly Gnosis Safe) that matches your intention to send 1 WETH to your friend's address.
+When reviewing multisig transactions, you should check the EIP-712 data generated in your wallet (in this case, metamask) which all aligned in this case:
+
+\`\`\`
+1. The transaction originates from a legitimate source (app.safe.global)
+2. The verifyingContract matches your multisig wallet address
+3. The correct network (Arbitrum) is specified in the chainId
+4. The transaction data matches your intent (sending 1 WETH)
+5. There are no suspicious parameters like operation, gasToken, or refundReceiver
+\`\`\``,
+
+
+                `The transaction data field contains encoded information that can be decoded with tools like Foundry's cast:
+
+\`\`\`bash
+cast calldata-decode "transfer(address,uint256)" 0xa9059cbb000000000000000000000000908b2413893ed4f1518ffb9847d69f49f59aa359000000000000000000000000000000000000000000000000002386f26fc10000
+\`\`\`
+
+This decodes to:
+- Function: transfer(address,uint256)
+- Address: ${FRIEND_WALLET} (your friend's address)
+- Amount: 0xde0b6b3a7640000 (1000000000000000000 in decimal, which equals 1 WETH)`,
+
+                "What's important here, is that we reviewed the safeMessage that was populated in our metamask."
+            ]
+        },
+        transactionOrSignatureData: {
+            networkName: "Arbitrum",
+            requestFrom: "https://app.safe.global/",
+            message: `{"types":{"SafeTx":[{"type":"address","name":"to"},{"type":"uint256","name":"value"},{"type":"bytes","name":"data"},{"type":"uint8","name":"operation"},{"type":"uint256","name":"safeTxGas"},{"type":"uint256","name":"baseGas"},{"type":"uint256","name":"gasPrice"},{"type":"address","name":"gasToken"},{"type":"address","name":"refundReceiver"},{"type":"uint256","name":"nonce"}],"EIP712Domain":[{"name":"chainId","type":"uint256"},{"name":"verifyingContract","type":"address"}]},"domain":{"chainId":"42161","verifyingContract":"${MULTI_SIGNATURE_WALLET}"},"primaryType":"SafeTx","message":{"to":"${ARBITRUM_WETH}","value":"0","data":"0xa9059cbb000000000000000000000000908b2413893ed4f1518ffb9847d69f49f59aa359000000000000000000000000000000000000000000000000002386f26fc10000","operation":"0","safeTxGas":"0","baseGas":"0","gasPrice":"0","gasToken":"0x0000000000000000000000000000000000000000","refundReceiver":"0x0000000000000000000000000000000000000000","nonce":"29"}}`
+        }
+    },
+    {
+        id: 7,
+        question: "Sign or reject this signature.",
+        questionContext: `Assume your wallet address is ${YOUR_WALLET}, and you are a signer on a valid mutlisig wallet at address ${MULTI_SIGNATURE_WALLET}. You are attempting to deposit 0.1 ETH to the ZKsync Aave token pool. Please sign this transaction if doing so will bring you closer to executing, otherwise reject it.`,
+        wrongAnswerPopupContent: "Oh no!\n\nYou were just hit with a similar attack to what happened to Bybit ($1.4B loss!)",
+        type: "signOrReject",
+        expectedAction: "reject",
+        walletType: "trezor",
+        interactionButtonText: "Sign",
+        fakeWebsiteType: "SafeWallet",
+        fakeWebsiteEdition: 2,
+        feedbackContent: {
+            pages: [`This is an example of what could happen if the user interface is compromised. The Message and Domain hash on the website matches what is in your Trezor, but it's a malicious message and domain hash! We can actually calculate the domain and message hash ourselves a few different ways:
+
+- [safe-hash-rs](https://github.com/Cyfrin/safe-hash-rs)
+- [safe-tx-hashes-utils](https://github.com/pcaversaccio/safe-tx-hashes-util)
+- [safeutils.openzeppelin.com](https://safeutils.openzeppelin.com/)
+
+Something else to note, is that on wallets with small screens, it can be really difficult to verify pages and pages of data. The data that we are signing is much bigger here than just sending tokens, so it's often just easier to just compare the hashes of the data we are signing instead of inspecting the entire data on our wallet.`, `No matter what tool we use, the first thing we need to do is inspect/create the JSON object that is being signed. In this case, we were signing:
+
+\`\`\`json
+{
+    "types": {
+        "SafeTx": [
+            {
+                "name": "to",
+                "type": "address"
+            },
+            {
+                "name": "value",
+                "type": "uint256"
+            },
+            {
+                "name": "data",
+                "type": "bytes"
+            },
+            {
+                "name": "operation",
+                "type": "uint8"
+            },
+            {
+                "name": "safeTxGas",
+                "type": "uint256"
+            },
+            {
+                "name": "baseGas",
+                "type": "uint256"
+            },
+            {
+                "name": "gasPrice",
+                "type": "uint256"
+            },
+            {
+                "name": "gasToken",
+                "type": "address"
+            },
+            {
+                "name": "refundReceiver",
+                "type": "address"
+            },
+            {
+                "name": "nonce",
+                "type": "uint256"
+            }
+        ],
+        "EIP712Domain": [
+            {
+                "name": "chainId",
+                "type": "uint256"
+            },
+            {
+                "name": "verifyingContract",
+                "type": "address"
+            }
+        ]
+    },
+    "domain": {
+        "chainId": "0x144",
+        "verifyingContract": "0x4087d2046A7435911fC26DCFac1c2Db26957Ab72"
+    },
+    "primaryType": "SafeTx",
+    "message": {
+        "to": "0x9F07eEBdf3675f60dCeC65a092F1821Fb99726F3",
+        "value": "100000000000000000",
+        "data": "0x474cf53d0000000000000000000000006ae43d3271ff6888e7fc43fd7321a503ff7389510000000000000000000000005031f5e2ed384978dca63306dc28a68a6fc33e810000000000000000000000000000000000000000000000000000000000000000",
+        "operation": "0",
+        "safeTxGas": "0",
+        "baseGas": "0",
+        "gasPrice": "0",
+        "gasToken": "0x0000000000000000000000000000000000000000",
+        "refundReceiver": "0x0000000000000000000000000000000000000000",
+        "nonce": "1"
+    }
+}
+\`\`\`
+
+And this looks great! So we should be signing the hash associated with this data. But what happens if we calculate it? 
+`, `If we save this to a file (\`file.json\`), and using the safe-hash-rs tool we run:
+
+\`\`\`bash
+safe-hash typed --file file.json
+\`\`\`
+
+We get an output of:
+
+\`\`\`
++--------------+--------------------------------------------------------------------+
+| EIP 712 Hash | 0xe1706b155a9dbe1301f3d65a63fbba3902f34b058654de304536b25e8ad43762 |
++--------------+--------------------------------------------------------------------+
+| Domain Hash  | 0xe0392d263ff13e09757bfce9b182ead6ceabd9d1b404aa7df77e65b304969130 |
++--------------+--------------------------------------------------------------------+
+| Message Hash | 0xbd65862028842ae4f194e32898061b00c051313f004287c45cadaa2769ca5bd9 |
++--------------+--------------------------------------------------------------------+
+\`\`\`
+
+This is different that what we saw in our Trezor wallet!!`, `It turned out, in this case, the Safe UI was compromised, and it showed us an evil hash, and sent our wallet the evil hash. They had turned the \`operation\` from a \`0\` to a \`1\`, which changed our transaction from a \`call\` to a \`delegateCall\`.
+
+If you update your \`file.json\` to have the \`operation\` as a \`1\`, and run the same command, you will get the same hash as our Trezor wallet.`
+            ]
+        },
+        transactionOrSignatureData: {
+            networkName: "ZKsync Era",
+            requestFrom: "https://app.safe.global/",
+            message: `Domain Hash: 0xe0392d263ff13e09757bfce9b182ead6ceabd9d1b404aa7df77e65b304969130
+
+Message Hash: 0x0db6e416d2b06ac70029e49612906eed8573295a11af6a69bb42413557c32632`
         }
     }
 ];

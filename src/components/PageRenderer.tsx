@@ -1,13 +1,20 @@
 "use client";
 
 import { FaChevronLeft, FaChevronRight, FaTimes } from "react-icons/fa";
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import QuestionComponent from "./QuestionComponent";
 import WalletPopupComponent from "./WalletPopupComponent";
 import SimulatedWebsite from "./SimulatedWebsite";
 import FeedbackComponent from "./FeedbackComponent";
+import QuizSummaryComponent from "./QuizSummaryComponent";
 import { WalletType, FakeWebsiteType, TransactionDetails, SignatureDetails } from "@/types";
+import React, { forwardRef, useImperativeHandle } from "react";
+
+interface QuestionResult {
+    id: number;
+    isCorrect: boolean;
+}
 
 // Props for the PageRenderer component
 interface PageRendererProps {
@@ -33,10 +40,9 @@ interface PageRendererProps {
     transactionOrSignatureDetails?: TransactionDetails | SignatureDetails;
     wrongAnswerPopupContent?: string;
     questionContext?: string;
+    // Indicate if this is the last question
+    isLastQuestion?: boolean;
 }
-
-// Forward ref to allow parent components to call methods on QuestionComponent
-import React, { forwardRef, useImperativeHandle } from "react";
 
 const PageRenderer = forwardRef((props: PageRendererProps, ref) => {
     const [showWalletPopup, setShowWalletPopup] = useState(false);
@@ -54,7 +60,8 @@ const PageRenderer = forwardRef((props: PageRendererProps, ref) => {
         feedbackContent,
         prevPageUrl,
         nextPageUrl,
-        questionContext
+        questionContext,
+        isLastQuestion
     } = props;
 
     // Extract type-specific props
@@ -67,7 +74,6 @@ const PageRenderer = forwardRef((props: PageRendererProps, ref) => {
     const fakeWebsiteType = 'fakeWebsiteType' in props ? props.fakeWebsiteType : undefined;
     const fakeWebsiteEdition = 'fakeWebsiteEdition' in props ? props.fakeWebsiteEdition : undefined;
 
-
     // Reference to the actual question component for multi-choice questions
     const questionComponentRef = useRef(null);
 
@@ -78,13 +84,45 @@ const PageRenderer = forwardRef((props: PageRendererProps, ref) => {
     };
 
     const handleNextQuestion = () => {
-        if (nextPageUrl) {
+        if (isLastQuestion) {
+            // Navigate to the dedicated quiz summary page instead of showing the component
+            router.push('/simulated/quiz-summary');
+        } else if (nextPageUrl) {
             router.push(nextPageUrl);
         }
     };
 
+    const handleRestartQuiz = () => {
+        // Go to the first question
+        router.push('/simulated/questions/1');
+    };
+
     const handleSignInClick = () => {
         setShowWalletPopup(true);
+    };
+
+    const saveQuestionResult = (questionId: number, correct: boolean) => {
+        try {
+            // Get existing results from localStorage
+            const existingResultsJSON = localStorage.getItem('quizResults');
+            let results: QuestionResult[] = existingResultsJSON ? JSON.parse(existingResultsJSON) : [];
+
+            // Check if this question has already been answered
+            const existingResultIndex = results.findIndex(result => result.id === questionId);
+
+            if (existingResultIndex >= 0) {
+                // Update existing result
+                results[existingResultIndex].isCorrect = correct;
+            } else {
+                // Add new result
+                results.push({ id: questionId, isCorrect: correct });
+            }
+
+            // Save back to localStorage
+            localStorage.setItem('quizResults', JSON.stringify(results));
+        } catch (error) {
+            console.error("Error saving quiz results to localStorage:", error);
+        }
     };
 
     // Handle wallet action (sign or reject)
@@ -96,6 +134,7 @@ const PageRenderer = forwardRef((props: PageRendererProps, ref) => {
             setIsCorrect(isActionCorrect);
             setShowFeedback(true);
             setHasAnswered(true); // This is where we set hasAnswered for sign/reject questions
+            saveQuestionResult(questionNumber, isActionCorrect);
 
             // Show wrong answer popup if incorrect and popup content exists
             if (!isActionCorrect && wrongAnswerPopupContent) {
@@ -117,7 +156,7 @@ const PageRenderer = forwardRef((props: PageRendererProps, ref) => {
                     type={type}
                     feedbackContent={feedbackContent}
                     onPrevQuestion={prevPageUrl ? handlePrevQuestion : undefined}
-                    onNextQuestion={nextPageUrl ? handleNextQuestion : undefined}
+                    onNextQuestion={handleNextQuestion}
                     questionContext={questionContext}
                     onInteractWithWallet={type === "signOrReject" ? handleSignInClick : undefined}
                     // Pass the states for all question types
@@ -128,6 +167,7 @@ const PageRenderer = forwardRef((props: PageRendererProps, ref) => {
                         setIsCorrect(isAnswerCorrect);
                         setShowFeedback(true);
                         setHasAnswered(true);
+                        saveQuestionResult(questionNumber, isAnswerCorrect);
                     }}
                 />
 
