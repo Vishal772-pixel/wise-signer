@@ -12,19 +12,20 @@ This is a website for teaching people how to sign transactions, and how to make 
 
 Simulated Wallet Challenges (leave for Updraft):
 - EOA
-  - Sign in with Ethereum (MetaMask side pop up)
-  - Basic ETH transfer (MetaMask side pop up)
-  - Basic ERC20 transfer (MetaMask side pop up)
-  - Uniswap swap (MetaMask side pop up)
-  - EIP-712 signature (MetaMask side pop up)
-- Hardware wallet connected to EOA
-  - Basic ERC20 Approval (MetaMask & Trezor pop up)
-  - EIP712 signature (MetaMask & Trezor pop up)
-- Smart contract wallet
-  - Basic ETH transfer, first signer (MetaMask & trezor side pop up)
-  - Basic ETH transfer, sign & execute (MetaMask & trezor side pop up)
-  - Basic Token transfer, first signer (MetaMask & trezor side pop up)
-  - Token transfer with confusing phishing token (MetaMask & trezor side pop up)
+  - Sign in with Ethereum (MetaMask side pop up) ✅
+  - Basic ETH transfer (Trezor pop up) ✅
+  - Aave Deposit (MetaMask side pop up) ✅
+  - EIP-712 signature (MetaMask side pop up) 
+    - Screw up the domain hash (only show domain & message hash) 
+- Smart contract wallet 
+  - Basic ETH transfer, first signer (MetaMask & trezor side pop up) 
+  - Basic ETH transfer, sign & execute (MetaMask & trezor side pop up) 
+  - Basic Token transfer, first signer (MetaMask & trezor side pop up) 
+  - Token transfer with confusing phishing token (MetaMask & trezor side pop up) 
+  - EIP-712 signature (Trezor) 
+    - Do it correct, only show data 
+  - EIP-712 siganture (metamask) 
+    - Show EIP-712 raw 
 
 Connected Wallet Challenges:
 - Tenderly setup (virtual testnet setup)

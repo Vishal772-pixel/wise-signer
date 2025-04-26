@@ -5,10 +5,10 @@ import { FaEthereum, FaPaperPlane } from "react-icons/fa";
 import { FakeWebsiteComponentProps } from "@/types";
 import BrowserNavBar from "@/components/fakeWebsites/BrowserNavBar";
 
-const URL = "https://metamask.io/send";
+const URL = "https://portfolio.metamask.io/transfer?tab=send";
 // Default values
 const DEFAULT_ADDRESS = "0x70997970C51812dc3A010C7d01b50e0d17dc79C8";
-const DEFAULT_AMOUNT_ETH = 0.5;
+const DEFAULT_AMOUNT_ETH = 5;
 // 1 ETH = 10^18 wei
 const DEFAULT_AMOUNT_WEI = DEFAULT_AMOUNT_ETH * 10 ** 18;
 const DEFAULT_AMOUNT_WEI_STRING = DEFAULT_AMOUNT_WEI.toLocaleString('fullwide', { useGrouping: false });
@@ -19,8 +19,8 @@ export default function SendEth({
     onPrimaryButtonClick,
     buttonDisabled = false,
 }: FakeWebsiteComponentProps) {
-    const [address, setAddress] = useState(DEFAULT_ADDRESS);
-    const [amountEth, setAmountEth] = useState(DEFAULT_AMOUNT_ETH);
+    const [address] = useState(DEFAULT_ADDRESS);
+    const [amountEth] = useState(DEFAULT_AMOUNT_ETH);
 
     // Calculate wei amount whenever ETH amount changes
     const amountWei = (amountEth * 10 ** 18).toLocaleString('fullwide', { useGrouping: false });
@@ -37,19 +37,19 @@ export default function SendEth({
                         Send ETH
                     </h1>
 
-                    {/* Address Field */}
+                    {/* Address Field - Now Readonly */}
                     <div className="mb-6">
                         <label className="block text-gray-400 mb-2 font-medium">Recipient Address</label>
                         <input
                             type="text"
                             value={address}
-                            onChange={(e) => setAddress(e.target.value)}
-                            className="w-full bg-[#222222] px-4 py-3 rounded-lg border border-gray-700 focus:outline-none focus:border-blue-500"
+                            readOnly
+                            className="w-full bg-[#222222] px-4 py-3 rounded-lg border border-gray-700 focus:outline-none focus:border-blue-500 cursor-not-allowed"
                             placeholder="ETH Address (0x...)"
                         />
                     </div>
 
-                    {/* Amount Field */}
+                    {/* Amount Field - Now Readonly */}
                     <div className="mb-6">
                         <label className="block text-gray-400 mb-2 font-medium">Amount</label>
                         <div className="flex flex-col space-y-4">
@@ -60,8 +60,8 @@ export default function SendEth({
                                 <input
                                     type="number"
                                     value={amountEth}
-                                    onChange={(e) => setAmountEth(parseFloat(e.target.value))}
-                                    className="w-full bg-[#222222] pl-10 pr-4 py-3 rounded-lg border border-gray-700 focus:outline-none focus:border-blue-500"
+                                    readOnly
+                                    className="w-full bg-[#222222] pl-10 pr-4 py-3 rounded-lg border border-gray-700 focus:outline-none focus:border-blue-500 cursor-not-allowed"
                                     placeholder="0.00"
                                     step="0.01"
                                 />
@@ -85,9 +85,9 @@ export default function SendEth({
                         <button
                             onClick={onPrimaryButtonClick}
                             disabled={buttonDisabled}
-                            className={`w-full px-6 py-4 rounded-lg flex items-center justify-center ${buttonDisabled
+                            className={`w-full px-6 py-4 rounded-lg flex items-center justify-center cursor-pointer ${buttonDisabled
                                 ? 'bg-gray-700 text-gray-400 cursor-not-allowed'
-                                : 'bg-blue-600 text-white hover:bg-blue-700'
+                                : 'bg-blue-600 text-white hover:bg-blue-700 hover:text-white'
                                 }`}
                         >
                             <FaPaperPlane className="mr-2" />
