@@ -5,6 +5,7 @@ import Link from "next/link";
 import { FaLightbulb, FaChevronLeft, FaChevronRight, FaTimes } from "react-icons/fa";
 import FeedbackComponent from "./FeedbackComponent";
 import ReactMarkdown from 'react-markdown';
+import markdownComponents from "@/components/MarkdownComponents";
 
 interface Option {
     id: string;
@@ -17,14 +18,13 @@ interface FeedbackContent {
 
 interface QuestionProps {
     question: string;
-    options?: Option[]; // Now optional since signOrReject won't have options
-    correctAnswers?: string[]; // Optional for signOrReject type
+    options?: Option[];
+    correctAnswers?: string[];
     type: "single" | "multi" | "signOrReject";
     feedbackContent: FeedbackContent;
     onNextQuestion?: () => void;
     onPrevQuestion?: () => void;
     showNavigationButtons?: boolean;
-    // For signOrReject type
     onInteractWithWallet?: () => void;
     expectedAction?: "sign" | "reject";
     wrongAnswerPopupContent?: string;
@@ -56,10 +56,6 @@ const QuestionComponent = forwardRef(({
 }: QuestionProps, ref) => {
     const [selectedOptions, setSelectedOptions] = useState<string[]>([]);
     const [showFeedback, setShowFeedback] = useState(false);
-    // For non-signOrReject types, we'll use internal state
-    // For signOrReject type, we'll use the props passed from parent
-    // We'll use the external states passed as props if provided,
-    // otherwise default to false (for backward compatibility)
     const effectiveHasAnswered = externalHasAnswered ?? false;
     const effectiveIsCorrect = externalIsCorrect ?? false;
 
@@ -134,7 +130,9 @@ const QuestionComponent = forwardRef(({
                 {/* Question context display */}
                 {questionContext && (
                     <div className="mb-4 text-gray-700">
-                        <ReactMarkdown>{questionContext}</ReactMarkdown>
+                        <ReactMarkdown
+                            components={markdownComponents}
+                        >{questionContext}</ReactMarkdown>
                     </div>
                 )}
 

@@ -11,7 +11,7 @@ const WALLET_ADDRESS = "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266";
 const SHORTENED_ADDRESS = `${WALLET_ADDRESS.substring(0, 8)}...${WALLET_ADDRESS.substring(WALLET_ADDRESS.length - 4)}`;
 
 export default function Opensea({
-    fakeWebsiteEdition,
+    questionId,
     primaryButtonText = "Sign In",
     onPrimaryButtonClick,
     buttonDisabled = false,
@@ -170,12 +170,6 @@ export default function Opensea({
                     </div>
                 </div>
             </div>
-
-            {fakeWebsiteEdition > 1 && (
-                <div className="absolute bottom-2 right-2 text-xs text-gray-500">
-                    Edition {fakeWebsiteEdition}
-                </div>
-            )}
         </div>
     );
 }

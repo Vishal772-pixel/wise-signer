@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { FaLightbulb, FaChevronLeft, FaChevronRight } from "react-icons/fa";
-import { type ComponentPropsWithoutRef, ReactNode } from 'react';
+import markdownComponents from "@/components/MarkdownComponents";
 import ReactMarkdown from 'react-markdown';
 
 
@@ -36,72 +36,6 @@ const FeedbackComponent: React.FC<FeedbackComponentProps> = ({
         if (feedbackPage > 1) {
             setFeedbackPage(feedbackPage - 1);
         }
-    };
-
-    const markdownComponents = {
-        pre: (props: ComponentPropsWithoutRef<'pre'>) => (
-            <pre
-                className="max-w-full bg-gray-50 rounded-md p-3 my-4 overflow-hidden"
-                style={{
-                    whiteSpace: 'pre-wrap',
-                    overflowWrap: 'anywhere'
-                }}
-                {...props}
-            />
-        ),
-        code: ({ className, ...props }: ComponentPropsWithoutRef<'code'>) => {
-            const isInline = !className?.includes('language-');
-            return (
-                <code
-                    className={isInline
-                        ? "bg-gray-100 px-1 py-0.5 rounded text-sm font-mono"
-                        : "font-mono text-sm"
-                    }
-                    style={!isInline ? {
-                        whiteSpace: 'pre-wrap',
-                        overflowWrap: 'anywhere',
-                        display: 'block',
-                        maxWidth: '100%'
-                    } : undefined}
-                    {...props}
-                />
-            );
-        },
-        // Regular paragraphs should use normal word breaking
-        p: (props: ComponentPropsWithoutRef<'p'>) => (
-            <p
-                className="max-w-full"
-                style={{
-                    wordWrap: 'break-word',
-                    overflowWrap: 'break-word'
-                }}
-                {...props}
-            />
-        ),
-        // Add styling for links with target="_blank"
-        a: (props: ComponentPropsWithoutRef<'a'>) => (
-            <a
-                className="text-blue-600 hover:text-blue-800 hover:underline"
-                target="_blank"
-                rel="noopener noreferrer"
-                {...props}
-            />
-        )
-    };
-
-    // Helper function to only break long hex strings
-    const formatLongHexStrings = (content: string) => {
-        return content.replace(
-            /(0x[a-f0-9]{60,})/gi,
-            (match) => {
-                // Break long hex strings into chunks of ~60 chars
-                let result = '';
-                for (let i = 0; i < match.length; i += 60) {
-                    result += match.substring(i, i + 60) + '\n';
-                }
-                return result.trim();
-            }
-        );
     };
 
 

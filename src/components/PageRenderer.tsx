@@ -1,15 +1,14 @@
 "use client";
 
-import { FaChevronLeft, FaChevronRight, FaTimes } from "react-icons/fa";
-import { useState, useRef, useEffect } from "react";
+import { FaTimes } from "react-icons/fa";
+import { useState, useRef } from "react";
 import { useRouter } from "next/navigation";
 import QuestionComponent from "./QuestionComponent";
 import WalletPopupComponent from "./WalletPopupComponent";
 import SimulatedWebsite from "./SimulatedWebsite";
 import FeedbackComponent from "./FeedbackComponent";
-import QuizSummaryComponent from "./QuizSummaryComponent";
-import { WalletType, FakeWebsiteType, TransactionDetails, SignatureDetails } from "@/types";
-import React, { forwardRef, useImperativeHandle } from "react";
+import { FakeWebsiteType, TransactionDetails, SignatureDetails } from "@/types";
+import React, { forwardRef } from "react";
 
 interface QuestionResult {
     id: number;
@@ -30,7 +29,7 @@ interface PageRendererProps {
     prevPageUrl?: string;
     // Optional props for simulated website
     fakeWebsiteType?: FakeWebsiteType;
-    fakeWebsiteEdition?: number;
+    questionId?: number;
     // SignOrReject specific props
     onInteractWithWallet?: () => void;
     interactionButtonText?: string;
@@ -72,7 +71,7 @@ const PageRenderer = forwardRef((props: PageRendererProps, ref) => {
     const walletType = type === 'signOrReject' ? props.walletType : undefined;
     const transactionOrSignatureDetails = type === 'signOrReject' ? props.transactionOrSignatureDetails : undefined;
     const fakeWebsiteType = 'fakeWebsiteType' in props ? props.fakeWebsiteType : undefined;
-    const fakeWebsiteEdition = 'fakeWebsiteEdition' in props ? props.fakeWebsiteEdition : undefined;
+    const questionId = 'questionId' in props ? props.questionId : undefined;
 
     // Reference to the actual question component for multi-choice questions
     const questionComponentRef = useRef(null);
@@ -181,10 +180,10 @@ const PageRenderer = forwardRef((props: PageRendererProps, ref) => {
                     </div>
                 )}
 
-                {fakeWebsiteType && fakeWebsiteEdition && (
+                {fakeWebsiteType && questionId && (
                     <SimulatedWebsite
                         fakeWebsiteType={fakeWebsiteType}
-                        fakeWebsiteEdition={fakeWebsiteEdition}
+                        questionId={questionId}
                         primaryButtonText={props.interactionButtonText || "Sign in with Ethereum"}
                         onPrimaryButtonClick={handleSignInClick}
                         buttonDisabled={hasAnswered}

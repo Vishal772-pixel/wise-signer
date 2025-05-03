@@ -51,7 +51,7 @@ export default function QuestionPage({ questionId }: { questionId: number }) {
                 type="signOrReject"
                 expectedAction={question.expectedAction}
                 fakeWebsiteType={question.fakeWebsiteType}
-                fakeWebsiteEdition={question.fakeWebsiteEdition}
+                questionId={question.id}
                 interactionButtonText={question.interactionButtonText}
                 walletType={question.walletType}
                 transactionOrSignatureDetails={question.transactionOrSignatureData}

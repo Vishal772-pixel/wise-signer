@@ -4,7 +4,7 @@ export type WalletType = "metamask" | "safeWallet" | "trezor";
 export type FakeWebsiteType = "Uniswap" | "OpenSea" | "SendEth" | "Aave" | "SafeWallet";
 
 export type FakeWebsiteComponentProps = {
-    fakeWebsiteEdition: number;
+    questionId: number;
     primaryButtonText?: string;
     onPrimaryButtonClick: () => void;
     buttonDisabled?: boolean;

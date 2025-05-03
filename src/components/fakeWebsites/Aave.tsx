@@ -13,7 +13,7 @@ const DEFAULT_USD_VALUE = 2000;
 const WALLET_BALANCE = 2;
 
 export default function AaveSupplyInterface({
-    fakeWebsiteEdition,
+    questionId,
     primaryButtonText = "Supply ETH",
     onPrimaryButtonClick,
     buttonDisabled = false,
@@ -122,12 +122,6 @@ export default function AaveSupplyInterface({
                     {primaryButtonText}
                 </ChainButton>
             </div>
-
-            {fakeWebsiteEdition > 1 && (
-                <div className="absolute bottom-2 right-2 text-xs text-gray-500">
-                    Edition {fakeWebsiteEdition}
-                </div>
-            )}
         </div>
     );
 }

@@ -4,7 +4,7 @@ import { useState } from "react";
 import { FaLock, FaChevronDown, FaTimes } from "react-icons/fa";
 import { SignatureDetails, TransactionDetails, WalletType } from "@/types";
 import ChainButton from "@/components/ChainButton";
-import TrezorScreens, { TrezorScreensProps } from "@/components/wallets/TrezorScreens";
+import TrezorScreens, { TrezorScreensProps, CHUNK_SIZE } from "@/components/wallets/TrezorScreens";
 
 // Type guard to check if the data is a SignatureDetails
 const isSignatureDetails = (data: any): data is SignatureDetails => {
@@ -24,9 +24,6 @@ interface WalletPopupProps {
     transactionOrSignatureDetails: TransactionDetails | SignatureDetails;
     onConfirm?: () => void;
     onReject?: () => void;
-    // For SafeWallet
-    safeThreshold?: number;
-    safeConfirmations?: number;
     safeRequiresAdditionalConfirmation?: boolean;
     safeAdditionalWalletType?: WalletType;
     networkName?: string;
@@ -39,16 +36,11 @@ const WalletPopupComponent = ({
     onReject = () => { },
     walletType = "metamask",
     transactionOrSignatureDetails,
-    safeThreshold = 2,
-    safeConfirmations = 0,
-    safeRequiresAdditionalConfirmation = false,
     safeAdditionalWalletType = "metamask",
 }: WalletPopupProps) => {
     const [showTransactionDetails, setShowTransactionDetails] = useState(false);
-    const [showSecondaryWallet, setShowSecondaryWallet] = useState(false);
     // State for Trezor screen navigation
     const [currentTrezorScreen, setCurrentTrezorScreen] = useState(0);
-
     if (!isOpen) return null;
 
     // Determine the type of details we're dealing with
@@ -59,24 +51,23 @@ const WalletPopupComponent = ({
         networkName = transactionOrSignatureDetails.networkName || "Ethereum Mainnet";
     }
 
-    // Handle confirmation for Safe wallets differently
-    const handleConfirm = () => {
-        if (walletType === "safeWallet" && safeRequiresAdditionalConfirmation) {
-            setShowSecondaryWallet(true);
-        } else {
-            onConfirm();
+    // Calculate total Trezor screens based on content type directly
+    const totalTrezorScreens = (() => {
+        if (isTransaction) {
+            return 4; // 4 screens for transaction flow
+        } else if (isSignature) {
+            const signatureDetails = transactionOrSignatureDetails as SignatureDetails;
+            // Estimate number of message screens needed (1 intro + message chunks + 1 confirmation)
+            const messageLength = signatureDetails.message.length;
+            const estimatedChunks = Math.ceil(messageLength / CHUNK_SIZE);
+            return estimatedChunks + 2; // +2 for intro and confirmation screens
         }
-    };
-
-    // Handle secondary wallet confirmation (for Safe)
-    const handleSecondaryConfirm = () => {
-        setShowSecondaryWallet(false);
-        onConfirm();
-    };
+        return 4; // Default fallback
+    })();
 
     // Handle Trezor screen navigation
     const handleTrezorNavigation = (direction: 'next' | 'prev') => {
-        if (direction === 'next' && currentTrezorScreen < 3) {
+        if (direction === 'next' && currentTrezorScreen < totalTrezorScreens - 1) {
             setCurrentTrezorScreen(currentTrezorScreen + 1);
         } else if (direction === 'prev' && currentTrezorScreen > 0) {
             setCurrentTrezorScreen(currentTrezorScreen - 1);
@@ -132,30 +123,6 @@ const WalletPopupComponent = ({
                     </div>
                 );
         }
-    };
-
-    // Safe-specific UI elements
-    const renderSafeDetails = () => {
-        if (walletType !== "safeWallet") return null;
-
-        return (
-            <div className="mb-4 p-3 bg-blue-50 border border-blue-200 rounded-md">
-                <div className="text-sm font-medium text-blue-800 mb-2">Multi-signature wallet</div>
-                <div className="flex justify-between text-sm mb-1">
-                    <span className="text-gray-600">Required confirmations:</span>
-                    <span className="font-medium">{safeThreshold}</span>
-                </div>
-                <div className="flex justify-between text-sm">
-                    <span className="text-gray-600">Current confirmations:</span>
-                    <span className="font-medium">{safeConfirmations} of {safeThreshold}</span>
-                </div>
-                {safeConfirmations > 0 && (
-                    <div className="mt-2 text-xs text-gray-500">
-                        This transaction has been proposed and signed by another owner
-                    </div>
-                )}
-            </div>
-        );
     };
 
     // Render transaction-specific content
@@ -252,6 +219,25 @@ const WalletPopupComponent = ({
                 onNavigate={handleTrezorNavigation}
                 onSignTransaction={onConfirm}
                 onRejectTransaction={onReject}
+                mode="transaction"
+                totalScreens={totalTrezorScreens}
+            />
+        );
+    };
+
+    // NEW: Render the Trezor device UI for signatures
+    const renderTrezorSignatureUI = () => {
+        if (!isSignature) return null;
+
+        return (
+            <TrezorScreens
+                signatureDetails={transactionOrSignatureDetails as SignatureDetails}
+                currentScreen={currentTrezorScreen}
+                onNavigate={handleTrezorNavigation}
+                onSignMessage={onConfirm}
+                onRejectMessage={onReject}
+                mode="signature"
+                totalScreens={totalTrezorScreens}
             />
         );
     };
@@ -265,50 +251,55 @@ const WalletPopupComponent = ({
                     backgroundColor: 'rgba(0, 0, 0, 0.5)'
                 }}
             >
-                <div className={`w-full ${walletType === "trezor" && isTransaction ? "max-w-lg" : "max-w-md"} bg-white rounded-xl shadow-xl overflow-hidden`}>
-                    <div className="p-4 border-b border-gray-200 flex justify-between items-center">
+                <div className={`w-full ${walletType === "trezor" ? "max-w-lg" : "max-w-md"} bg-white rounded-xl shadow-xl flex flex-col max-h-[90vh]`}>
+                    <div className="p-4 border-b border-gray-200 flex justify-between items-center sticky top-0 bg-white z-10">
                         {renderWalletHeader()}
-                        <button onClick={onClose} className="text-gray-400 hover:text-gray-500">
+                        <button onClick={onClose} className="cursor-pointer text-gray-400 hover:text-gray-500">
                             <FaTimes size={20} />
                         </button>
                     </div>
 
                     {/* For Trezor wallet, show special device UI */}
                     {walletType === "trezor" && isTransaction ? (
-                        <div>
+                        <div className="overflow-y-auto">
                             {renderTrezorTransactionUI()}
                         </div>
+                    ) : walletType === "trezor" && isSignature ? (
+                        <div className="overflow-y-auto">
+                            {renderTrezorSignatureUI()}
+                        </div>
                     ) : (
-                        <div className="p-4">
-                            <div className="mb-4">
-                                <h3 className="text-lg font-medium text-gray-900">
-                                    {isSignature ? "Sign message" : "Confirm transaction"}
-                                </h3>
-                                <div className="text-sm text-gray-500">{networkName}</div>
+                        <div className="flex flex-col overflow-hidden">
+                            <div className="p-4 flex-1 overflow-y-auto">
+                                <div className="mb-4">
+                                    <h3 className="text-lg font-medium text-gray-900">
+                                        {isSignature ? "Sign message" : "Confirm transaction"}
+                                    </h3>
+                                    <div className="text-sm text-gray-500">{networkName}</div>
+                                </div>
+
+                                {/* Render content based on type */}
+                                {isTransaction && renderTransactionWallet(transactionOrSignatureDetails as TransactionDetails)}
+                                {isSignature && renderSignatureWallet(transactionOrSignatureDetails as SignatureDetails)}
                             </div>
 
-                            {/* Render Safe-specific UI if applicable */}
-                            {isTransaction && walletType === "safeWallet" && renderSafeDetails()}
-
-                            {/* Render content based on type */}
-                            {isTransaction && renderTransactionWallet(transactionOrSignatureDetails as TransactionDetails)}
-                            {isSignature && renderSignatureWallet(transactionOrSignatureDetails as SignatureDetails)}
-
-                            <div className="flex gap-3 mt-6">
-                                <ChainButton
-                                    onClick={onReject}
-                                    className="bg-white text-black hover:bg-gray-50 hover:text-gray-800 border border-gray-300"
-                                >
-                                    Reject
-                                </ChainButton>
-                                <ChainButton
-                                    onClick={handleConfirm}
-                                    className="bg-blue-600 text-white hover:bg-blue-700 hover:text-white border border-blue-600"
-                                >
-                                    {isSignature
-                                        ? "Sign"
-                                        : "Confirm"}
-                                </ChainButton>
+                            <div className="p-4 border-t border-gray-200 bg-white sticky bottom-0">
+                                <div className="flex gap-3">
+                                    <ChainButton
+                                        onClick={onReject}
+                                        className="bg-white text-black hover:bg-gray-50 hover:text-gray-800 border border-gray-300"
+                                    >
+                                        Reject
+                                    </ChainButton>
+                                    <ChainButton
+                                        onClick={() => onConfirm()}
+                                        className="bg-blue-600 text-white hover:bg-blue-700 hover:text-white border border-blue-600"
+                                    >
+                                        {isSignature
+                                            ? "Sign"
+                                            : "Confirm"}
+                                    </ChainButton>
+                                </div>
                             </div>
                         </div>
                     )}
@@ -317,90 +308,11 @@ const WalletPopupComponent = ({
         );
     };
 
-    // Render the secondary wallet popup (for Safe transactions that need additional signature)
-    const renderSecondaryWallet = () => {
-        if (!showSecondaryWallet || !isTransaction) return null;
-
-        const transactionDetails = transactionOrSignatureDetails as TransactionDetails;
-
-        // Create smaller secondary wallet popup
-        return (
-            <div className="fixed inset-0 flex items-start justify-center pt-16 px-4 z-50" style={{ backgroundColor: 'rgba(0, 0, 0, 0.5)' }}>
-                <div className="w-full max-w-md bg-white rounded-xl shadow-xl overflow-hidden">
-                    <div className="p-4 border-b border-gray-200 flex justify-between items-center">
-                        {safeAdditionalWalletType === "metamask" ? (
-                            <div className="flex items-center">
-                                <div className="mr-2 w-8 h-8 bg-orange-500 rounded-full flex items-center justify-center overflow-hidden">
-                                    <svg width="28" height="28" viewBox="0 0 318 318" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                        <path d="M274.1 35.5L174.6 109.4L193 65.8L274.1 35.5Z" fill="#E2761B" stroke="#E2761B" strokeLinecap="round" strokeLinejoin="round" />
-                                        <path d="M44.4 35.5L143.1 110.1L125.6 65.8L44.4 35.5Z" fill="#E4761B" stroke="#E4761B" strokeLinecap="round" strokeLinejoin="round" />
-                                        <path d="M238.3 206.8L211.8 247.4L268.5 263L284.8 207.7L238.3 206.8Z" fill="#E4761B" stroke="#E4761B" strokeLinecap="round" strokeLinejoin="round" />
-                                        <path d="M33.9 207.7L50.1 263L106.8 247.4L80.3 206.8L33.9 207.7Z" fill="#E4761B" stroke="#E4761B" strokeLinecap="round" strokeLinejoin="round" />
-                                        <path d="M103.6 152.5L87.9 180.9L144.1 184.2L142.1 123.6L103.6 152.5Z" fill="#E4761B" stroke="#E4761B" strokeLinecap="round" strokeLinejoin="round" />
-                                        <path d="M214.9 152.5L175.9 122.9L174.6 184.2L230.7 180.9L214.9 152.5Z" fill="#E4761B" stroke="#E4761B" strokeLinecap="round" strokeLinejoin="round" />
-                                        <path d="M106.8 247.4L140.6 230.9L111.4 208.1L106.8 247.4Z" fill="#E4761B" stroke="#E4761B" strokeLinecap="round" strokeLinejoin="round" />
-                                        <path d="M177.9 230.9L211.8 247.4L207.1 208.1L177.9 230.9Z" fill="#E4761B" stroke="#E4761B" strokeLinecap="round" strokeLinejoin="round" />
-                                    </svg>
-                                </div>
-                                <span className="font-medium text-xl text-gray-900">MetaMask</span>
-                            </div>
-                        ) : (
-                            <div className="flex items-center">
-                                <div className="mr-2 w-8 h-8 bg-black rounded-full flex items-center justify-center">
-                                    <FaLock className="text-white text-xs" />
-                                </div>
-                                <span className="font-medium text-xl text-gray-900">Trezor</span>
-                            </div>
-                        )}
-                        <button onClick={() => setShowSecondaryWallet(false)} className="text-gray-400 hover:text-gray-500">
-                            <FaTimes size={20} />
-                        </button>
-                    </div>
-
-                    <div className="p-4">
-                        <div className="mb-4">
-                            <h3 className="text-lg font-medium text-gray-900">Sign message</h3>
-                            <div className="text-sm text-gray-500">Required for Safe transaction</div>
-                        </div>
-
-                        <div className="p-3 bg-yellow-50 border border-yellow-200 rounded-md mb-4">
-                            <p className="text-sm text-yellow-800">
-                                Safe requires an additional signature to propose this transaction
-                            </p>
-                        </div>
-
-                        <div className="mb-4">
-                            <div className="text-sm text-gray-700 mb-2">Message to sign:</div>
-                            <div className="p-3 bg-gray-50 border border-gray-200 rounded-md text-xs font-mono break-all">
-                                {`Safe transaction: ${transactionDetails.fromAccount.substring(0, 8)}...${transactionDetails.fromAccount.substring(transactionDetails.fromAccount.length - 4)}`}
-                            </div>
-                        </div>
-
-                        <div className="flex gap-3 mt-6">
-                            <button
-                                onClick={() => setShowSecondaryWallet(false)}
-                                className="flex-1 py-2 px-4 border border-gray-300 rounded-md text-gray-700 font-medium hover:bg-gray-50 transition"
-                            >
-                                Cancel
-                            </button>
-                            <button
-                                onClick={handleSecondaryConfirm}
-                                className="flex-1 py-2 px-4 bg-blue-600 text-white rounded-md font-medium hover:bg-blue-700 transition"
-                            >
-                                Sign
-                            </button>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        );
-    };
 
     // Render the appropriate wallet popup(s)
     return (
         <>
             {renderPrimaryWallet()}
-            {renderSecondaryWallet()}
         </>
     );
 };

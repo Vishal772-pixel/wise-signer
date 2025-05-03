@@ -14,7 +14,7 @@ const DEFAULT_OUTPUT_AMOUNT = 10000;
 const ETH_PRICE_USD = 3500;
 
 export default function UniswapInterface({
-    fakeWebsiteEdition,
+    questionId,
     primaryButtonText = "Swap",
     onPrimaryButtonClick,
     buttonDisabled = false,
@@ -133,12 +133,6 @@ export default function UniswapInterface({
                     </button>
                 </div>
             </div>
-
-            {fakeWebsiteEdition > 1 && (
-                <div className="absolute bottom-2 right-2 text-xs text-gray-500">
-                    Edition {fakeWebsiteEdition}
-                </div>
-            )}
         </div>
     );
 }

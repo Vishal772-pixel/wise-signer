@@ -7,7 +7,7 @@ export interface BaseQuestionData {
     question: string;
     feedbackContent: FeedbackContent;
     fakeWebsiteType?: FakeWebsiteType;
-    fakeWebsiteEdition?: number;
+    questionId?: number;
     questionContext?: string;
 }
 
@@ -18,7 +18,7 @@ export interface MultiChoiceQuestionData extends BaseQuestionData {
 }
 
 export interface SignOrRejectQuestionData extends BaseQuestionData {
-    type: "signOrReject";
+    type: "signOrReject" | "safeWallet";
     expectedAction: "sign" | "reject";
     walletType: WalletType;
     interactionButtonText: string;
@@ -27,19 +27,37 @@ export interface SignOrRejectQuestionData extends BaseQuestionData {
     wrongAnswerPopupContent?: string;
 }
 
+export interface SiteData {
+    chainPrefix: string;
+    chain: string;
+    recipient: string;
+    amount: string;
+    wadValue: string;
+    nonce: number;
+    rawData: string;
+    title: string;
+    rawDataSize: string;
+    targetContract: string;
+    targetFunction: string;
+    domainHash?: string;
+    messageHash?: string;
+    eip712Hash?: string;
+
+}
 
 // export const ZKSYNC_AAVE_WRAPPED_TOKEN_GATEWAY_V3 = "0x9F07eEBdf3675f60dCeC65a092F1821Fb99726F3"
 export const ZKSYNC_AAVE_WRAPPED_TOKEN_GATEWAY_V3 = "0xAE2b00D676130Bdf22582781BbBA8f4F21e8B0ff"
 export const FRIEND_WALLET = "0xd8dA6BF26964aF9D7eEd9e03E53415D37aA96045"
 export const YOUR_WALLET = "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266"
-const MULTI_SIGNATURE_WALLET = "0x4087d2046A7435911fC26DCFac1c2Db26957Ab72"
-const ARBITRUM_WETH = "0x82af49447d8a07e3bd95bd0d56f35241523fbab1"
+export const ARBITRUM_WETH = "0x82af49447d8a07e3bd95bd0d56f35241523fbab1"
+export const MULTI_SIGNATURE_WALLET = "0x4087d2046A7435911fC26DCFac1c2Db26957Ab72"
+export const MULTI_SIGNATURE_SIGNER_WALLET = "0x4087d2046A7435911fC26DCFac1c2Db26957Ab72"
 
 export type QuestionData = MultiChoiceQuestionData | SignOrRejectQuestionData;
 
 export const questions: QuestionData[] = [
     {
-        "id": 1,
+        id: 1,
         "question": "What's the security trade off between using a browser wallet (ie. Metamask, Rabby, Phantom) and a hardware wallet (ie. Trezor, Ledger, Grid+)?",
         "type": "single",
         "options": [
@@ -59,7 +77,7 @@ export const questions: QuestionData[] = [
         }
     },
     {
-        "id": 2,
+        id: 2,
         "question": "What are the benefits, and trade-offs of a multi-signature wallet (ie. Safe{Wallet}) over a hardware or a software wallet?",
         "type": "multi",
         "options": [
@@ -90,7 +108,6 @@ export const questions: QuestionData[] = [
         walletType: "metamask",
         interactionButtonText: "Sign in with Ethereum",
         fakeWebsiteType: "OpenSea",
-        fakeWebsiteEdition: 1,
         wrongAnswerPopupContent: "Oops! You allowed this site to impersonate you on Gnosis Pay!",
         feedbackContent: {
             pages: [
@@ -119,7 +136,6 @@ Issued At: ${new Date().toISOString()}`
         walletType: "trezor",
         interactionButtonText: "Transfer",
         fakeWebsiteType: "SendEth",
-        fakeWebsiteEdition: 1,
         feedbackContent: {
             pages: [
                 "It's good to sign this transaction! This appears to be a legitimate ETH transfer to your friend's address.\nEven though the website gave the wrong information, the information on the actual wallet is correct.",
@@ -149,7 +165,6 @@ Issued At: ${new Date().toISOString()}`
         walletType: "metamask",
         interactionButtonText: "Deposit ETH",
         fakeWebsiteType: "Aave",
-        fakeWebsiteEdition: 1,
         feedbackContent: {
             pages: [
                 `The following were correct on this transaction:
@@ -204,7 +219,11 @@ The second parameter stands for \`onbehalfOf\`, meaning we are depositing ETH fo
         walletType: "metamask",
         interactionButtonText: "Sign",
         fakeWebsiteType: "SafeWallet",
-        fakeWebsiteEdition: 1,
+        transactionOrSignatureData: {
+            networkName: "Arbitrum",
+            requestFrom: "https://app.safe.global/",
+            message: `{"types":{"SafeTx":[{"type":"address","name":"to"},{"type":"uint256","name":"value"},{"type":"bytes","name":"data"},{"type":"uint8","name":"operation"},{"type":"uint256","name":"safeTxGas"},{"type":"uint256","name":"baseGas"},{"type":"uint256","name":"gasPrice"},{"type":"address","name":"gasToken"},{"type":"address","name":"refundReceiver"},{"type":"uint256","name":"nonce"}],"EIP712Domain":[{"name":"chainId","type":"uint256"},{"name":"verifyingContract","type":"address"}]},"domain":{"chainId":"42161","verifyingContract":"${MULTI_SIGNATURE_WALLET}"},"primaryType":"SafeTx","message":{"to":"${ARBITRUM_WETH}","value":"0","data":"0xa9059cbb000000000000000000000000d8da6bf26964af9d7eed9e03e53415d37aa960450000000000000000000000000000000000000000000000000de0b6b3a7640000","operation":"0","safeTxGas":"0","baseGas":"0","gasPrice":"0","gasToken":"0x0000000000000000000000000000000000000000","refundReceiver":"0x0000000000000000000000000000000000000000","nonce":"29"}}`
+        },
         feedbackContent: {
             pages: [
                 `It's correct to sign this transaction. This is a valid EIP-712 structured message for a multisig transaction with Safe{Wallet} (formerly Gnosis Safe) that matches your intention to send 1 WETH to your friend's address.
@@ -233,23 +252,115 @@ This decodes to:
                 "What's important here, is that we reviewed the safeMessage that was populated in our metamask."
             ]
         },
-        transactionOrSignatureData: {
-            networkName: "Arbitrum",
-            requestFrom: "https://app.safe.global/",
-            message: `{"types":{"SafeTx":[{"type":"address","name":"to"},{"type":"uint256","name":"value"},{"type":"bytes","name":"data"},{"type":"uint8","name":"operation"},{"type":"uint256","name":"safeTxGas"},{"type":"uint256","name":"baseGas"},{"type":"uint256","name":"gasPrice"},{"type":"address","name":"gasToken"},{"type":"address","name":"refundReceiver"},{"type":"uint256","name":"nonce"}],"EIP712Domain":[{"name":"chainId","type":"uint256"},{"name":"verifyingContract","type":"address"}]},"domain":{"chainId":"42161","verifyingContract":"${MULTI_SIGNATURE_WALLET}"},"primaryType":"SafeTx","message":{"to":"${ARBITRUM_WETH}","value":"0","data":"0xa9059cbb000000000000000000000000d8da6bf26964af9d7eed9e03e53415d37aa960450000000000000000000000000000000000000000000000000de0b6b3a7640000","operation":"0","safeTxGas":"0","baseGas":"0","gasPrice":"0","gasToken":"0x0000000000000000000000000000000000000000","refundReceiver":"0x0000000000000000000000000000000000000000","nonce":"29"}}`
-        }
     },
     {
         id: 7,
         question: "Sign or reject this signature.",
-        questionContext: `Assume your wallet address is ${YOUR_WALLET}, and you are a signer on a valid mutlisig wallet at address ${MULTI_SIGNATURE_WALLET}. You are attempting to deposit 0.1 ETH to the ZKsync Aave token pool. Please sign this transaction if doing so will bring you closer to executing, otherwise reject it.`,
+        questionContext: `Now, you'll have to verify the same transaction, but with a hardware wallet! But are you sure this one is correct?
+        
+Assume your wallet address is ${YOUR_WALLET}, and you are a signer on a valid mutlisig wallet at address ${MULTI_SIGNATURE_WALLET}. You are attempting to send 1 WETH to address: ${FRIEND_WALLET}. On the Arbitrum network. Please sign or reject this transaction, if doing so will bring you closer to executing.`,
+        type: "signOrReject",
+        expectedAction: "sign",
+        walletType: "trezor",
+        interactionButtonText: "Sign",
+        fakeWebsiteType: "SafeWallet",
+        transactionOrSignatureData: {
+            networkName: "Arbitrum",
+            requestFrom: "https://app.safe.global/",
+            message: `{"types":{"SafeTx":[{"type":"address","name":"to"},{"type":"uint256","name":"value"},{"type":"bytes","name":"data"},{"type":"uint8","name":"operation"},{"type":"uint256","name":"safeTxGas"},{"type":"uint256","name":"baseGas"},{"type":"uint256","name":"gasPrice"},{"type":"address","name":"gasToken"},{"type":"address","name":"refundReceiver"},{"type":"uint256","name":"nonce"}],"EIP712Domain":[{"name":"chainId","type":"uint256"},{"name":"verifyingContract","type":"address"}]},"domain":{"chainId":"42161","verifyingContract":"${MULTI_SIGNATURE_WALLET}"},"primaryType":"SafeTx","message":{"to":"${ARBITRUM_WETH}","value":"0","data":"0xa9059cbb000000000000000000000000d8da6bf26964af9d7eed9e03e53415d37aa960450000000000000000000000000000000000000000000000000de0b6b3a7640000","operation":"0","safeTxGas":"0","baseGas":"0","gasPrice":"0","gasToken":"0x0000000000000000000000000000000000000000","refundReceiver":"0x0000000000000000000000000000000000000000","nonce":"29"}}`
+        },
+        feedbackContent: {
+            pages: [
+                `You got it! This is a valid EIP-712 structured message for a multisig transaction with Safe{Wallet} (formerly Gnosis Safe) that matches your intention to send 1 WETH to your friend's address.
+
+This resembles a real hardware wallet, where most hardware wallets have the screen so small that you have to scroll through a ton of pages. This can lead to [security fatigue](https://www.nist.gov/news-events/news/2016/10/security-fatigue-can-cause-computer-users-feel-hopeless-and-act-recklessly), so it's better to use a wallet that has a domain, message, and eip-712 hash since that is much fater to check if it's correct. 
+
+Our next question will force you to actually check the hashes 😈`,
+            ]
+        }
+    },
+    {
+        id: 8,
+        question: "Sign or reject this signature.",
+        questionContext: `Verifying the massive JSON data on your hardware wallet can be a nightmare, as you'll have to scroll through many many screens to see all the data, which can lead to [security fatigue](https://www.nist.gov/news-events/news/2016/10/security-fatigue-can-cause-computer-users-feel-hopeless-and-act-recklessly). So you should get good at verifying using only the domain and message hash (or, the EIP-712 hash).
+
+Assume your wallet address is ${YOUR_WALLET}, and you are a signer on a valid mutlisig wallet at address ${MULTI_SIGNATURE_WALLET}. You are attempting to deposit 0.1 ETH to the ZKsync Aave token pool. Please sign this transaction if doing so will bring you closer to executing, otherwise reject it.
+
+ Also assume, you have the settings of your hardware wallet set to show ONLY the Domain and Message hash, and not the entire JSON data. So when you see the \`Message\` page, you know that this is showing you the message hash and domain hash (domain separator) and not the actual JSON message.
+
+Hint: Here is the starting JSON data that is being signed:
+
+
+{
+    "types": {
+        "SafeTx": [
+            {
+                "name": "to",
+                "type": "address"
+            },
+            {
+                "name": "value",
+                "type": "uint256"
+            },
+            {
+                "name": "data",
+                "type": "bytes"
+            },
+            {
+                "name": "operation",
+                "type": "uint8"
+            },
+            {
+                "name": "safeTxGas",
+                "type": "uint256"
+            },
+            {
+                "name": "baseGas",
+                "type": "uint256"
+            },
+            {
+                "name": "gasPrice",
+                "type": "uint256"
+            },
+            {
+                "name": "gasToken",
+                "type": "address"
+            },
+            {
+                "name": "refundReceiver",
+                "type": "address"
+            },
+            {
+                "name": "nonce",
+                "type": "uint256"
+            }
+        ],
+        "EIP712Domain": [
+            {
+                "name": "chainId",
+                "type": "uint256"
+            },
+            {
+                "name": "verifyingContract",
+                "type": "address"
+            }
+        ]
+    },
+    "domain": {
+        "chainId": "0x144",
+        "verifyingContract": "0x4087d2046A7435911fC26DCFac1c2Db26957Ab72"
+    },
+    "primaryType": "SafeTx",
+    "message": {
+        // Fill me in!
+    }
+}`,
         wrongAnswerPopupContent: "Oh no!\n\nYou were just hit with a similar attack to what happened to Bybit ($1.4B loss!)",
         type: "signOrReject",
         expectedAction: "reject",
         walletType: "trezor",
         interactionButtonText: "Sign",
         fakeWebsiteType: "SafeWallet",
-        fakeWebsiteEdition: 2,
         feedbackContent: {
             pages: [`This is an example of what could happen if the user interface is compromised. The Message and Domain hash on the website matches what is in your Trezor, but it's a malicious message and domain hash! We can actually calculate the domain and message hash ourselves a few different ways:
 
@@ -257,7 +368,7 @@ This decodes to:
 - [safe-tx-hashes-utils](https://github.com/pcaversaccio/safe-tx-hashes-util)
 - [safeutils.openzeppelin.com](https://safeutils.openzeppelin.com/)
 
-Something else to note, is that on wallets with small screens, it can be really difficult to verify pages and pages of data. The data that we are signing is much bigger here than just sending tokens, so it's often just easier to just compare the hashes of the data we are signing instead of inspecting the entire data on our wallet.`, `No matter what tool we use, the first thing we need to do is inspect/create the JSON object that is being signed. In this case, we were signing:
+Something else to note, is that on wallets with small screens, it can be really difficult to verify pages and pages of data. The data that we are signing is much bigger here than just sending tokens, so it's often just easier to just compare the hashes of the data we are signing instead of inspecting the entire data on our wallet.`, `No matter what tool we use, the first thing we need to do is inspect/create the JSON object that is being signed. In this case, based on the data from the Safe UI, we should be signing:
 
 \`\`\`json
 {
@@ -321,7 +432,7 @@ Something else to note, is that on wallets with small screens, it can be really 
     },
     "primaryType": "SafeTx",
     "message": {
-        "to": "0x9F07eEBdf3675f60dCeC65a092F1821Fb99726F3",
+        "to": "${ZKSYNC_AAVE_WRAPPED_TOKEN_GATEWAY_V3}",
         "value": "100000000000000000",
         "data": "0x474cf53d0000000000000000000000006ae43d3271ff6888e7fc43fd7321a503ff7389510000000000000000000000005031f5e2ed384978dca63306dc28a68a6fc33e810000000000000000000000000000000000000000000000000000000000000000",
         "operation": "0",
@@ -335,7 +446,7 @@ Something else to note, is that on wallets with small screens, it can be really 
 }
 \`\`\`
 
-And this looks great! So we should be signing the hash associated with this data. But what happens if we calculate it? 
+And this _seems_ great, but is it? So we should be signing the hash associated with this data. But what happens if we calculate it? 
 `, `If we save this to a file (\`file.json\`), and using the safe-hash-rs tool we run:
 
 \`\`\`bash
@@ -346,11 +457,11 @@ We get an output of:
 
 \`\`\`
 +--------------+--------------------------------------------------------------------+
-| EIP 712 Hash | 0xe1706b155a9dbe1301f3d65a63fbba3902f34b058654de304536b25e8ad43762 |
+| EIP 712 Hash | 0x6b7b2f6fc32adea40689c72912cf0fd00f9a2455204e0a2edfd9e5684b64db1b |
 +--------------+--------------------------------------------------------------------+
 | Domain Hash  | 0xe0392d263ff13e09757bfce9b182ead6ceabd9d1b404aa7df77e65b304969130 |
 +--------------+--------------------------------------------------------------------+
-| Message Hash | 0xbd65862028842ae4f194e32898061b00c051313f004287c45cadaa2769ca5bd9 |
+| Message Hash | 0xdcab1ef0579aa50678fcb3a1e815b6e7fa271ad33db76832199632fa61c47bf4 |
 +--------------+--------------------------------------------------------------------+
 \`\`\`
 
@@ -362,9 +473,45 @@ If you update your \`file.json\` to have the \`operation\` as a \`1\`, and run t
         transactionOrSignatureData: {
             networkName: "ZKsync Era",
             requestFrom: "https://app.safe.global/",
-            message: `Domain Hash: 0xe0392d263ff13e09757bfce9b182ead6ceabd9d1b404aa7df77e65b304969130
+            message: `Domain Hash: 0xe0392d263ff13e09757bfce9b182ead6ceabd9d1b404aa7df77e65b304969130\nMessage Hash: 0xb2498e7f8d82ce5d628accdcc7d7bb245557a93f420c3b8baeab1df0c11d0886`
+        }
+    },
+    {
+        id: 9,
+        question: "Sign or reject this signature.",
+        questionContext: `Now, can you sign a safe transaction where the signer is another safe? Let's find out...
 
-Message Hash: 0x0db6e416d2b06ac70029e49612906eed8573295a11af6a69bb42413557c32632`
+We are attempting to send 0.001 WETH from ${MULTI_SIGNATURE_WALLET} to ${FRIEND_WALLET} on the ZKsync Era network. Please sign this transaction if doing so will bring you closer to executing, otherwise reject it.`,
+        type: "signOrReject",
+        expectedAction: "sign",
+        walletType: "safeWallet",
+        interactionButtonText: "sign",
+        fakeWebsiteType: "SafeWallet",
+        transactionOrSignatureData: {
+            networkName: "ZKsync",
+            requestFrom: "https://app.safe.global/",
+            message: `todo`
+        },
+        feedbackContent: {
+            pages: []
+        }
+    },
+    {
+        id: 10,
+        question: "Sign or reject this signature.",
+        questionContext: `Congratulations! All your amazing multi-sig skills have paid off, and you are now a signer the security council for ZKSync!`,
+        type: "signOrReject",
+        expectedAction: "sign",
+        walletType: "trezor",
+        interactionButtonText: "todo",
+        fakeWebsiteType: "SafeWallet",
+        transactionOrSignatureData: {
+            networkName: "todo",
+            requestFrom: "todo",
+            message: `todo`
+        },
+        feedbackContent: {
+            pages: []
         }
     }
 ];

@@ -14,7 +14,7 @@ const DEFAULT_AMOUNT_WEI = DEFAULT_AMOUNT_ETH * 10 ** 18;
 const DEFAULT_AMOUNT_WEI_STRING = DEFAULT_AMOUNT_WEI.toLocaleString('fullwide', { useGrouping: false });
 
 export default function SendEth({
-    fakeWebsiteEdition,
+    questionId,
     primaryButtonText = "Transfer",
     onPrimaryButtonClick,
     buttonDisabled = false,
@@ -96,12 +96,6 @@ export default function SendEth({
                     </div>
                 </div>
             </div>
-
-            {fakeWebsiteEdition > 1 && (
-                <div className="absolute bottom-2 right-2 text-xs text-gray-500">
-                    Edition {fakeWebsiteEdition}
-                </div>
-            )}
         </div>
     );
 }

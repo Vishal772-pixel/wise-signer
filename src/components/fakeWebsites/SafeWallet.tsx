@@ -1,90 +1,16 @@
 "use client";
 
 import { useState } from "react";
-import { FaWallet, FaArrowRight, FaCopy, FaInfo, FaInfoCircle, FaChevronDown, FaChevronUp } from "react-icons/fa";
+import { FaWallet, FaCopy, FaInfoCircle, FaChevronDown, FaChevronUp } from "react-icons/fa";
 import { FakeWebsiteComponentProps } from "@/types";
 import BrowserNavBar from "@/components/fakeWebsites/BrowserNavBar";
 import ChainButton from "@/components/ChainButton";
-import { FRIEND_WALLET, ZKSYNC_AAVE_WRAPPED_TOKEN_GATEWAY_V3, YOUR_WALLET } from "@/data/questions";
+import { FRIEND_WALLET, ZKSYNC_AAVE_WRAPPED_TOKEN_GATEWAY_V3, YOUR_WALLET, ARBITRUM_WETH } from "@/data/questions";
 
 const URL = "https://app.safe.global";
 
 interface SiteDatas {
     [key: number]: SiteData;
-}
-
-const typedData = {
-    "types": {
-        "SafeTx": [
-            {
-                "name": "to",
-                "type": "address"
-            },
-            {
-                "name": "value",
-                "type": "uint256"
-            },
-            {
-                "name": "data",
-                "type": "bytes"
-            },
-            {
-                "name": "operation",
-                "type": "uint8"
-            },
-            {
-                "name": "safeTxGas",
-                "type": "uint256"
-            },
-            {
-                "name": "baseGas",
-                "type": "uint256"
-            },
-            {
-                "name": "gasPrice",
-                "type": "uint256"
-            },
-            {
-                "name": "gasToken",
-                "type": "address"
-            },
-            {
-                "name": "refundReceiver",
-                "type": "address"
-            },
-            {
-                "name": "nonce",
-                "type": "uint256"
-            }
-        ],
-        "EIP712Domain": [
-            {
-                "name": "chainId",
-                "type": "uint256"
-            },
-            {
-                "name": "verifyingContract",
-                "type": "address"
-            }
-        ]
-    },
-    "domain": {
-        "chainId": "0x144",
-        "verifyingContract": "0x4087d2046A7435911fC26DCFac1c2Db26957Ab72"
-    },
-    "primaryType": "SafeTx",
-    "message": {
-        "to": "0x9F07eEBdf3675f60dCeC65a092F1821Fb99726F3",
-        "value": "100000000000000000",
-        "data": "0x474cf53d0000000000000000000000006ae43d3271ff6888e7fc43fd7321a503ff7389510000000000000000000000005031f5e2ed384978dca63306dc28a68a6fc33e810000000000000000000000000000000000000000000000000000000000000000",
-        "operation": "0",
-        "safeTxGas": "0",
-        "baseGas": "0",
-        "gasPrice": "0",
-        "gasToken": "0x0000000000000000000000000000000000000000",
-        "refundReceiver": "0x0000000000000000000000000000000000000000",
-        "nonce": "1"
-    }
 }
 
 interface SiteData {
@@ -98,10 +24,13 @@ interface SiteData {
     title: string;
     rawDataSize: string;
     targetContract: string;
-    targetFunction: string
+    targetFunction: string;
+    domainHash?: string;
+    messageHash?: string;
+    eip712Hash?: string;
 }
 
-const dataOne: SiteData = {
+const dataSix: SiteData = {
     "chainPrefix": "arb",
     "chain": "arbitrum",
     "recipient": FRIEND_WALLET,
@@ -115,7 +44,9 @@ const dataOne: SiteData = {
     "targetFunction": "transfer"
 }
 
-const dataTwo: SiteData = {
+const dataSeven = dataSix
+
+const dataEight: SiteData = {
     "chainPrefix": "zks",
     "chain": "zksync",
     "recipient": ZKSYNC_AAVE_WRAPPED_TOKEN_GATEWAY_V3,
@@ -126,39 +57,85 @@ const dataTwo: SiteData = {
     "title": "Aave",
     "rawDataSize": "TODO",
     "targetContract": "WrappedTokenGatewayV3",
-    "targetFunction": "depositETH"
+    "targetFunction": "depositETH",
+    "domainHash": "0xe0392d263ff13e09757bfce9b182ead6ceabd9d1b404aa7df77e65b304969130",
+    "messageHash": "0x1c4f2b5a3d8e7f6e9b8c5a2d3f4e5a6b7c8d9e0f1a2b3c4d5e6f7g8h9i0j1k2l",
+    "eip712Hash": "0x2a3b4c5d6e7f8g9h0i1j2k3l4m5n6o7p8q9r0s1t2u3v4w5x6y7z8a9b0c1d2e3"
+}
+
+const dataNine: SiteData = {
+    "chainPrefix": "arb",
+    "chain": "arbitrum",
+    "recipient": ARBITRUM_WETH,
+    "amount": "0.01",
+    "wadValue": "10000000000000000",
+    "nonce": 3,
+    "rawData": "0xa9059cbb000000000000000000000000d8da6bf26964af9d7eed9e03e53415d37aa96045000000000000000000000000000000000000000000000000002386f26fc10000",
+    "title": "Send tokens",
+    "rawDataSize": "68 bytes",
+    "targetContract": "WETH 1",
+    "targetFunction": "transfer",
+    "domainHash": "0x708a56f0d03ff6c322a52b593dd80a125c2c0cb4cb882ff7e9a25a245720e362",
+    "messageHash": "0xa95cd534867e78aa5866b22e278984004eca36cff555462c50be402f7b292832",
+    "eip712Hash": "0x1241d5f936976cbb8fedfdd8f1f608d773a0b68592ecbc6659f3eec3448a96af"
+}
+
+const dataNinePointOne: SiteData = {
+    "chainPrefix": "zks",
+    "chain": "zksync",
+    "recipient": FRIEND_WALLET,
+    "amount": "0.01",
+    "wadValue": "10000000000000000",
+    "nonce": 3,
+    "rawData": "0xa9059cbb000000000000000000000000d8da6bf26964af9d7eed9e03e53415d37aa96045000000000000000000000000000000000000000000000000002386f26fc10000",
+    "title": "Send tokens",
+    "rawDataSize": "68 bytes",
+    "targetContract": "WETH 1",
+    "targetFunction": "transfer",
+    "domainHash": "0xf0276c332cd121de246e945fa8624ceeb62c7bb0d2ba58900263bef583f974df",
+    "messageHash": "0xe5d0709adbdc62ac1a177ac71f2ceb739155ecc90a01286f5479dbb77868b3af",
+    "eip712Hash": "0x0473256f92d884b5d57f1f5e4c00e75b298068e917220614e41717d90a0ca935"
 }
 
 const siteDatas: SiteDatas = {
-    1: dataOne,
-    2: dataTwo
+    6: dataSix,
+    7: dataSeven,
+    8: dataEight,
+    9: dataNine,
+    91: dataNinePointOne
 }
 
+function isWethSend(questionId: number): boolean {
+    return questionId === 6 || questionId === 7;
+}
 
 export default function SafeWallet({
-    fakeWebsiteEdition,
+    questionId,
     primaryButtonText = "Sign",
     onPrimaryButtonClick,
     buttonDisabled = false,
 }: FakeWebsiteComponentProps) {
     const [showConfirmation, setShowConfirmation] = useState(false);
     const [showTransactionDetails, setShowTransactionDetails] = useState(true);
-    const [error, setError] = useState(false);
     const [copiedText, setCopiedText] = useState("");
     const [showCopiedTooltip, setShowCopiedTooltip] = useState(false);
 
-    const amount = siteDatas[fakeWebsiteEdition]["amount"];
+    const wethSend = isWethSend(questionId);
+    const amount = siteDatas[questionId]["amount"];
     const formattedAmount = parseFloat(amount).toString();
-    const chainPrefix = siteDatas[fakeWebsiteEdition]["chainPrefix"];
-    const recipientAddress = chainPrefix + ":" + siteDatas[fakeWebsiteEdition]["recipient"];
+    const chainPrefix = siteDatas[questionId]["chainPrefix"];
+    const recipientAddress = chainPrefix + ":" + siteDatas[questionId]["recipient"];
     const zeroAddress = chainPrefix + ":0x0000000000000000000000000000000000000000";
-    const rawDataSize = siteDatas[fakeWebsiteEdition]["rawDataSize"];
-    const wadValue = siteDatas[fakeWebsiteEdition]["wadValue"];
-    const title = siteDatas[fakeWebsiteEdition]["title"];
-    const nonce = siteDatas[fakeWebsiteEdition]["nonce"];
-    const targetContract = siteDatas[fakeWebsiteEdition]["targetContract"];
-    const targetFunction = siteDatas[fakeWebsiteEdition]["targetFunction"];
-    const rawData = siteDatas[fakeWebsiteEdition]["rawData"];
+    const rawDataSize = siteDatas[questionId]["rawDataSize"];
+    const wadValue = siteDatas[questionId]["wadValue"];
+    const title = siteDatas[questionId]["title"];
+    const nonce = siteDatas[questionId]["nonce"];
+    const targetContract = siteDatas[questionId]["targetContract"];
+    const targetFunction = siteDatas[questionId]["targetFunction"];
+    const rawData = siteDatas[questionId]["rawData"];
+    const domainHash = siteDatas[questionId]["domainHash"];
+    const messageHash = siteDatas[questionId]["messageHash"];
+    const eip712Hash = siteDatas[questionId]["eip712Hash"];
 
     // Handle primary button click (Next)
     const handleNext = () => {
@@ -295,7 +272,7 @@ export default function SafeWallet({
 
                 {/* Main content */}
                 <div className="flex-1 p-6">
-                    {!showConfirmation && fakeWebsiteEdition == 1 ? (
+                    {!showConfirmation && wethSend ? (
                         /* Transaction creation screen */
                         <div className="max-w-3xl mx-auto">
                             <div className="flex items-center justify-between mb-6">
@@ -427,7 +404,7 @@ export default function SafeWallet({
                                     <span className="text-gray-500 dark:text-gray-400 mx-1">on</span>
                                     <span className="font-mono bg-gray-100 dark:bg-gray-800 px-1.5 py-0.5 rounded text-purple-600 dark:text-purple-400 text-sm">{targetContract}</span>
                                     <div className="flex flex-col space-y-4 py-1">
-                                        {fakeWebsiteEdition == 1 && (
+                                        {wethSend && (
                                             <div className="space-y-2">
                                                 <div className="flex items-center">
                                                     <span className="text-gray-400 w-16 text-base">To</span>
@@ -461,7 +438,7 @@ export default function SafeWallet({
                                                 </div>
                                             </div>)
                                         }
-                                        {fakeWebsiteEdition == 2 && (
+                                        {!wethSend && (questionId === 7) && (
                                             <div className="space-y-2">
                                                 <div className="flex items-center">
                                                     <span className="text-gray-400 w-16 text-base">Value:</span>
@@ -524,14 +501,48 @@ export default function SafeWallet({
                                                 </div>
                                             </div>
                                         )}
+                                        {!wethSend && (questionId === 9) && (
+                                            <div className="space-y-2">
+                                                <div className="flex items-center">
+                                                    <span className="text-gray-400 w-16 text-base">dst (address)</span>
+                                                    <div className="flex items-center px-6">
+                                                        <div className="w-7 h-7 bg-gradient-to-r from-green-400 to-blue-500 rounded-full mr-2"></div>
+                                                        <span className="text-base">
+                                                            <span className="ml-1 text-white">{chainPrefix + ":" + FRIEND_WALLET}</span>
+                                                        </span>
+                                                        <button
+                                                            className="ml-2 text-gray-400 hover:text-gray-300 cursor-pointer"
+                                                            onClick={() => copyToClipboard(FRIEND_WALLET)}
+                                                        >
+                                                            <FaCopy size={16} />
+                                                        </button>
+                                                    </div>
+                                                </div>
+                                                <div className="flex items-center">
+                                                    <span className="text-gray-400 w-16 text-base">wad (uint256)</span>
+                                                    <div className="flex items-center px-6">
+                                                        <div className="w-7 h-7 bg-gradient-to-r from-green-400 to-blue-500 rounded-full mr-2"></div>
+                                                        <span className="text-base">
+                                                            <span className="ml-1 text-white">{wadValue}</span>
+                                                        </span>
+                                                        <button
+                                                            className="ml-2 text-gray-400 hover:text-gray-300 cursor-pointer"
+                                                            onClick={() => copyToClipboard(wadValue)}
+                                                        >
+                                                            <FaCopy size={16} />
+                                                        </button>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        )}
                                     </div>
                                 </div>
 
                                 {/* Transaction details */}
                                 <div className="border border-gray-700 rounded-lg overflow-hidden mb-6">
                                     <div className="flex justify-between items-center p-3 bg-[#1a1a1a]">
-                                        {fakeWebsiteEdition == 1 && (<span>Transaction details</span>)}
-                                        {fakeWebsiteEdition == 2 && (<span>Advanced details</span>)}
+                                        {wethSend && (<span>Transaction details</span>)}
+                                        {!wethSend && (<span>Advanced details</span>)}
                                         <button
                                             onClick={toggleTransactionDetails}
                                             className="text-gray-400 hover:text-white cursor-pointer"
@@ -540,7 +551,7 @@ export default function SafeWallet({
                                         </button>
                                     </div>
 
-                                    {showTransactionDetails && fakeWebsiteEdition == 1 && (
+                                    {showTransactionDetails && wethSend && (
                                         <div className="p-4 bg-[#111]">
                                             <div className="text-xs text-gray-400 uppercase mb-1">TRANSFER</div>
                                             <div className="flex justify-between items-center mb-2">
@@ -606,17 +617,8 @@ export default function SafeWallet({
                                             </div>
                                         </div>
                                     )}
-                                    {showTransactionDetails && fakeWebsiteEdition == 2 && (
+                                    {showTransactionDetails && !wethSend && (
                                         <div className="p-4 bg-[#111]">
-                                            <div className="text-white-400 font-bold mb-1">Transaction Data
-                                                <button
-                                                    className="p-2 bg-[#222] hover:bg-[#333] rounded-md cursor-pointer"
-                                                    onClick={() => copyToClipboard(JSON.stringify(typedData))}
-                                                >
-                                                    <FaCopy size={14} />
-                                                </button>
-                                                &larr; JSON
-                                            </div>
                                             <div className="flex justify-between items-center mb-2">
                                                 <span className="text-gray-400">to:</span>
                                                 <div className="flex items-center">
@@ -632,10 +634,10 @@ export default function SafeWallet({
                                             <div className="flex justify-between items-center mb-2">
                                                 <span className="text-gray-400">value:</span>
                                                 <div className="flex items-center">
-                                                    <span>{wadValue}</span>
+                                                    <span>0</span>
                                                     <button
                                                         className="ml-2 text-gray-400 hover:text-gray-300 cursor-pointer"
-                                                        onClick={() => copyToClipboard(wadValue)}
+                                                        onClick={() => copyToClipboard("0")}
                                                     >
                                                         <FaCopy size={14} />
                                                     </button>
@@ -721,10 +723,10 @@ export default function SafeWallet({
                                             <div className="flex justify-between items-center mb-2">
                                                 <span className="text-gray-400">Domain Hash:</span>
                                                 <div className="flex items-center">
-                                                    <span>0xe0392d263ff13e09757bfce9b182ead6ceabd9d1b404aa7df77e65b304969130</span>
+                                                    <span>{domainHash}</span>
                                                     <button
                                                         className="ml-2 text-gray-400 hover:text-gray-300 cursor-pointer"
-                                                        onClick={() => copyToClipboard("0xe0392d263ff13e09757bfce9b182ead6ceabd9d1b404aa7df77e65b304969130")}
+                                                        onClick={() => copyToClipboard(domainHash!)}
                                                     >
                                                         <FaCopy size={14} />
                                                     </button>
@@ -733,10 +735,10 @@ export default function SafeWallet({
                                             <div className="flex justify-between items-center mb-2">
                                                 <span className="text-gray-400">Message Hash:</span>
                                                 <div className="flex items-center">
-                                                    <span>0x0db6e416d2b06ac70029e49612906eed8573295a11af6a69bb42413557c32632</span>
+                                                    <span>{messageHash}</span>
                                                     <button
                                                         className="ml-2 text-gray-400 hover:text-gray-300 cursor-pointer"
-                                                        onClick={() => copyToClipboard("0x0db6e416d2b06ac70029e49612906eed8573295a11af6a69bb42413557c32632")}
+                                                        onClick={() => copyToClipboard(messageHash!)}
                                                     >
                                                         <FaCopy size={14} />
                                                     </button>
@@ -745,10 +747,10 @@ export default function SafeWallet({
                                             <div className="flex justify-between items-center mb-2">
                                                 <span className="text-gray-400">safeTxHash:</span>
                                                 <div className="flex items-center">
-                                                    <span>0x6a135665fbd091346f753c6ab54566272200ea1c41be916da5becc78db6d9414</span>
+                                                    <span>{eip712Hash}</span>
                                                     <button
                                                         className="ml-2 text-gray-400 hover:text-gray-300 cursor-pointer"
-                                                        onClick={() => copyToClipboard("0x6a135665fbd091346f753c6ab54566272200ea1c41be916da5becc78db6d9414")}
+                                                        onClick={() => copyToClipboard(eip712Hash!)}
                                                     >
                                                         <FaCopy size={14} />
                                                     </button>
@@ -774,50 +776,33 @@ export default function SafeWallet({
                                     </p>
                                 </div>
 
-                                {/* Error message (conditionally shown) */}
-                                {error && (
-                                    <div className="p-4 bg-red-900 bg-opacity-20 text-red-400 rounded-lg mb-6 flex items-start">
-                                        <FaInfoCircle className="mr-2 mt-1" />
-                                        <div>
-                                            <div className="font-medium">Error submitting the transaction: Please try again.</div>
-                                            <a href="#" className="text-red-300 hover:underline text-sm">Details</a>
-                                        </div>
-                                    </div>
-                                )}
-
                                 {/* Action buttons */}
-                                <div className="flex justify-between mt-8">
-                                    <button
-                                        onClick={() => setShowConfirmation(false)}
-                                        className="px-8 py-3 bg-[#222] hover:bg-[#333] rounded-lg cursor-pointer"
-                                    >
-                                        Back
-                                    </button>
+                                {questionId === 9 ? <div></div> :
+                                    <div className="flex justify-between mt-8">
+                                        <button
+                                            onClick={() => setShowConfirmation(false)}
+                                            className="px-8 py-3 bg-[#222] hover:bg-[#333] rounded-lg cursor-pointer"
+                                        >
+                                            Back
+                                        </button>
 
-                                    <ChainButton
-                                        onClick={onPrimaryButtonClick}
-                                        disabled={buttonDisabled}
-                                        className={`px-8 py-3 rounded-lg ${buttonDisabled
-                                            ? 'bg-gray-700 text-gray-400 cursor-not-allowed'
-                                            : 'bg-green-500 text-black hover:bg-green-600'
-                                            }`}
-                                    >
-                                        {primaryButtonText}
-                                    </ChainButton>
-                                </div>
+                                        <ChainButton
+                                            onClick={onPrimaryButtonClick}
+                                            disabled={buttonDisabled}
+                                            className={`px-8 py-3 rounded-lg ${buttonDisabled
+                                                ? 'bg-gray-700 text-gray-400 cursor-not-allowed'
+                                                : 'bg-green-500 text-black hover:bg-green-600'
+                                                }`}
+                                        >
+                                            {primaryButtonText}
+                                        </ChainButton>
+                                    </div>
+                                }
                             </div>
                         </div>
                     )}
                 </div>
             </div>
-
-            {
-                fakeWebsiteEdition > 1 && (
-                    <div className="absolute bottom-2 right-2 text-xs text-gray-500">
-                        Edition {fakeWebsiteEdition}
-                    </div>
-                )
-            }
         </div >
     );
 }

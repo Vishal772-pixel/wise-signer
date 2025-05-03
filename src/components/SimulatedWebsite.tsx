@@ -8,7 +8,7 @@ import { DefaultSite } from '@/components/fakeWebsites';
 
 interface SimulatedWebsiteProps {
     fakeWebsiteType: FakeWebsiteType;
-    fakeWebsiteEdition: number;
+    questionId: number;
     primaryButtonText?: string;
     onPrimaryButtonClick: () => void;
     buttonDisabled?: boolean;
@@ -17,14 +17,14 @@ interface SimulatedWebsiteProps {
 
 export default function SimulatedWebsite({
     fakeWebsiteType,
-    fakeWebsiteEdition,
+    questionId,
     primaryButtonText = "Sign in with Ethereum",
     onPrimaryButtonClick,
     buttonDisabled = false
 }: SimulatedWebsiteProps) {
     const WebsiteComponent = useMemo(() => {
         return dynamic<{
-            fakeWebsiteEdition: number;
+            questionId: number;
             primaryButtonText?: string;
             onPrimaryButtonClick: () => void;
             buttonDisabled?: boolean;
@@ -52,7 +52,7 @@ export default function SimulatedWebsite({
     return (
         <div>
             <WebsiteComponent
-                fakeWebsiteEdition={fakeWebsiteEdition}
+                questionId={questionId}
                 primaryButtonText={primaryButtonText}
                 onPrimaryButtonClick={onPrimaryButtonClick}
                 buttonDisabled={buttonDisabled}
