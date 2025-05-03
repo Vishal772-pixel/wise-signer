@@ -169,7 +169,7 @@ const WalletPopupComponent = ({
                         <div className="mt-3 p-3 bg-gray-50 rounded-md border border-gray-200">
                             <div className="mb-2">
                                 <span className="text-xs text-gray-500">Function:</span>
-                                <span className="text-xs font-mono ml-2 text-gray-800">{transactionDetails.functionName}</span>
+                                <span className="text-xs font-mono ml-2 text-gray-800 break-all">{transactionDetails.functionName}</span>
                             </div>
                             <div>
                                 <span className="text-xs text-gray-500">Data:</span>

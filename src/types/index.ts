@@ -1,7 +1,7 @@
 // Wallet types
 export type WalletType = "metamask" | "safeWallet" | "trezor";
 
-export type FakeWebsiteType = "Uniswap" | "OpenSea" | "SendEth" | "Aave" | "SafeWallet";
+export type FakeWebsiteType = "Uniswap" | "OpenSea" | "SendEth" | "Aave" | "SafeWallet" | "SecurityCouncil";
 
 export type FakeWebsiteComponentProps = {
     questionId: number;

@@ -40,6 +40,8 @@ export default function SimulatedWebsite({
                     return import('@/components/fakeWebsites/Aave');
                 case "safewallet":
                     return import('@/components/fakeWebsites/SafeWallet');
+                case "securitycouncil":
+                    return import('@/components/fakeWebsites/SecurityCouncil');
                 default:
                     return import('@/components/fakeWebsites/DefaultSite');
             }

@@ -51,7 +51,7 @@ export const FRIEND_WALLET = "0xd8dA6BF26964aF9D7eEd9e03E53415D37aA96045"
 export const YOUR_WALLET = "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266"
 export const ARBITRUM_WETH = "0x82af49447d8a07e3bd95bd0d56f35241523fbab1"
 export const MULTI_SIGNATURE_WALLET = "0x4087d2046A7435911fC26DCFac1c2Db26957Ab72"
-export const MULTI_SIGNATURE_SIGNER_WALLET = "0x4087d2046A7435911fC26DCFac1c2Db26957Ab72"
+export const MULTI_SIGNATURE_SIGNER_WALLET = "0x5031f5E2ed384978dca63306dc28A68a6Fc33e81"
 
 export type QuestionData = MultiChoiceQuestionData | SignOrRejectQuestionData;
 
@@ -130,7 +130,9 @@ Issued At: ${new Date().toISOString()}`
     {
         id: 4,
         question: `Execute or reject this transaction.`,
-        questionContext: `This transaction requires your Trezor hardware wallet. You're attempting to send your friend \`0x70997970C51812dc3A010C7d01b50e0d17dc79C8\` \`0.5 ETH\` on the Ethereum chain. Assume your wallet is \`${YOUR_WALLET}.\``,
+        questionContext: `This transaction requires your Trezor hardware wallet. You're attempting to send your friend \`0x70997970C51812dc3A010C7d01b50e0d17dc79C8\` \`0.5 ETH\` on the Ethereum chain. Assume your wallet is \`${YOUR_WALLET}.\` 
+        
+Only trust what the hardware wallet shows you. If sending this transaction will get you want you want, sign it!`,
         type: "signOrReject",
         expectedAction: "sign",
         walletType: "trezor",
@@ -158,7 +160,9 @@ Issued At: ${new Date().toISOString()}`
     {
         id: 5,
         question: "Execute or reject this transaction.",
-        questionContext: `Assume your wallet address is ${YOUR_WALLET}. You want to deposit 1 ETH into Aave to begin gaining interest on the ZKsync Era network. Will signing this accomplish that? If so, please sign, otherwise reject.`,
+        questionContext: `Assume your wallet address is ${YOUR_WALLET}. You want to deposit 1 ETH into Aave to begin gaining interest on the ZKsync Era network. Yes, use the real Aave contract address on ZKsync Era if that helps. 
+        
+Will signing this accomplish that? If so, please sign, otherwise reject.`,
         type: "signOrReject",
         expectedAction: "reject",
         wrongAnswerPopupContent: "Oh no!\n\nYou just deposited ETH in Aave for someone else!",
@@ -206,14 +210,14 @@ The second parameter stands for \`onbehalfOf\`, meaning we are depositing ETH fo
                 usd: "$0.02",
                 eth: "0.00004ETH"
             },
-            functionName: "function depositETH(address,address,uint16)",
+            functionName: "depositETH(address,address,uint16)",
             data: "0x474cf53d000000000000000000000000f39fd6e51aad88f6f4ce6ab8827279cfffb9226600000000000000000000000023618e81e3f5cdf7f54c3d65f7fbc0abf5b21e8f0000000000000000000000000000000000000000000000000000000000000000",
         }
     },
     {
         id: 6,
         question: "Sign or reject this signature.",
-        questionContext: `Assume your wallet address is ${YOUR_WALLET}, and you are a signer on a valid mutlisig wallet at address ${MULTI_SIGNATURE_WALLET}. You are attempting to send 1 WETH to address: ${FRIEND_WALLET}. On the Arbitrum network. Please sign or reject this transaction, if doing so will bring you closer to executing.`,
+        questionContext: `Assume your wallet address is ${YOUR_WALLET}, and you are a signer on a valid mutlisig wallet at address ${MULTI_SIGNATURE_WALLET}. You are attempting to send 1 WETH to address: ${FRIEND_WALLET} on the Arbitrum network. Please sign or reject this transaction, if doing so will bring you closer to executing.`,
         type: "signOrReject",
         expectedAction: "sign",
         walletType: "metamask",
@@ -258,7 +262,7 @@ This decodes to:
         question: "Sign or reject this signature.",
         questionContext: `Now, you'll have to verify the same transaction, but with a hardware wallet! But are you sure this one is correct?
         
-Assume your wallet address is ${YOUR_WALLET}, and you are a signer on a valid mutlisig wallet at address ${MULTI_SIGNATURE_WALLET}. You are attempting to send 1 WETH to address: ${FRIEND_WALLET}. On the Arbitrum network. Please sign or reject this transaction, if doing so will bring you closer to executing.`,
+Assume your wallet address is ${YOUR_WALLET}, and you are a signer on a valid mutlisig wallet at address ${MULTI_SIGNATURE_WALLET}. You are attempting to send 1 WETH to address: ${FRIEND_WALLET} on the Arbitrum network. Please sign or reject this transaction, if doing so will bring you closer to executing.`,
         type: "signOrReject",
         expectedAction: "sign",
         walletType: "trezor",
@@ -434,7 +438,7 @@ Something else to note, is that on wallets with small screens, it can be really 
     "message": {
         "to": "${ZKSYNC_AAVE_WRAPPED_TOKEN_GATEWAY_V3}",
         "value": "100000000000000000",
-        "data": "0x474cf53d0000000000000000000000006ae43d3271ff6888e7fc43fd7321a503ff7389510000000000000000000000005031f5e2ed384978dca63306dc28a68a6fc33e810000000000000000000000000000000000000000000000000000000000000000",
+        "data": "0x474cf53d0000000000000000000000004087d2046a7435911fc26dcfac1c2db26957ab720000000000000000000000004087d2046a7435911fc26dcfac1c2db26957ab720000000000000000000000000000000000000000000000000000000000000000",
         "operation": "0",
         "safeTxGas": "0",
         "baseGas": "0",
@@ -457,11 +461,11 @@ We get an output of:
 
 \`\`\`
 +--------------+--------------------------------------------------------------------+
-| EIP 712 Hash | 0x6b7b2f6fc32adea40689c72912cf0fd00f9a2455204e0a2edfd9e5684b64db1b |
+| EIP 712 Hash | 0x452952ca0a93e9a05d3c138dff85dffc061f196a7b428945aadc70f92687a75d |
 +--------------+--------------------------------------------------------------------+
 | Domain Hash  | 0xe0392d263ff13e09757bfce9b182ead6ceabd9d1b404aa7df77e65b304969130 |
 +--------------+--------------------------------------------------------------------+
-| Message Hash | 0xdcab1ef0579aa50678fcb3a1e815b6e7fa271ad33db76832199632fa61c47bf4 |
+| Message Hash | 0xfac0c15391856b749f37c979c6068dac6e6264b182501425aaff9dac190a2daa |
 +--------------+--------------------------------------------------------------------+
 \`\`\`
 
@@ -481,37 +485,210 @@ If you update your \`file.json\` to have the \`operation\` as a \`1\`, and run t
         question: "Sign or reject this signature.",
         questionContext: `Now, can you sign a safe transaction where the signer is another safe? Let's find out...
 
-We are attempting to send 0.001 WETH from ${MULTI_SIGNATURE_WALLET} to ${FRIEND_WALLET} on the ZKsync Era network. Please sign this transaction if doing so will bring you closer to executing, otherwise reject it.`,
+We are attempting to send 0.01 WETH from our multi-sig wallet ${MULTI_SIGNATURE_WALLET} to ${FRIEND_WALLET} on the Arbitrum network. Assume the Safe Wallet version is 1.4.1. Our main signer is another safe wallet at address ${MULTI_SIGNATURE_SIGNER_WALLET}.
+
+Please sign this transaction if doing so will bring you closer to executing, otherwise reject it. `,
         type: "signOrReject",
         expectedAction: "sign",
         walletType: "safeWallet",
         interactionButtonText: "sign",
         fakeWebsiteType: "SafeWallet",
         transactionOrSignatureData: {
-            networkName: "ZKsync",
+            networkName: "Arbitrum",
             requestFrom: "https://app.safe.global/",
-            message: `todo`
+            message: `{
+    "types": {
+        "SafeTx": [
+            {
+                "name": "to",
+                "type": "address"
+            },
+            {
+                "name": "value",
+                "type": "uint256"
+            },
+            {
+                "name": "data",
+                "type": "bytes"
+            },
+            {
+                "name": "operation",
+                "type": "uint8"
+            },
+            {
+                "name": "safeTxGas",
+                "type": "uint256"
+            },
+            {
+                "name": "baseGas",
+                "type": "uint256"
+            },
+            {
+                "name": "gasPrice",
+                "type": "uint256"
+            },
+            {
+                "name": "gasToken",
+                "type": "address"
+            },
+            {
+                "name": "refundReceiver",
+                "type": "address"
+            },
+            {
+                "name": "nonce",
+                "type": "uint256"
+            }
+        ],
+        "EIP712Domain": [
+            {
+                "name": "chainId",
+                "type": "uint256"
+            },
+            {
+                "name": "verifyingContract",
+                "type": "address"
+            }
+        ]
+    },
+    "domain": {
+        "chainId": "0xa4b1",
+        "verifyingContract": "${MULTI_SIGNATURE_SIGNER_WALLET}
+    },
+    "primaryType": "SafeTx",
+    "message": {
+        "to": "${MULTI_SIGNATURE_WALLET}",
+        "value": "0",
+        "data": "0xd4d9bdcd46fcaf713a45a85097ddb1b9e0fbcc247e822d2032c8f69e73685c7d8f507fa0", 
+        "operation": "0",
+        "safeTxGas": "0",
+        "baseGas": "0",
+        "gasPrice": "0",
+        "gasToken": "0x0000000000000000000000000000000000000000",
+        "refundReceiver": "0x0000000000000000000000000000000000000000",
+        "nonce": "5"
+        }
+    }`
         },
         feedbackContent: {
-            pages: []
+            pages: [
+                `This is a valid nested Safe transaction signature. You're signing a transaction from one Safe wallet that will be used to sign another Safe transaction. Whenever a Safe{Wallet} is a signer of another Safe{Wallet}, the signing wallet calls the \`approveHash(bytes32)\` function on the original Safe{Wallet}. Knowing this, there are a few ways we can verify this.
+                
+Using [safe-hash](https://github.com/Cyfrin/safe-hash-rs) we could either try:
+
+\`\`\`
+1. --nested-safe-address
+2. Manually calculate both hashes 
+\`\`\`
+
+Let's start with the easiest way`, `If we did the following:
+
+\`\`\`bash
+safe-hash tx --safe-address 0x4087d2046A7435911fC26DCFac1c2Db26957Ab72 --nonce 3 --safe-version 1.4.1 --chain arbitrum --to 0x82af49447d8a07e3bd95bd0d56f35241523fbab1 --data 0xa9059cbb000000000000000000000000d8da6bf26964af9d7eed9e03e53415d37aa96045000000000000000000000000000000000000000000000000002386f26fc10000  --offline --nested-safe-address 0x5031f5E2ed384978dca63306dc28A68a6Fc33e81 --nested-safe-nonce 5
+\`\`\`
+
+This would output all of the information we need to verify the transaction!
+
+
+\`\`\`
+Main transaction
+Domain Hash:             886981c7ac254ace571077f0a055e84e72dac298c286f3b83638eaa308820d08
+Message Hash:            a95cd534867e78aa5866b22e278984004eca36cff555462c50be402f7b292832
+Safe Transaction Hash:   46fcaf713a45a85097ddb1b9e0fbcc247e822d2032c8f69e73685c7d8f507fa0
+Verify the above value as the Safe Tx Hash when signing the message from the ledger.
+
+Nested transaction
+Domain Hash:             3269807350d9dc0089b20781ce2f4ca71614ada2a1a116d0c79a6d801e033f8d
+Message Hash:            870f0b85c95ffc9657a8ba0b4fbdc43d4cca1ed8400290ab97b19b5befe51e49
+Safe Transaction Hash:   de604d0d4e6cdb1cf39e8ff1b8c3ece230c2ec921b2538d6bbdb9cae54534c06
+\`\`\`
+
+The \`Nested Transaction\` is what we are signing, so if our wallet gives us any of the Domain, Message, or EIP-712 hashes, we can verify that they are correct. If the wallet doesn't give us the hashes, and instead gives us the JSON data, we can verify the data to the \`approveHash\` function. The data of our JSON should be "0xd4d9bdcd" plus the \`Safe Transaction Hash\` of the main transaction, in which case our JSON was!
+
+We want to use "0xd4d9bdcd" because that's the result of \`cast sig "approveHash(bytes32)"\`.
+`,
+
+                `If we are having a hard time, we could manually calcuate these ourselves, first by getting the safe TX hash of the main transaction:
+                
+\`\`\`bash
+safe-hash tx --safe-address 0x4087d2046A7435911fC26DCFac1c2Db26957Ab72 --nonce 3 --safe-version 1.4.1 --chain arbitrum --to 0x82af49447d8a07e3bd95bd0d56f35241523fbab1 --data 0xa9059cbb000000000000000000000000d8da6bf26964af9d7eed9e03e53415d37aa96045000000000000000000000000000000000000000000000000002386f26fc10000  --offline
+
+####### Results in
+# Main transaction
+# Domain Hash:             886981c7ac254ace571077f0a055e84e72dac298c286f3b83638eaa308820d08
+# Message Hash:            a95cd534867e78aa5866b22e278984004eca36cff555462c50be402f7b292832
+# Safe Transaction Hash:   46fcaf713a45a85097ddb1b9e0fbcc247e822d2032c8f69e73685c7d8f507fa0
+\`\`\`
+
+And using the output to the nested safe:
+
+\`\`\`bash
+safe-hash tx --safe-address 0x5031f5E2ed384978dca63306dc28A68a6Fc33e81 --nonce 5 --safe-version 1.4.1 --chain arbitrum --to 0x4087d2046A7435911fC26DCFac1c2Db26957Ab72 --data 0xd4d9bdcd46fcaf713a45a85097ddb1b9e0fbcc247e822d2032c8f69e73685c7d8f507fa0  --offline
+
+####### Results in
+# Main transaction
+# Domain Hash:             3269807350d9dc0089b20781ce2f4ca71614ada2a1a116d0c79a6d801e033f8d
+# Message Hash:            870f0b85c95ffc9657a8ba0b4fbdc43d4cca1ed8400290ab97b19b5befe51e49
+# Safe Transaction Hash:   de604d0d4e6cdb1cf39e8ff1b8c3ece230c2ec921b2538d6bbdb9cae54534c06
+\`\`\`
+`
+
+            ]
         }
     },
     {
         id: 10,
-        question: "Sign or reject this signature.",
-        questionContext: `Congratulations! All your amazing multi-sig skills have paid off, and you are now a signer the security council for ZKSync!`,
+        question: "Execute or reject this transaction.",
+        questionContext: `And now, we tie it all together! Will this transaction execute? Sign if you think so... Otherwise reject it. This is the same transaction from question 8! Except this time, we are executing it.
+
+Assume your wallet address is ${YOUR_WALLET}, and you are a signer on a valid mutlisig wallet at address ${MULTI_SIGNATURE_WALLET}. You are attempting to deposit 0.1 ETH to the ZKsync Aave token pool. Please execute this transaction if you think it will not revert based on the calldata.`,
         type: "signOrReject",
-        expectedAction: "sign",
-        walletType: "trezor",
-        interactionButtonText: "todo",
+        expectedAction: "reject",
+        walletType: "metamask",
+        interactionButtonText: "Sign & Execute",
         fakeWebsiteType: "SafeWallet",
         transactionOrSignatureData: {
-            networkName: "todo",
-            requestFrom: "todo",
-            message: `todo`
+            networkName: "ZKsync Era",
+            fromAccount: YOUR_WALLET,
+            toAccount: MULTI_SIGNATURE_WALLET,
+            amount: "1 ETH",
+            estimatedFee: {
+                usd: "$0.02",
+                eth: "0.00004ETH"
+            },
+            functionName: "execTransaction(address,uint256,bytes,uint8,uint256,uint256,uint256,address,address,bytes)",
+            data: "0x6a7612020000000000000000000000004087d2046A7435911fC26DCFac1c2Db26957Ab720000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000014000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000001e00000000000000000000000000000000000000000000000000000000000000064474cf53d0000000000000000000000004087d2046a7435911fc26dcfac1c2db26957ab720000000000000000000000004087d2046a7435911fc26dcfac1c2db26957ab720000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000035277d26a45add5775f21256159f089769892cea5b0000000000000000000000000000000000000000000000000000000000000000010000000000000000000000",
         },
         feedbackContent: {
-            pages: []
+            pages: [
+                `This transaction was so close! But it wouldn't go through. The good thing about this one, is that it's not too dangerous if you got this one wrong. The signature is just incorrect, and the transaction would have reverted. 
+                
+When you execute a transaction, and you are the last signer, Safe{Wallet} contracts allow you to not actually sign the final transaction. Instead, as your last parameter, you input your address and the Safe{Wallet} will check that whoever sent the transaction is the last signer.`,
+                `For example, if you take the calldata and deconstruct it:
+
+\`\`\`bash
+cast calldata-decode "execTransaction(address,uint256,bytes,uint8,uint256,uint256,uint256,address,address,bytes)" 0x6a7612020000000000000000000000004087d2046A7435911fC26DCFac1c2Db26957Ab720000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000014000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000001e00000000000000000000000000000000000000000000000000000000000000064474cf53d0000000000000000000000004087d2046a7435911fc26dcfac1c2db26957ab720000000000000000000000004087d2046a7435911fc26dcfac1c2db26957ab720000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000035277d26a45add5775f21256159f089769892cea5b0000000000000000000000000000000000000000000000000000000000000000010000000000000000000000
+
+### Results
+# 0x4087d2046A7435911fC26DCFac1c2Db26957Ab72
+# 0
+# 0x474cf53d0000000000000000000000004087d2046a7435911fc26dcfac1c2db26957ab720000000000000000000000004087d2046a7435911fc26dcfac1c2db26957ab720000000000000000000000000000000000000000000000000000000000000000
+# 0
+# 0
+# 0
+# 0
+# 0x0000000000000000000000000000000000000000
+# 0x0000000000000000000000000000000000000000
+# 0x277d26a45add5775f21256159f089769892cea5b000000000000000000000000000000000000000000000000000000000000000001 # Look here!
+\`\`\`
+
+The last parameter is populated with the signatures. However, the last signer can just be the address of the signer, but we see the wrong address here! It would be correct if it was:
+
+\`\`\`bash
+0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266000000000000000000000000000000000000000000000000000000000000000001
+\`\`\`
+`
+            ]
         }
     }
 ];
