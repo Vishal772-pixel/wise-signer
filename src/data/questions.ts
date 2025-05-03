@@ -275,7 +275,7 @@ Assume your wallet address is ${YOUR_WALLET}, and you are a signer on a valid mu
         },
         feedbackContent: {
             pages: [
-                `You got it! This is a valid EIP-712 structured message for a multisig transaction with Safe{Wallet} (formerly Gnosis Safe) that matches your intention to send 1 WETH to your friend's address.
+                `This is a valid EIP-712 structured message for a multisig transaction with Safe{Wallet} (formerly Gnosis Safe) that matches your intention to send 1 WETH to your friend's address.
 
 This resembles a real hardware wallet, where most hardware wallets have the screen so small that you have to scroll through a ton of pages. This can lead to [security fatigue](https://www.nist.gov/news-events/news/2016/10/security-fatigue-can-cause-computer-users-feel-hopeless-and-act-recklessly), so it's better to use a wallet that has a domain, message, and eip-712 hash since that is much fater to check if it's correct. 
 
@@ -477,7 +477,7 @@ If you update your \`file.json\` to have the \`operation\` as a \`1\`, and run t
         transactionOrSignatureData: {
             networkName: "ZKsync Era",
             requestFrom: "https://app.safe.global/",
-            message: `Domain Hash: 0xe0392d263ff13e09757bfce9b182ead6ceabd9d1b404aa7df77e65b304969130\nMessage Hash: 0xb2498e7f8d82ce5d628accdcc7d7bb245557a93f420c3b8baeab1df0c11d0886`
+            message: `Domain Hash: 0xe0392d263ff13e09757bfce9b182ead6ceabd9d1b404aa7df77e65b304969130\n\nMessage Hash: 0xb2498e7f8d82ce5d628accdcc7d7bb245557a93f420c3b8baeab1df0c11d0886`
         }
     },
     {
@@ -572,7 +572,7 @@ Please sign this transaction if doing so will bring you closer to executing, oth
         },
         feedbackContent: {
             pages: [
-                `This is a valid nested Safe transaction signature. You're signing a transaction from one Safe wallet that will be used to sign another Safe transaction. Whenever a Safe{Wallet} is a signer of another Safe{Wallet}, the signing wallet calls the \`approveHash(bytes32)\` function on the original Safe{Wallet}. Knowing this, there are a few ways we can verify this.
+                `This is a valid nested Safe transaction signature, and we should sign it. You're signing a transaction from one Safe wallet that will be used to sign another Safe transaction. Whenever a Safe{Wallet} is a signer of another Safe{Wallet}, the signing wallet calls the \`approveHash(bytes32)\` function on the original Safe{Wallet}. Knowing this, there are a few ways we can verify this.
                 
 Using [safe-hash](https://github.com/Cyfrin/safe-hash-rs) we could either try:
 
@@ -661,7 +661,7 @@ Assume your wallet address is ${YOUR_WALLET}, and you are a signer on a valid mu
         },
         feedbackContent: {
             pages: [
-                `This transaction was so close! But it wouldn't go through. The good thing about this one, is that it's not too dangerous if you got this one wrong. The signature is just incorrect, and the transaction would have reverted. 
+                `This transaction was so close! But it would not go through. The good thing about this one, is that it's not too dangerous if you got this one wrong. The signature is just incorrect, and the transaction would have reverted. 
                 
 When you execute a transaction, and you are the last signer, Safe{Wallet} contracts allow you to not actually sign the final transaction. Instead, as your last parameter, you input your address and the Safe{Wallet} will check that whoever sent the transaction is the last signer.`,
                 `For example, if you take the calldata and deconstruct it:
