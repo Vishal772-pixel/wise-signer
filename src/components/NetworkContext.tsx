@@ -51,6 +51,7 @@ export const NetworkProvider: React.FC<NetworkProviderProps> = ({
     const [isTenderlyPage, setIsTenderlyPage] = useState(false);
     const [isSimulatedPage, setIsSimulatedPage] = useState(false);
     const [queryClient] = useState(() => new QueryClient());
+    const [isTenderlyQuestionsPage, setIsTenderlyQuestionsPage] = useState(false);
 
     // Check the current page type
     useEffect(() => {
@@ -71,8 +72,6 @@ export const NetworkProvider: React.FC<NetworkProviderProps> = ({
         }
     }, []);
 
-    // Whether this is a page that requires network setup
-    const [isTenderlyQuestionsPage, setIsTenderlyQuestionsPage] = useState(false);
 
     // Load network info from local storage
     useEffect(() => {
@@ -132,17 +131,36 @@ export const NetworkProvider: React.FC<NetworkProviderProps> = ({
         }
     }, []);
 
-    // Loading state
     if (isLoading) {
-        return <div>Loading network configuration...</div>;
+        return (
+            <div className="flex items-center justify-center min-h-screen bg-zinc-900 text-white" >
+                <div className="text-center">
+                    <p className="text-zinc-400">Loading network config...</p>
+                </div>
+            </div >
+        )
     }
 
-    // Error state
     if (error) {
-        return <div>Error: {error}</div>;
+        return (
+            <div>
+                <div className="flex items-center justify-center min-h-screen bg-zinc-900 text-white" >
+                    <div className="text-center">
+                        <p className="text-zinc-400">Error: {error}</p>
+                    </div>
+                </div >
+            </div>
+        );
     }
 
-    // Network setup required state - ONLY shown on Tenderly question pages
+    if (isSimulatedPage) {
+        return (
+            <NetworkContext.Provider value={{ networkInfo, isLoading, error }}>
+                {children}
+            </NetworkContext.Provider>
+        );
+    }
+
     if (!networkInfo && isTenderlyQuestionsPage) {
         return (
             <div className="flex items-center justify-center min-h-screen bg-zinc-900 text-white p-8">
@@ -163,35 +181,27 @@ export const NetworkProvider: React.FC<NetworkProviderProps> = ({
         );
     }
 
-    if (isSimulatedPage) {
+    if (networkInfo && wagmiConfig && isTenderlyPage) {
         return (
-            <NetworkContext.Provider value={{ networkInfo, isLoading, error }}>
-                {children}
-            </NetworkContext.Provider>
-        );
+            <QueryClientProvider client={queryClient}>
+                <WagmiProvider config={wagmiConfig}>
+                    <RainbowKitProvider>
+                        <NetworkContext.Provider value={{ networkInfo, isLoading, error }}>
+                            <Header />
+                            {children}
+                            <Footer />
+                        </NetworkContext.Provider>
+                    </RainbowKitProvider>
+                </WagmiProvider>
+            </QueryClientProvider>
+        )
     }
 
     return (
-        <>
-            {networkInfo && wagmiConfig && isTenderlyPage ? (
-                <QueryClientProvider client={queryClient}>
-                    <WagmiProvider config={wagmiConfig}>
-                        <RainbowKitProvider>
-                            <NetworkContext.Provider value={{ networkInfo, isLoading, error }}>
-                                <Header />
-                                {children}
-                                <Footer />
-                            </NetworkContext.Provider>
-                        </RainbowKitProvider>
-                    </WagmiProvider>
-                </QueryClientProvider>
-            ) : (
-                <NetworkContext.Provider value={{ networkInfo, isLoading, error }}>
-                    <Header />
-                    {children}
-                    <Footer />
-                </NetworkContext.Provider>
-            )}
-        </>
+        <NetworkContext.Provider value={{ networkInfo, isLoading, error }}>
+            <Header />
+            {children}
+            <Footer />
+        </NetworkContext.Provider>
     );
 };
