@@ -171,7 +171,7 @@ const ManualSetupInstructions = ({ onBack }: { onBack: () => void }) => {
                     Back to Options
                 </button>
                 <a
-                    href="https://dashboard.tenderly.co/networks"
+                    href="https://dashboard.tenderly.co/"
                     target="_blank"
                     rel="noopener noreferrer"
                     className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 transition flex items-center gap-2"

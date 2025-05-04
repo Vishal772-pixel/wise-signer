@@ -41,12 +41,17 @@ export default function WelcomePage() {
 
     // Check for existing network info on component mount
     useEffect(() => {
-        const storedNetworkInfo = localStorage.getItem(NETWORK_INFO_KEY);
-        if (storedNetworkInfo) {
-            try {
-                setNetworkInfo(JSON.parse(storedNetworkInfo));
-            } catch (e) {
-                console.error("Failed to parse stored network info:", e);
+        if (typeof window !== 'undefined') {
+            const storedNetworkInfo = localStorage.getItem(NETWORK_INFO_KEY);
+            if (storedNetworkInfo) {
+                try {
+                    const parsedInfo = JSON.parse(storedNetworkInfo);
+                    setNetworkInfo(parsedInfo);
+                    // Pre-fill endpoint URL if we have stored network info
+                    setEndpointUrl(parsedInfo.rpcUrl || "");
+                } catch (e) {
+                    console.error("Failed to parse stored network info:", e);
+                }
             }
         }
     }, []);
@@ -80,7 +85,7 @@ export default function WelcomePage() {
         const networkInfo: NetworkInfo = {
             rpcUrl: endpointUrl,
             chainId: `0x${CUSTOM_CHAIN_ID.toString(16)}`, // Default chain ID in hex
-            name: "Tenderly Virtual Network"
+            name: VIRTUAL_NET_DISPLAY_NAME
         };
 
         try {
@@ -153,6 +158,13 @@ export default function WelcomePage() {
                 throw new Error(`Failed to create VirtualNet: ${response.status} ${response.statusText} ${JSON.stringify(errorData)}`);
             }
 
+            if (response.status === 409) {
+                setError("You already have a Wise Signer virtual network set up! Go to the virtual networks page on your Tenderly dashboard, grab the public endpoint, and add it via the 'I Already Have a Network' option.");
+                setSetupStage("error");
+                setIsLoading(false);
+                return;
+            }
+
             const data = await response.json();
             const publicRpc = data.rpcs?.find((rpc: TenderlyRpc) => rpc.name === "Public RPC");
             const rpcUrl = publicRpc?.url || data.rpcs?.[0]?.url;
@@ -208,7 +220,7 @@ export default function WelcomePage() {
                     method: 'wallet_addEthereumChain',
                     params: [{
                         chainId: networkInfo.chainId,
-                        chainName: networkInfo.name || 'Tenderly Virtual Network',
+                        chainName: networkInfo.name || VIRTUAL_NET_DISPLAY_NAME,
                         nativeCurrency: {
                             name: 'Ethereum',
                             symbol: 'ETH',
@@ -218,8 +230,7 @@ export default function WelcomePage() {
                     }]
                 });
             } catch (error) {
-                console.error("Error adding network to Wallet:", error);
-                setError("Failed to add network to Wallet. Please try adding it manually.");
+                console.log(error)
             }
         } else {
             setError("MetaMask or blockchain wallet is not installed. Please install a blockchain wallet to continue.");
@@ -229,6 +240,13 @@ export default function WelcomePage() {
     // Start the challenge
     const startChallenge = () => {
         router.push("/tenderly/questions/1");
+    };
+
+    // Use the existing network from localStorage
+    const useExistingNetwork = () => {
+        if (networkInfo) {
+            setSetupStage("complete");
+        }
     };
 
     // Render the main content based on the current state
@@ -335,6 +353,30 @@ export default function WelcomePage() {
                         This will be stored locally in your browser.
                     </p>
 
+                    {/* Show option to use stored network if we have one */}
+                    {networkInfo && (
+                        <div className="mb-6 p-4 bg-zinc-700 rounded-lg">
+                            <div className="flex items-center mb-2">
+                                <FaNetworkWired className="text-blue-400 mr-3" size={20} />
+                                <h3 className="text-lg font-medium">Use Your Saved Network</h3>
+                            </div>
+                            <p className="text-zinc-300 text-sm mb-3">
+                                We found a network configuration stored in your browser.
+                            </p>
+                            <div className="text-sm mb-4">
+                                <p><span className="text-zinc-400">RPC URL:</span> {networkInfo.rpcUrl}</p>
+                                <p><span className="text-zinc-400">Chain ID:</span> {networkInfo.chainId}</p>
+                            </div>
+                            <button
+                                onClick={useExistingNetwork}
+                                className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 transition flex items-center justify-center gap-2"
+                            >
+                                <FaNetworkWired />
+                                Use This Network
+                            </button>
+                        </div>
+                    )}
+
                     <div className="mb-6">
                         <label className="block text-sm font-medium mb-2">RPC Endpoint URL</label>
                         <input
@@ -351,7 +393,7 @@ export default function WelcomePage() {
                     <button
                         onClick={handleExistingEndpoint}
                         disabled={isLoading}
-                        className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 transition disabled:bg-zinc-600 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+                        className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 transition disabled:bg-zinc-600 disabled:cursor-not-allowed flex items-center justify-center gap-2 cursor-pointer"
                     >
                         <FaSave />
                         Save Network
@@ -397,8 +439,6 @@ export default function WelcomePage() {
                     </div>
 
                     <div className="space-y-4 mb-6">
-
-
                         <div className="mb-6 p-4 bg-zinc-700 rounded-lg">
                             <div className="flex items-center mb-2">
                                 <FaFileAlt className="text-yellow-400 mr-3" size={20} />
@@ -437,7 +477,6 @@ export default function WelcomePage() {
                                 How to get your Tenderly API key
                             </a>
                         </div>
-
 
                         <div>
                             <label className="block text-sm font-medium mb-2">Account Slug</label>
@@ -553,7 +592,7 @@ export default function WelcomePage() {
                                 className="px-4 py-2 bg-zinc-600 text-white rounded hover:bg-zinc-700 transition flex items-center justify-center gap-2 cursor-pointer"
                             >
                                 <FaRedo />
-                                Change Network
+                                Restart Virtual Network Setup
                             </button>
                         </div>
 
@@ -604,14 +643,4 @@ export default function WelcomePage() {
             {renderContent()}
         </div>
     );
-}
-
-// Add TypeScript interface for window.ethereum
-declare global {
-    interface Window {
-        ethereum?: {
-            request: (args: any) => Promise<any>;
-            isMetaMask?: boolean;
-        };
-    }
 }

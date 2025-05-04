@@ -1,14 +1,14 @@
 import type { Metadata } from "next";
-import Header from "@/components/Header";
 import "./globals.css";
-import Footer from "@/components/Footer";
-import { Providers } from './providers'
+import { NetworkProvider } from '@/components/NetworkContext';
+
 
 export const metadata: Metadata = {
   title: "Wise Signer",
   description: "Can you sign the transactions correctly?",
 };
 
+// Static site-friendly root layout (server component)
 export default function RootLayout({
   children,
 }: Readonly<{
@@ -17,11 +17,7 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body className="bg-zinc-900 text-white">
-        <Providers>
-          <Header />
-          {children}
-          <Footer />
-        </Providers>
+        <NetworkProvider>{children}</NetworkProvider>
       </body>
     </html>
   );
