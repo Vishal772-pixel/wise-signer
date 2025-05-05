@@ -105,7 +105,7 @@ const TrezorScreens = ({
                     <div className="text-center">
                         <div className="text-white text-xl font-medium mb-1">Message</div>
                         <div className="text-gray-400 text-sm mb-2">Part {messageIndex + 1}/{messageChunks.length}</div>
-                        <div className="text-white text-base break-all px-2">
+                        <div className="text-white text-base break-all whitespace-pre-wrap">
                             {messageChunks[messageIndex]}
                         </div>
                     </div>

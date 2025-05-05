@@ -35,4 +35,12 @@ Connected Wallet Challenges:
 - Smart contract wallet
   - Basic ETH transfer, first signer
 
+# Tenderly game plan 
+- Options:
+  - Create tenderly network from API Key, account name, and project name
+    - Saves http endpoint to local storage
+  - I already have a tenderly virtual network (connect, set/check chainId)
+    - Save http endpoint to local storage
+
+
 
