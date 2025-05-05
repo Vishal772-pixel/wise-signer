@@ -49,9 +49,6 @@ export default function Home() {
           </div>
 
           <div className="bg-zinc-900 rounded-xl p-6 border border-zinc-800 hover:border-blue-500 transition relative">
-            <div className="absolute -rotate-12 top-10 left-0 right-0 text-center">
-              <span className="bg-yellow-600 text-black font-bold py-1 px-4 rounded-md text-sm uppercase">Under Construction</span>
-            </div>
             <div className="flex justify-center mb-4">
               <div className="bg-blue-600/20 p-3 rounded-full">
                 <FaMicrochip size={28} className="text-blue-500" />

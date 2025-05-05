@@ -42,7 +42,6 @@ const Header = () => {
                     <span className="text-xl font-semibold">Wise Signer</span>
                 </div>
                 <div className="flex items-center gap-4">
-                    <span className="text-white">about</span>
                     <div className="px-4 py-2 bg-zinc-900 text-white rounded-md">Play Now</div>
                 </div>
             </nav>
@@ -67,13 +66,6 @@ const Header = () => {
             </div>
 
             <div className="flex items-center gap-4">
-                <Link
-                    href="/about"
-                    className="text-white hover:text-gray-300 transition"
-                >
-                    about
-                </Link>
-
                 {/* Only render ConnectButton wrapper when needed */}
                 {showConnectButton && (
                     <div className="mr-2">
