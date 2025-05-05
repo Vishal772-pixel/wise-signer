@@ -26,7 +26,6 @@ export default function Home() {
         <h2 className="text-3xl font-bold mb-10 text-center">Choose Your Challenge Mode</h2>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-          {/* Simulated Mode */}
           <div className="bg-zinc-900 rounded-xl p-6 border border-zinc-800 hover:border-green-500 transition">
             <div className="flex justify-center mb-4">
               <div className="bg-green-600/20 p-3 rounded-full">
@@ -49,7 +48,6 @@ export default function Home() {
             </div>
           </div>
 
-          {/* Tenderly Mode */}
           <div className="bg-zinc-900 rounded-xl p-6 border border-zinc-800 hover:border-blue-500 transition relative">
             <div className="absolute -rotate-12 top-10 left-0 right-0 text-center">
               <span className="bg-yellow-600 text-black font-bold py-1 px-4 rounded-md text-sm uppercase">Under Construction</span>
@@ -66,9 +64,12 @@ export default function Home() {
               risking real assets.
             </p>
             <div className="mt-4 text-center">
-              <span className="text-gray-500 cursor-not-allowed">
-                Coming Soon
-              </span>
+              <a
+                href="/tenderly/welcome"
+                className="text-green-400 hover:text-green-300 font-medium"
+              >
+                Play Tenderly Virtualnet Mode →
+              </a>
             </div>
           </div>
         </div>

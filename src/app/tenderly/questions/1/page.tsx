@@ -1,13 +1,12 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { useAccount, useChainId, useSwitchChain } from 'wagmi';
+import { useChainId, useSwitchChain } from 'wagmi';
 import { useNetwork } from '@/components/NetworkContext';
 import { CUSTOM_CHAIN_ID } from '@/app/constants';
 
 export default function TenderlyQuestion() {
     const { networkInfo } = useNetwork();
-    const { address, isConnected } = useAccount();
     const chainId = useChainId();
     const { switchChain } = useSwitchChain();
     const [isCorrectNetwork, setIsCorrectNetwork] = useState(false);

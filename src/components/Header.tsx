@@ -1,9 +1,11 @@
-"use client";
+'use client';
 
 import { useState, useEffect } from "react";
 import Image from "next/image";
 import { useNetwork } from "@/components/NetworkContext";
+import { usePathname } from 'next/navigation';
 import dynamic from 'next/dynamic';
+import Link from 'next/link';
 
 // Dynamically import ConnectButton with no SSR to avoid errors
 const ConnectButton = dynamic(
@@ -12,28 +14,43 @@ const ConnectButton = dynamic(
 );
 
 const Header = () => {
-    const [dropdownOpen, setDropdownOpen] = useState(false);
+    const [dropdownOpen, setDropdownOpen] = useState<boolean>(false);
     const { networkInfo, isLoading } = useNetwork();
-    const [showConnectButton, setShowConnectButton] = useState(false);
-    const [isTenderlyPage, setIsTenderlyPage] = useState(false);
+    const [mounted, setMounted] = useState<boolean>(false);
 
-    // Check if we have a network configured to show the connect button
-    // and check if we're on a tenderly page
+    const pathname = usePathname();
+    const isTenderlyQuestionsPage = pathname?.startsWith('/tenderly/questions') || false;
+
     useEffect(() => {
-        if (typeof window !== 'undefined') {
-            const pathname = window.location.pathname;
-            const onTenderlyPage = pathname.startsWith('/tenderly');
-            setIsTenderlyPage(onTenderlyPage);
+        setMounted(true);
+    }, []);
 
-            // Only show connect button if we have network info AND we're on a tenderly page
-            setShowConnectButton(!isLoading && !!networkInfo && onTenderlyPage);
+    const showConnectButton = mounted && !isLoading && !!networkInfo && isTenderlyQuestionsPage;
+
+    const handlePlayNowClick = (e: React.MouseEvent<HTMLButtonElement>) => {
+        if (!(e.clientX > e.currentTarget.getBoundingClientRect().right - 30)) {
+            window.location.href = "/simulated/questions/1";
         }
-    }, [isLoading, networkInfo]);
+    };
+
+    // Prevent rendering differences between server and client
+    if (!mounted) {
+        return (
+            <nav className="px-8 py-2 border-b border-zinc-800 flex flex-row justify-between items-center text-white bg-zinc-900">
+                <div className="flex items-center gap-3">
+                    <div style={{ width: '50px', height: '50px' }} /> {/* Placeholder for Image */}
+                    <span className="text-xl font-semibold">Wise Signer</span>
+                </div>
+                <div className="flex items-center gap-4">
+                    <span className="text-white">about</span>
+                    <div className="px-4 py-2 bg-zinc-900 text-white rounded-md">Play Now</div>
+                </div>
+            </nav>
+        );
+    }
 
     return (
-        <nav
-            className="px-8 py-2 border-b border-zinc-800 flex flex-row justify-between items-center text-white bg-zinc-900"
-        >
+        <nav className="px-8 py-2 border-b border-zinc-800 flex flex-row justify-between items-center text-white bg-zinc-900">
             <div className="flex items-center gap-3">
                 <Image
                     src="/cyfrin.svg"
@@ -41,24 +58,24 @@ const Header = () => {
                     width={50}
                     height={50}
                 />
-                <a
+                <Link
                     href="/"
                     className="text-xl font-semibold text-white hover:text-gray-300 transition"
                 >
                     Wise Signer
-                </a>
+                </Link>
             </div>
 
             <div className="flex items-center gap-4">
-                <a
+                <Link
                     href="/about"
                     className="text-white hover:text-gray-300 transition"
                 >
                     about
-                </a>
+                </Link>
 
                 {/* Only render ConnectButton wrapper when needed */}
-                {showConnectButton && isTenderlyPage && (
+                {showConnectButton && (
                     <div className="mr-2">
                         <ConnectButton
                             showBalance={false}
@@ -77,13 +94,8 @@ const Header = () => {
                 <div className="relative">
                     <button
                         onClick={() => setDropdownOpen(!dropdownOpen)}
+                        onMouseUp={handlePlayNowClick}
                         className="cursor-pointer flex items-center gap-1 px-4 py-2 bg-zinc-900 text-white rounded-md hover:bg-zinc-800 transition"
-                        onMouseUp={(e) => {
-                            // If left-click and not on the arrow part, navigate to Tenderly Virtualnet
-                            if (e.button === 0 && !(e.clientX > e.currentTarget.getBoundingClientRect().right - 30)) {
-                                window.location.href = "/simulated/questions/1";
-                            }
-                        }}
                     >
                         Play Now
                         <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="ml-1">
@@ -93,18 +105,18 @@ const Header = () => {
 
                     {dropdownOpen && (
                         <div className="absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg z-10">
-                            <a
+                            <Link
                                 href="/simulated/questions/1"
                                 className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 rounded-t-md"
                             >
                                 Simulated Wallet
-                            </a>
-                            <a
+                            </Link>
+                            <Link
                                 href="/tenderly/welcome"
                                 className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 rounded-b-md"
                             >
                                 Tenderly Virtualnet
-                            </a>
+                            </Link>
                         </div>
                     )}
                 </div>

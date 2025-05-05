@@ -38,6 +38,7 @@ export default function WelcomePage() {
     const [networkInfo, setNetworkInfo] = useState<NetworkInfo | null>(null);
     const [setupStage, setSetupStage] = useState<SetupStageType>("initial"); // initial, creating, complete, error
     const [showManualSetup, setShowManualSetup] = useState<boolean>(false);
+    const [isNavigating, setIsNavigating] = useState<boolean>(false);
 
     // Check for existing network info on component mount
     useEffect(() => {
@@ -237,9 +238,26 @@ export default function WelcomePage() {
         }
     };
 
-    // Start the challenge
+    // Start the challenge - Use full page navigation instead of router.push
     const startChallenge = () => {
-        router.push("/tenderly/questions/1");
+        // Make sure network info is saved
+        if (networkInfo) {
+            try {
+                // Double-check that network info is in localStorage
+                localStorage.setItem(NETWORK_INFO_KEY, JSON.stringify(networkInfo));
+
+                // Set navigating state to prevent flashes
+                setIsNavigating(true);
+
+                // Use window.location for a full page navigation instead of client-side
+                window.location.href = "/tenderly/questions/1";
+            } catch (e) {
+                console.error("Error saving network info before navigation:", e);
+                setError("Failed to save network information");
+            }
+        } else {
+            setError("Network information is missing. Please set up your network first.");
+        }
     };
 
     // Use the existing network from localStorage
@@ -251,6 +269,21 @@ export default function WelcomePage() {
 
     // Render the main content based on the current state
     const renderContent = () => {
+        // If navigating, show loading
+        if (isNavigating) {
+            return (
+                <div className="bg-zinc-800 p-6 rounded-lg max-w-2xl">
+                    <h2 className="text-2xl font-semibold mb-4">Loading Challenge...</h2>
+                    <div className="w-full bg-zinc-700 rounded-full h-2.5">
+                        <div
+                            className="bg-blue-600 h-2.5 rounded-full transition-all duration-500 animate-pulse"
+                            style={{ width: "60%" }}
+                        ></div>
+                    </div>
+                </div>
+            );
+        }
+
         // If manual setup instructions are shown
         if (showManualSetup) {
             return <ManualSetupInstructions onBack={() => setShowManualSetup(false)} />;

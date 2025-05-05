@@ -1,14 +1,12 @@
 import type { Metadata } from "next";
 import "./globals.css";
-import { NetworkProvider } from '@/components/NetworkContext';
-
+import { NetworkProvider } from '@/components/NetworkProvider';
 
 export const metadata: Metadata = {
   title: "Wise Signer",
   description: "Can you sign the transactions correctly?",
 };
 
-// Static site-friendly root layout (server component)
 export default function RootLayout({
   children,
 }: Readonly<{
