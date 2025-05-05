@@ -43,12 +43,12 @@ Connected Wallet Challenges:
     - Save http endpoint to local storage
   
 # Safe Wallet Game Plan...
-1. User connects wallet and confirms address
-2. Once confirmed, in one go, do:
-   1. Fund user wallet
-   2. Fund anvil5 with 1 ETH 
+1. User connects wallet 
+   1. Fund user wallet with 10 ETH
+   2. Fund anvil5 address with 10 ETH 
       1. https://virtual.sepolia.rpc.tenderly.co/2266f442-859b-4462-8195-99a709746ffe 
-   ```
+  payload:
+  ```
    {method: "tenderly_addBalance",…}
    id
    : 
@@ -61,25 +61,24 @@ Connected Wallet Challenges:
    "tenderly_addBalance"
    params
    : 
-   [["0x6f17CF065E3f4FF35a176fC7E2ee5791047035F6"], "0xde0b6b3a7640000"]
+   [["ADDRESS_TO_FUND"], "0xde0b6b3a7640000"]
    0
    : 
-   ["0x6f17CF065E3f4FF35a176fC7E2ee5791047035F6"]
+   ["ADDRESS_TO_FUND"]
    0
    : 
-   "0x6f17CF065E3f4FF35a176fC7E2ee5791047035F6"
+   "ADDRESS_TO_FUND"
    1
    : 
    "0xde0b6b3a7640000"
    ```
-   3. Have it deploy custom Safe address for each question, save to local storage
-   4. For each question, set 2/3 signers as:
+   1. Have user deploy custom Safe address for each question, as question 1, and save to local storage
+   2. For each question, set 2/3 signers as:
       1. anvil5
       2. whatever wallet is connected
       3. anvil6
-   5. Setup eternalsafe with custom network 
-3. Give user JSON object to import to eternalsafe to have safe setup
-4. Drop user to question 1
+1. Question 2 is to setup eternalsafe with custom network, saying "oh no, the safe UI is down!!", can you connect?
+2. Drop user to question 3
 
 
 
