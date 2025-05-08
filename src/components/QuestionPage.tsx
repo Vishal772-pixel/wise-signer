@@ -26,7 +26,7 @@ export default function QuestionPage({ questionId }: { questionId: number }) {
 
     // Create the props for the PageRenderer component based on question type
     const commonProps = {
-        questionNumber: question.id,
+        questionNumber: questionId,
         question: question.question,
         feedbackContent: question.feedbackContent,
         questionContext: question.questionContext,
@@ -51,7 +51,7 @@ export default function QuestionPage({ questionId }: { questionId: number }) {
                 type="signOrReject"
                 expectedAction={question.expectedAction}
                 fakeWebsiteType={question.fakeWebsiteType}
-                questionId={question.id}
+                questionId={questionId}
                 interactionButtonText={question.interactionButtonText}
                 walletType={question.walletType}
                 transactionOrSignatureDetails={question.transactionOrSignatureData}

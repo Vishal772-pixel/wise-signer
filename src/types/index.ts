@@ -28,6 +28,7 @@ export interface TransactionDetails {
     functionName: string;
     data: string;
     networkName?: string;
+    params?: string[];
     // Safe wallet specific properties
     safeThreshold?: number;
     safeConfirmations?: number;
