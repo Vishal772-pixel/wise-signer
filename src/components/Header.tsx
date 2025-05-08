@@ -25,8 +25,16 @@ const Header = () => {
         setMounted(true);
     }, []);
 
-    const showConnectButton = mounted && !isLoading && !!networkInfo && isTenderlyQuestionsPage;
+    // const showConnectButton = mounted && !isLoading && !!networkInfo && isTenderlyQuestionsPage;
+    // This will always be false for now
+    const showConnectButton = mounted && !isLoading && !!networkInfo && isTenderlyQuestionsPage && false; // Add false to disable it
 
+
+    // const handlePlayNowClick = (e: React.MouseEvent<HTMLButtonElement>) => {
+    //     if (!(e.clientX > e.currentTarget.getBoundingClientRect().right - 30)) {
+    //         window.location.href = "/simulated/questions/1";
+    //     }
+    // };
     const handlePlayNowClick = (e: React.MouseEvent<HTMLButtonElement>) => {
         if (!(e.clientX > e.currentTarget.getBoundingClientRect().right - 30)) {
             window.location.href = "/simulated/questions/1";
@@ -68,18 +76,20 @@ const Header = () => {
             <div className="flex items-center gap-4">
                 {/* Only render ConnectButton wrapper when needed */}
                 {showConnectButton && (
-                    <div className="mr-2">
-                        <ConnectButton
-                            showBalance={false}
-                            accountStatus={{
-                                smallScreen: 'avatar',
-                                largeScreen: 'full',
-                            }}
-                            chainStatus={{
-                                smallScreen: 'icon',
-                                largeScreen: 'full',
-                            }}
-                        />
+                    <div className="flex flex-row items-center">
+                        <div className="mr-2">
+                            <ConnectButton
+                                showBalance={false}
+                                accountStatus={{
+                                    smallScreen: 'avatar',
+                                    largeScreen: 'full',
+                                }}
+                                chainStatus={{
+                                    smallScreen: 'icon',
+                                    largeScreen: 'full',
+                                }}
+                            />
+                        </div>
                     </div>
                 )}
 
@@ -103,12 +113,13 @@ const Header = () => {
                             >
                                 Simulated Wallet
                             </Link>
-                            <Link
-                                href="/tenderly/welcome"
-                                className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 rounded-b-md"
+                            <div
+                                className="block px-4 py-2 text-sm text-gray-400 cursor-not-allowed flex items-center"
+                                onClick={(e) => e.preventDefault()}
                             >
                                 Tenderly Virtualnet
-                            </Link>
+                                <span className="ml-2 text-xs bg-gray-200 text-gray-600 px-1 rounded">Under Construction</span>
+                            </div>
                         </div>
                     )}
                 </div>

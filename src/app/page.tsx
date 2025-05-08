@@ -48,25 +48,32 @@ export default function Home() {
             </div>
           </div>
 
-          <div className="bg-zinc-900 rounded-xl p-6 border border-zinc-800 hover:border-blue-500 transition relative">
-            <div className="flex justify-center mb-4">
-              <div className="bg-blue-600/20 p-3 rounded-full">
-                <FaMicrochip size={28} className="text-blue-500" />
+          <div className="bg-zinc-900 rounded-xl p-6 border border-zinc-700 relative overflow-hidden">
+            {/* Full diagonal banner */}
+            <div className="absolute inset-0 flex items-center justify-center z-10 pointer-events-none">
+              <div className="bg-pink-600 text-white font-medium py-2 text-center w-screen absolute rotate-12 shadow-md">
+                Under Construction
               </div>
             </div>
-            <h3 className="text-xl font-semibold mb-3 text-center">Tenderly Virtualnet</h3>
-            <p className="text-gray-400">
-              We spin up a Tenderly virtual testnet (a remote fork) to create a realistic
-              environment where you can practice with actual blockchain interactions without
-              risking real assets.
-            </p>
-            <div className="mt-4 text-center">
-              <a
-                href="/tenderly/welcome"
-                className="text-green-400 hover:text-green-300 font-medium"
-              >
-                Play Tenderly Virtualnet Mode →
-              </a>
+
+            {/* Card content with reduced opacity */}
+            <div className="relative z-0">
+              <div className="flex justify-center mb-4">
+                <div className="bg-gray-600/20 p-3 rounded-full">
+                  <FaMicrochip size={28} className="text-gray-500" />
+                </div>
+              </div>
+              <h3 className="text-xl font-semibold mb-3 text-center text-gray-400">Tenderly Virtualnet</h3>
+              <p className="text-gray-500">
+                We spin up a Tenderly virtual testnet (a remote fork) to create a realistic
+                environment where you can practice with actual blockchain interactions without
+                risking real assets.
+              </p>
+              <div className="mt-4 text-center">
+                <span className="text-gray-500 font-medium cursor-not-allowed">
+                  Coming Soon
+                </span>
+              </div>
             </div>
           </div>
         </div>
