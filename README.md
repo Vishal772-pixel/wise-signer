@@ -10,7 +10,9 @@ This is a website for teaching people how to sign transactions, and how to make 
    1. Just show images, don't use an actual wallet
 2. Real wallets
 
-Simulated Wallet Challenges (leave for Updraft):
+# Docs coming soon...
+
+<!-- Simulated Wallet Challenges (leave for Updraft):
 - EOA
   - Sign in with Ethereum (MetaMask side pop up) ✅ 
   - Basic ETH transfer (Trezor pop up) ✅ 
@@ -81,4 +83,4 @@ Connected Wallet Challenges:
 2. Drop user to question 3
 
 
-
+ -->
