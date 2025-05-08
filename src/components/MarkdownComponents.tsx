@@ -125,7 +125,77 @@ const markdownComponents = {
         }
 
         return <>{props.children}</>;
-    }
+    },
+
+    // Add list item component
+    li: (props: ComponentPropsWithoutRef<'li'>) => (
+        <li className="ml-6 mb-2" {...props} />
+    ),
+
+    // Add ordered list component
+    ol: (props: ComponentPropsWithoutRef<'ol'>) => (
+        <ol className="list-decimal pl-4 mb-4" {...props} />
+    ),
+
+    // Add unordered list component
+    ul: (props: ComponentPropsWithoutRef<'ul'>) => (
+        <ul className="list-disc pl-4 mb-4" {...props} />
+    ),
+
+    // Add heading components
+    h1: (props: ComponentPropsWithoutRef<'h1'>) => (
+        <h1 className="text-2xl font-bold mt-6 mb-4" {...props} />
+    ),
+    h2: (props: ComponentPropsWithoutRef<'h2'>) => (
+        <h2 className="text-xl font-bold mt-5 mb-3" {...props} />
+    ),
+    h3: (props: ComponentPropsWithoutRef<'h3'>) => (
+        <h3 className="text-lg font-bold mt-4 mb-2" {...props} />
+    ),
+    h4: (props: ComponentPropsWithoutRef<'h4'>) => (
+        <h4 className="text-base font-bold mt-3 mb-2" {...props} />
+    ),
+    h5: (props: ComponentPropsWithoutRef<'h5'>) => (
+        <h5 className="text-sm font-bold mt-2 mb-1" {...props} />
+    ),
+    h6: (props: ComponentPropsWithoutRef<'h6'>) => (
+        <h6 className="text-xs font-bold mt-2 mb-1" {...props} />
+    ),
+
+    // Add blockquote component
+    blockquote: (props: ComponentPropsWithoutRef<'blockquote'>) => (
+        <blockquote
+            className="pl-4 border-l-4 border-gray-300 italic my-4 text-gray-700"
+            {...props}
+        />
+    ),
+
+    // Add table components for markdown tables
+    table: (props: ComponentPropsWithoutRef<'table'>) => (
+        <div className="overflow-x-auto my-4">
+            <table className="min-w-full divide-y divide-gray-200" {...props} />
+        </div>
+    ),
+    thead: (props: ComponentPropsWithoutRef<'thead'>) => (
+        <thead className="bg-gray-50" {...props} />
+    ),
+    tbody: (props: ComponentPropsWithoutRef<'tbody'>) => (
+        <tbody className="bg-white divide-y divide-gray-200" {...props} />
+    ),
+    tr: (props: ComponentPropsWithoutRef<'tr'>) => (
+        <tr className="hover:bg-gray-50" {...props} />
+    ),
+    th: (props: ComponentPropsWithoutRef<'th'>) => (
+        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider" {...props} />
+    ),
+    td: (props: ComponentPropsWithoutRef<'td'>) => (
+        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500" {...props} />
+    ),
+
+    // Add horizontal rule
+    hr: (props: ComponentPropsWithoutRef<'hr'>) => (
+        <hr className="my-6 border-t border-gray-300" {...props} />
+    )
 };
 
 export default markdownComponents;

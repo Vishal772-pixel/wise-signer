@@ -1,7 +1,6 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import Link from "next/link";
 import { FaLightbulb, FaChevronLeft, FaChevronRight, FaTimes, FaRedo } from "react-icons/fa";
 import FeedbackComponent from "./FeedbackComponent";
 import ReactMarkdown from 'react-markdown';
@@ -38,6 +37,8 @@ interface QuestionProps {
     showFeedback?: boolean;
     // Callback for when a user wants to retry a question
     onRetry?: () => void;
+    // Ref for scrolling to feedback
+    feedbackRef?: any; // Using any to resolve type issues
 }
 
 import React, { forwardRef, useImperativeHandle } from "react";
@@ -58,6 +59,7 @@ const QuestionComponent = forwardRef(({
     onCheckAnswer,
     showFeedback: externalShowFeedback,
     onRetry,
+    feedbackRef,
 }: QuestionProps, ref) => {
     const [selectedOptions, setSelectedOptions] = useState<string[]>([]);
     const [internalShowFeedback, setInternalShowFeedback] = useState(false);
@@ -163,7 +165,7 @@ const QuestionComponent = forwardRef(({
                     <>
                         <p className="mb-4 text-gray-700">
                             Please select <span className="font-bold">
-                                {type === "single" ? "one option" : "one or many options"}
+                                all correct answers.
                             </span>
                         </p>
 
@@ -173,7 +175,7 @@ const QuestionComponent = forwardRef(({
                                     key={option.id}
                                     onClick={() => toggleOption(option.id)}
                                     disabled={effectiveHasAnswered && !onRetry} // Only disable if no retry function
-                                    className={`p-4 text-left rounded-md shadow-sm border transition duration-150 ${getOptionClass(option.id)}`}
+                                    className={`p-4 text-left rounded-md shadow-sm border transition duration-150 cursor-pointer ${getOptionClass(option.id)}`}
                                 >
                                     {option.id}) {option.text}
                                 </button>
@@ -233,7 +235,7 @@ const QuestionComponent = forwardRef(({
 
                 {/* Show feedback for multi/single question types */}
                 {type !== "signOrReject" && showFeedback && (
-                    <div className="mt-8">
+                    <div ref={feedbackRef} className="mt-8">
                         <FeedbackComponent
                             isCorrect={effectiveIsCorrect}
                             feedbackContent={feedbackContent}

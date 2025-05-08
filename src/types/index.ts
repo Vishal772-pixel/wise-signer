@@ -1,7 +1,7 @@
 // Wallet types
 export type WalletType = "metamask" | "safeWallet" | "trezor";
 
-export type FakeWebsiteType = "Uniswap" | "OpenSea" | "SendEth" | "Aave" | "SafeWallet" | "SecurityCouncil";
+export type FakeWebsiteType = "Uniswap" | "OpenSea" | "SendEth" | "Aave" | "SafeWallet" | "SecurityCouncil" | "SendToken" | "SendWethSafeWallet" | "Aave2";
 
 export type FakeWebsiteComponentProps = {
     questionId: number;
@@ -26,7 +26,8 @@ export interface TransactionDetails {
         eth: string;
     };
     functionName: string;
-    data: string;
+    data: string | string[];
+    contracts?: string[];
     networkName?: string;
     params?: string[];
     // Safe wallet specific properties
@@ -34,6 +35,7 @@ export interface TransactionDetails {
     safeConfirmations?: number;
     safeRequiresAdditionalConfirmation?: boolean;
     safeAdditionalWalletType?: WalletType;
+    upgradeAccount?: string;
 }
 
 // Question types

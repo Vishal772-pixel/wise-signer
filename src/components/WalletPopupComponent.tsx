@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { FaLock, FaChevronDown, FaTimes } from "react-icons/fa";
+import { FaLock, FaChevronDown, FaTimes, FaChevronUp, FaCopy } from "react-icons/fa";
 import { SignatureDetails, TransactionDetails, WalletType } from "@/types";
 import ChainButton from "@/components/ChainButton";
 import TrezorScreens, { TrezorScreensProps, CHUNK_SIZE } from "@/components/wallets/TrezorScreens";
@@ -41,6 +41,9 @@ const WalletPopupComponent = ({
     const [showTransactionDetails, setShowTransactionDetails] = useState(false);
     // State for Trezor screen navigation
     const [currentTrezorScreen, setCurrentTrezorScreen] = useState(0);
+    // New state for transaction dropdown expanded state
+    const [expandedTransactions, setExpandedTransactions] = useState<Record<number, boolean>>({});
+
     if (!isOpen) return null;
 
     // Determine the type of details we're dealing with
@@ -72,6 +75,14 @@ const WalletPopupComponent = ({
         } else if (direction === 'prev' && currentTrezorScreen > 0) {
             setCurrentTrezorScreen(currentTrezorScreen - 1);
         }
+    };
+
+    // New function to toggle transaction expansion
+    const toggleTransaction = (index: number) => {
+        setExpandedTransactions(prev => ({
+            ...prev,
+            [index]: !prev[index]
+        }));
     };
 
     // Different UI elements based on wallet type
@@ -129,6 +140,17 @@ const WalletPopupComponent = ({
     const renderTransactionWallet = (transactionDetails: TransactionDetails) => {
         return (
             <>
+                {transactionDetails.upgradeAccount && (
+                    <div className="mb-4 bg-gray-50 p-3 rounded-lg border border-gray-200">
+                        <div className="text-sm text-gray-700 mb-1">Type: Smart Account</div>
+                        <div className="text-sm font-mono text-gray-800">{transactionDetails.upgradeAccount}</div>
+                        <div className="mb-2">
+                            <span className="text-xs text-gray-500">Function:</span>
+                            <span className="text-xs font-mono ml-2 text-gray-800 break-all">{transactionDetails.functionName}</span>
+                        </div>
+                    </div>
+                )}
+
                 <div className="mb-3">
                     <div className="text-sm text-gray-500 mb-1">From (your account)</div>
                     <div className="flex items-center">
@@ -157,45 +179,83 @@ const WalletPopupComponent = ({
                         <div className="text-xs text-gray-500">{transactionDetails.estimatedFee.eth}</div>
                     </div>
                 </div>
-                <div className="mb-4">
-                    <button
-                        onClick={() => setShowTransactionDetails(!showTransactionDetails)}
-                        className="cursor-pointer w-full text-blue-600 text-sm border border-blue-600 rounded-md px-3 py-1 flex items-center justify-center"
-                    >
-                        View details <FaChevronDown className={`ml-1 text-xs transition-transform duration-200 ${showTransactionDetails ? 'transform rotate-180' : ''}`} />
-                    </button>
 
-                    {/* Modify this section in the renderTransactionWallet function where transaction details are shown */}
-                    {showTransactionDetails && (
-                        <div className="mt-3 p-3 bg-gray-50 rounded-md border border-gray-200">
-                            <div className="mb-2">
-                                <span className="text-xs text-gray-500">Function:</span>
-                                <span className="text-xs font-mono ml-2 text-gray-800 break-all">{transactionDetails.functionName}</span>
-                            </div>
+                {/* Details view button or transactions list */}
+                {Array.isArray(transactionDetails.data) ? (
+                    <div className="mb-4">
+                        {transactionDetails.data.map((txData, index) => (
+                            <div key={index} className="mb-3 border border-gray-200 rounded-lg overflow-hidden">
+                                <button
+                                    onClick={() => toggleTransaction(index)}
+                                    className="cursor-pointer w-full text-left p-3 bg-white flex items-center justify-between"
+                                >
+                                    <span className="font-medium text-gray-800">Transaction {index + 1}</span>
+                                    <FaChevronUp className="text-gray-500" />
+                                </button>
 
-                            {/* Add this new section to display function parameters */}
-                            {transactionDetails.params && transactionDetails.params.length > 0 && (
-                                <div className="mb-2">
-                                    {transactionDetails.params.map((param, index) => (
-                                        <div key={index} className="flex items-start mt-2">
-                                            <span className="text-xs text-gray-500 whitespace-nowrap mr-2">Param #{index + 1}</span>
-                                            <span className="text-xs font-mono text-gray-800 break-all bg-gray-100 px-2 py-1 rounded flex-1">
-                                                {param}
-                                            </span>
+                                {expandedTransactions[index] && (
+                                    <div className="p-0">
+                                        {/* Show contract address if available */}
+                                        {transactionDetails.contracts && transactionDetails.contracts[index] && (
+                                            <div className="p-3 border-t border-gray-200">
+                                                <div className="flex items-start mb-1">
+                                                    <span className="text-sm text-gray-600">Interacting with</span>
+                                                </div>
+                                                <div className="w-full bg-gray-900 text-white px-4 py-2 rounded-full text-base break-all">
+                                                    {transactionDetails.contracts[index]}
+                                                </div>
+                                            </div>
+                                        )}
+
+                                        <div className="bg-gray-100 p-4 border-t border-gray-200">
+                                            <div className="font-mono text-xs text-gray-800 break-all">
+                                                {txData}
+                                            </div>
                                         </div>
-                                    ))}
-                                </div>
-                            )}
+                                    </div>
+                                )}
+                            </div>
+                        ))}
+                    </div>
+                ) : (
+                    <div className="mb-4">
+                        <button
+                            onClick={() => setShowTransactionDetails(!showTransactionDetails)}
+                            className="cursor-pointer w-full text-blue-600 text-sm border border-blue-600 rounded-md px-3 py-1 flex items-center justify-center"
+                        >
+                            View details <FaChevronDown className={`ml-1 text-xs transition-transform duration-200 ${showTransactionDetails ? 'transform rotate-180' : ''}`} />
+                        </button>
 
-                            <div>
-                                <span className="text-xs text-gray-500">Data:</span>
-                                <div className="mt-1 p-2 bg-gray-100 rounded font-mono text-xs text-gray-800 break-all">
-                                    {transactionDetails.data}
+                        {showTransactionDetails && (
+                            <div className="mt-3 p-3 bg-gray-50 rounded-md border border-gray-200">
+                                <div className="mb-2">
+                                    <span className="text-xs text-gray-500">Function:</span>
+                                    <span className="text-xs font-mono ml-2 text-gray-800 break-all">{transactionDetails.functionName}</span>
+                                </div>
+
+                                {transactionDetails.params && transactionDetails.params.length > 0 && (
+                                    <div className="mb-2">
+                                        {transactionDetails.params.map((param, index) => (
+                                            <div key={index} className="flex items-start mt-2">
+                                                <span className="text-xs text-gray-500 whitespace-nowrap mr-2">Param #{index + 1}</span>
+                                                <span className="text-xs font-mono text-gray-800 break-all bg-gray-100 px-2 py-1 rounded flex-1">
+                                                    {param}
+                                                </span>
+                                            </div>
+                                        ))}
+                                    </div>
+                                )}
+
+                                <div>
+                                    <span className="text-xs text-gray-500">Data:</span>
+                                    <div className="mt-1 p-2 bg-gray-100 rounded font-mono text-xs text-gray-800 break-all">
+                                        {transactionDetails.data}
+                                    </div>
                                 </div>
                             </div>
-                        </div>
-                    )}
-                </div>
+                        )}
+                    </div>
+                )}
             </>)
     }
 
@@ -241,7 +301,7 @@ const WalletPopupComponent = ({
         );
     };
 
-    // NEW: Render the Trezor device UI for signatures
+    // Render the Trezor device UI for signatures
     const renderTrezorSignatureUI = () => {
         if (!isSignature) return null;
 
@@ -323,7 +383,6 @@ const WalletPopupComponent = ({
             </div>
         );
     };
-
 
     // Render the appropriate wallet popup(s)
     return (

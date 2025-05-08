@@ -52,6 +52,10 @@ const PageRenderer = forwardRef((props: PageRendererProps, ref) => {
     const [showWrongAnswerPopup, setShowWrongAnswerPopup] = useState(false);
     const router = useRouter();
 
+    // Refs for scrolling to feedback
+    const feedbackRef = useRef<HTMLDivElement | null>(null);
+    const questionComponentRef = useRef(null);
+
     // Extract common props
     const {
         questionNumber,
@@ -74,21 +78,39 @@ const PageRenderer = forwardRef((props: PageRendererProps, ref) => {
     const fakeWebsiteType = 'fakeWebsiteType' in props ? props.fakeWebsiteType : undefined;
     const questionId = 'questionId' in props ? props.questionId : undefined;
 
-    // Reference to the actual question component for multi-choice questions
-    const questionComponentRef = useRef(null);
-
-    // Check localStorage on component mount to see if this question has been answered
+    // Check localStorage and reset feedback when questionNumber changes
     useEffect(() => {
         checkQuestionAnsweredStatus();
-        // Always reset feedback when navigating to a new question
+        // Always reset feedback visibility when navigating to a new question.
+        // This ensures that feedback from a previous question isn't shown
+        // when loading a new question or returning to an already answered one.
+        // Feedback is only shown after an explicit user action (e.g., answering).
         setShowFeedback(false);
     }, [questionNumber]);
+
+    // Scroll to feedback when it appears
+    useEffect(() => {
+        if (showFeedback && feedbackRef.current) {
+            // Add a small delay to ensure DOM is updated
+            setTimeout(() => {
+                feedbackRef.current?.scrollIntoView({
+                    behavior: 'smooth',
+                    block: 'start'
+                });
+            }, 100);
+        }
+    }, [showFeedback]);
 
     // Function to check if the current question has been answered
     const checkQuestionAnsweredStatus = () => {
         try {
             const existingResultsJSON = localStorage.getItem('quizResults');
-            if (!existingResultsJSON) return;
+            if (!existingResultsJSON) {
+                // If no results yet, ensure states are reset for a fresh question
+                setHasAnswered(false);
+                setIsCorrect(false);
+                return;
+            }
 
             const results: QuestionResult[] = JSON.parse(existingResultsJSON);
             const existingResult = results.find(result => result.id === questionNumber);
@@ -96,70 +118,54 @@ const PageRenderer = forwardRef((props: PageRendererProps, ref) => {
             if (existingResult) {
                 setHasAnswered(true);
                 setIsCorrect(existingResult.isCorrect);
-                // Don't automatically show feedback when loading from localStorage
+                // Feedback visibility is handled by the useEffect hook
             } else {
-                // Reset states if no answer found
+                // Reset states if no answer found for this specific question
                 setHasAnswered(false);
                 setIsCorrect(false);
-                setShowFeedback(false);
             }
         } catch (error) {
             console.error("Error checking question status:", error);
         }
     };
 
-    // Function to reset feedback state
-    const resetFeedback = () => {
-        setShowFeedback(false);
-    };
-
     const handlePrevQuestion = () => {
         if (prevPageUrl) {
-            resetFeedback(); // Reset feedback before navigating
+            // No longer reset feedback here
             router.push(prevPageUrl);
         }
     };
 
     const handleNextQuestion = () => {
         if (isLastQuestion) {
-            // Navigate to the dedicated quiz summary page instead of showing the component
             router.push('/simulated/quiz-summary');
         } else if (nextPageUrl) {
-            resetFeedback(); // Reset feedback before navigating
+            // No longer reset feedback here
             router.push(nextPageUrl);
         }
     };
 
     const handleSignInClick = () => {
-        // Allow interaction even if previously answered
         setShowWalletPopup(true);
     };
 
-    const saveQuestionResult = (questionId: number, correct: boolean) => {
+    const saveQuestionResult = (id: number, correct: boolean) => { // Renamed parameter to avoid shadowing
         try {
-            // Get existing results from localStorage
             const existingResultsJSON = localStorage.getItem('quizResults');
             let results: QuestionResult[] = existingResultsJSON ? JSON.parse(existingResultsJSON) : [];
-
-            // Check if this question has already been answered
-            const existingResultIndex = results.findIndex(result => result.id === questionId);
+            const existingResultIndex = results.findIndex(result => result.id === id);
 
             if (existingResultIndex >= 0) {
-                // Update existing result
                 results[existingResultIndex].isCorrect = correct;
             } else {
-                // Add new result
-                results.push({ id: questionId, isCorrect: correct });
+                results.push({ id, isCorrect: correct });
             }
-
-            // Save back to localStorage
             localStorage.setItem('quizResults', JSON.stringify(results));
         } catch (error) {
             console.error("Error saving quiz results to localStorage:", error);
         }
     };
 
-    // Handle wallet action (sign or reject)
     const handleWalletAction = (action: "sign" | "reject") => {
         setShowWalletPopup(false);
 
@@ -170,7 +176,6 @@ const PageRenderer = forwardRef((props: PageRendererProps, ref) => {
             setHasAnswered(true);
             saveQuestionResult(questionNumber, isActionCorrect);
 
-            // Show wrong answer popup if incorrect and popup content exists
             if (!isActionCorrect && wrongAnswerPopupContent) {
                 setShowWrongAnswerPopup(true);
             }
@@ -178,20 +183,18 @@ const PageRenderer = forwardRef((props: PageRendererProps, ref) => {
     };
 
     const handleRetry = () => {
-        // Reset feedback and answer status
         setShowFeedback(false);
         setHasAnswered(false);
         setIsCorrect(false);
+        // Note: This does not clear the localStorage result, allowing users to retry for UI feedback
+        // but their last saved answer remains unless they answer correctly again.
     };
 
     return (
         <div className="min-h-screen bg-gray-50 pb-20 relative">
-            {/* Main content container - not affected by wallet popup */}
             <div className="w-full">
-                {/* Progress Component */}
                 <ProgressComponent currentQuestion={questionNumber} />
 
-                {/* Pass hasAnswered, isCorrect and showFeedback to QuestionComponent */}
                 <QuestionComponent
                     ref={questionComponentRef}
                     question={`${questionNumber}. ${question}`}
@@ -203,24 +206,21 @@ const PageRenderer = forwardRef((props: PageRendererProps, ref) => {
                     onNextQuestion={handleNextQuestion}
                     questionContext={questionContext}
                     onInteractWithWallet={type === "signOrReject" ? handleSignInClick : undefined}
-                    // Pass the states for all question types
                     hasAnswered={hasAnswered}
                     isCorrect={isCorrect}
                     showFeedback={showFeedback}
-                    // Add retry handler
                     onRetry={handleRetry}
-                    // Add a handler for when an answer is checked
                     onCheckAnswer={(isAnswerCorrect) => {
                         setIsCorrect(isAnswerCorrect);
                         setShowFeedback(true);
                         setHasAnswered(true);
                         saveQuestionResult(questionNumber, isAnswerCorrect);
                     }}
+                    feedbackRef={feedbackRef}
                 />
 
-                {/* Using the FeedbackComponent for sign/reject questions */}
                 {type === "signOrReject" && showFeedback && (
-                    <div className="max-w-6xl mx-auto mt-8">
+                    <div ref={feedbackRef} className="max-w-6xl mx-auto mt-8">
                         <FeedbackComponent
                             isCorrect={isCorrect}
                             feedbackContent={feedbackContent}
@@ -234,12 +234,11 @@ const PageRenderer = forwardRef((props: PageRendererProps, ref) => {
                         questionId={questionId}
                         primaryButtonText={props.interactionButtonText || "Sign in with Ethereum"}
                         onPrimaryButtonClick={handleSignInClick}
-                        buttonDisabled={false} // Always allow interaction
+                        buttonDisabled={false}
                     />
                 )}
             </div>
 
-            {/* Wallet Popup Component for sign/reject questions */}
             {showWalletPopup && type === "signOrReject" && transactionOrSignatureDetails && (
                 <WalletPopupComponent
                     isOpen={showWalletPopup}
@@ -251,18 +250,17 @@ const PageRenderer = forwardRef((props: PageRendererProps, ref) => {
                 />
             )}
 
-            {/* Default Wallet Popup for non-sign/reject questions */}
             {showWalletPopup && type !== "signOrReject" && transactionOrSignatureDetails && (
                 <WalletPopupComponent
                     isOpen={showWalletPopup}
-                    walletType="metamask"
+                    walletType="metamask" // Default or pass as prop if needed for non-signOrReject
                     onClose={() => setShowWalletPopup(false)}
                     onConfirm={() => {
-                        console.log("Transaction confirmed");
+                        console.log("Transaction confirmed for non-signOrReject");
                         setShowWalletPopup(false);
                     }}
                     onReject={() => {
-                        console.log("Transaction rejected");
+                        console.log("Transaction rejected for non-signOrReject");
                         setShowWalletPopup(false);
                     }}
                     transactionOrSignatureDetails={transactionOrSignatureDetails}
@@ -303,7 +301,6 @@ const PageRenderer = forwardRef((props: PageRendererProps, ref) => {
     );
 });
 
-// Add display name for debugging
 PageRenderer.displayName = "PageRenderer";
 
 export default PageRenderer;

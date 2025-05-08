@@ -8,7 +8,7 @@ export interface BaseQuestionData {
     fakeWebsiteType?: FakeWebsiteType;
     questionId?: number;
     questionContext?: string;
-    otherData?: string;
+    otherData?: any[];
 }
 
 export interface MultiChoiceQuestionData extends BaseQuestionData {
@@ -42,8 +42,9 @@ export interface SiteData {
     domainHash?: string;
     messageHash?: string;
     eip712Hash?: string;
-
 }
+
+export const SAFE_WALLET_QUESTION_START = 13
 
 // export const ZKSYNC_AAVE_WRAPPED_TOKEN_GATEWAY_V3 = "0x9F07eEBdf3675f60dCeC65a092F1821Fb99726F3"
 export const ZKSYNC_AAVE_WRAPPED_TOKEN_GATEWAY_V3 = "0xAE2b00D676130Bdf22582781BbBA8f4F21e8B0ff"
@@ -54,6 +55,12 @@ export const YOUR_WALLET = "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266"
 export const ARBITRUM_WETH = "0x82af49447d8a07e3bd95bd0d56f35241523fbab1"
 export const MULTI_SIGNATURE_WALLET = "0x4087d2046A7435911fC26DCFac1c2Db26957Ab72"
 export const MULTI_SIGNATURE_SIGNER_WALLET = "0x5031f5E2ed384978dca63306dc28A68a6Fc33e81"
+export const ZKSYNC_USDC_ADDRESS = "0x3355df6D4c9C3035724Fd0e3914dE96A5a83aaf4"
+export const ETH_AAVE_POOL = "0x87870Bca3F3fD6335C3F4ce8392D69350B4fA4E2"
+export const METAMASK_DELEGATOR = "0x63c0c19a282a1B52b07dD5a65b58948A07DAE32B"
+export const ETH_USDC_ADDRESS = "0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48"
+export const NORTH_KOREA = "0x47666fab8bd0ac7003bce3f5c3585383f09486e2"
+
 
 export type QuestionData = MultiChoiceQuestionData | SignOrRejectQuestionData;
 
@@ -154,7 +161,7 @@ Only trust what the hardware wallet shows you. If sending this transaction will 
             functionName: "",
             data: ""
         },
-        otherData: "5",
+        otherData: ["5"],
     },
     {
         question: `Execute or reject this transaction.`,
@@ -190,7 +197,77 @@ ${TREZOR_POISONING_WALLET} - What showed up in our Trezor
             functionName: "",
             data: ""
         },
-        otherData: "0.5",
+        otherData: ["0.5"],
+    },
+    {
+        question: `Execute or reject this transaction.`,
+        questionContext: `You're attempting to send your friend who has address: \`${TREZOR_FRIEND_WALLET}\` \`100 USDC.e\` (Bridged USDC) on the ZKsync Era chain. Assume your wallet is \`${YOUR_WALLET}\`.
+        
+Only trust what the wallet shows you. If sending this transaction will get you want you want, sign it!`,
+        type: "signOrReject",
+        expectedAction: "reject",
+        walletType: "metamask",
+        wrongAnswerPopupContent: "Oh no!\n\nYou sent $1,000 instead of $100!",
+        interactionButtonText: "Transfer",
+        fakeWebsiteType: "SendToken",
+        feedbackContent: {
+            pages: [
+                `Even though the website showed \`100 USDC\`, our wallet populated with \`1000 USDC\`. This can happen if a website is compromised, or is trying to attack you! Let's review what we should look out for:
+
+- \`Network Name\`: The network name is ZKsync Era, which is correct.
+- \`to\`: The to address was ${ZKSYNC_USDC_ADDRESS}, which is the correct [USDC.e](https://www.coingecko.com/en/coins/zksync-bridged-usdc-zksync) contract on ZKsync Era that we can verify.
+- \`from\`: The from address is your wallet, which is correct.
+
+Then, we need to hit \`View details\`.
+
+- \`Function name\`: The function name is \`transfer(address,uint256)\`, which is correct.
+- \`Params #1 (address)\`: The first parameter is the address of the recipient, which is your friend's address. This is correct.
+- \`Params #2 (uint256)\`: The second parameter is the amount of USDC.e to send. This is where we see the problem! The amount is \`1000000000\`, which is actually \`1,000 USDC\`. This is a problem, and we should reject this transaction!,
+
+But how do we know this is the wrong amount?
+`,
+
+                `ERC20 tokens have a function that you can call called \`decimals()\`, which tells you how many decimals to apply to a token. \`USDC.e\` has 6 decimals, so any number we see in parameter we need to move the decimal place 6 to the left.
+
+Do the following:                
+1. Go the [ZKsync Era Explorer for USDC.e](https://explorer.zksync.io/address/0x3355df6D4c9C3035724Fd0e3914dE96A5a83aaf4#contract#read-proxy)
+2. Scroll down to the \`decimals\` function
+3. Select it
+4. Then hit \`Query\`
+
+You'll see how many decimals the token has. All ERC20 tokens that have their code added to an explorer will have this decimals function so you can check. 
+
+If the contract code is not available, and you cannot call the function, then you should potentially not interact with that contract!
+
+But now that we have the decimals, we can apply this knowledge to parameter #2:
+
+\`\`\`bash
+1000000000 # This was what showed up in our metamask
+
+# Let's move the decimal place 6 to the left
+1000.000000 # Now we see the REAL amount, which is 1,000, which is too much!
+\`\`\`
+
+                `
+            ]
+        },
+        transactionOrSignatureData: {
+            networkName: "ZKsync Era",
+            fromAccount: `${YOUR_WALLET}`,
+            toAccount: `${ZKSYNC_USDC_ADDRESS}`,
+            amount: "0 ETH",
+            estimatedFee: {
+                usd: "$0.02",
+                eth: "0.0000198ETH"
+            },
+            functionName: "transfer(address,uint256)",
+            params: [
+                `${TREZOR_FRIEND_WALLET}`,
+                "1000000000"
+            ],
+            data: "0xa9059cbb00000000000000000000000070997970c51812dc3a010c7d01b50e0d17dc79c8000000000000000000000000000000000000000000000000000000003b9aca00",
+        },
+        otherData: ["100"],
     },
     {
         question: "Execute or reject this transaction.",
@@ -262,7 +339,7 @@ Now, if we assume the code is good, we can use this to verify that at least we a
     },
     {
         question: "Execute or reject this transaction.",
-        questionContext: `Here we go again! But this time, your wallet is having a hard time decoding the data. This can often happen if the transaction data is too complicated or your wallet doesn't recognize the type of transaction. 
+        questionContext: `Here we go again! But this time, your wallet is having a hard time decoding the data. Instead of showing you the parameters like we did in the last question, it just shows you the "raw" data. A wallet can have a hard time turning this "raw" data into the easier to read parameters if the transaction data is too complicated or your wallet doesn't recognize the type of transaction. 
 
 Assume your wallet address is ${YOUR_WALLET}. You want to deposit 1 ETH into Aave to begin gaining interest on the ZKsync Era network. Yes, use the real Aave contract address on ZKsync Era if that helps. 
         
@@ -288,7 +365,28 @@ This could happen if the Aave UI is compromised. Website interfaces compromises 
 0x474cf53d000000000000000000000000f39fd6e51aad88f6f4ce6ab8827279cfffb9226600000000000000000000000023618e81e3f5cdf7f54c3d65f7fbc0abf5b21e8f0000000000000000000000000000000000000000000000000000000000000000
 \`\`\` 
 
-and if we decode this with [foundry's cast tool](https://book.getfoundry.sh/):
+For non technical people, we could put this calldata into a calldata-decoder like [swiss-knife](https://calldata.swiss-knife.xyz/decoder) or [deth tools](https://tools.deth.net/calldata-decoder).
+
+If you've never decoded calldata before, do the following:
+1. Go to [swiss-knife](https://calldata.swiss-knife.xyz/decoder)
+2. Paste the data above into the website, and you'll see the parameters that this calldata represents.
+
+You'll get something like:
+
+\`\`\`json
+{
+  "function": "depositETH(address,address,uint16)",
+  "params": [
+    "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266",
+    "0x23618e81E3f5cdF7f54C3d65f7FBc0aBf5B21E8f",
+    "0"
+  ]
+}
+\`\`\`
+
+Which shows that the 2nd parameter is \`0x23618e81E3f5cdF7f54C3d65f7FBc0aBf5B21E8f\`, which is not the wallet address we want!`,
+
+                `Now using a website to decode the calldata is a nice shortcut, but we are now trusting the website to be correct! So often, we want to use our own tools. For developers, if we decode this with [foundry's cast tool](https://book.getfoundry.sh/):
 
 \`\`\`bash
 cast calldata-decode "depositETH(address,address,uint16)" 0x474cf53d000000000000000000000000f39fd6e51aad88f6f4ce6ab8827279cfffb9226600000000000000000000000023618e81e3f5cdf7f54c3d65f7fbc0abf5b21e8f0000000000000000000000000000000000000000000000000000000000000000
@@ -319,18 +417,124 @@ The second parameter stands for \`onbehalfOf\`, meaning we are depositing ETH fo
         }
     },
     {
+        question: "Execute or reject this transaction.",
+        questionContext: `You've grown weary of sending so many transactions, and you are excited to hear that Aave now supports EIP-7702! You are attempting to _both_ approve 100 USDC token on the Ethereum network AND supply 100 USDC on behalf of yourself to Aave.
+        
+If the transaction that populates does that, please sign it, otherwise reject`,
+        type: "signOrReject",
+        expectedAction: "sign",
+        walletType: "metamask",
+        interactionButtonText: "Approve & Supply USDC",
+        fakeWebsiteType: "Aave2",
+        feedbackContent: {
+            pages: [`For EIP-7702 transactions, you set your wallet to gain the power of a smart contract, and it can be a bit confusing how to read your wallet. MetaMask automatically sets the code of our wallet to be ${METAMASK_DELEGATOR}, which means that our EOA now has the power to call functions... On itself! You're actually calling the function \`execute\` on your own address! You can think of it like you're borrowing the code from ${METAMASK_DELEGATOR} until you set your wallet back to being a "normal" EOA wallet.
+                
+But with this power, we can batch transactions together, like how we saw a list of transactions in our wallet. If you decode the two transactions using some of the tools we've learned, you'll see:
+
+\`\`\`bash
+#  Transaction #1
+# To: ${ETH_USDC_ADDRESS}
+# 0x095ea7b300000000000000000000000087870bca3f3fd6335c3f4ce8392d69350b4fa4e20000000000000000000000000000000000000000000000000000000005f5e100
+{
+  "function": "approve(address,uint256)",
+  "params": [
+    "0x87870Bca3F3fD6335C3F4ce8392D69350B4fA4E2",
+    "100000000"
+  ]
+}
+
+# Transaction #2
+# To: ${ETH_AAVE_POOL}
+# 0x617ba037000000000000000000000000a0b86991c6218b36c1d19d4a2e9eb0ce3606eb480000000000000000000000000000000000000000000000000000000005f5e100000000000000000000000000a5d0084a766203b463b3164dfc49d91509c12dab0000000000000000000000000000000000000000000000000000000000000000
+{
+  "function": "supply(address,uint256,address,uint16)",
+  "params": [
+    "0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48",
+    "100000000",
+    "0xa5D0084A766203b463b3164DFc49D91509C12daB",
+    "0"
+  ]
+}
+\`\`\`
+
+And we've already learned how to spot correct approval transactions. We just need to learn if the \`supply\` transaction is correct, which it is! We can learn that by going to the Aave documentation, and verifying the address and functions are correct.`]
+        },
+        transactionOrSignatureData: {
+            networkName: "Ethereum",
+            fromAccount: YOUR_WALLET,
+            toAccount: YOUR_WALLET,
+            amount: "0 ETH",
+            estimatedFee: {
+                usd: "$0.12",
+                eth: "0.00124ETH"
+            },
+            functionName: "execute((address,uint256,bytes))",
+            contracts: [ETH_USDC_ADDRESS, ETH_AAVE_POOL],
+            data: [`0x095ea7b300000000000000000000000087870bca3f3fd6335c3f4ce8392d69350b4fa4e20000000000000000000000000000000000000000000000000000000005f5e100`, `0x617ba037000000000000000000000000a0b86991c6218b36c1d19d4a2e9eb0ce3606eb480000000000000000000000000000000000000000000000000000000005f5e100000000000000000000000000f39fd6e51aad88f6f4ce6ab8827279cfffb922660000000000000000000000000000000000000000000000000000000000000000`],
+            upgradeAccount: `${METAMASK_DELEGATOR}`,
+        }
+    },
+    {
+        question: "Execute or reject this transaction.",
+        questionContext: `Whew! You've solved so many of these. You just want to send your friend 50 USDC on the Ethereum network. Assume your wallet is \`${YOUR_WALLET}\` and your friend's wallet is \`${FRIEND_WALLET}\`. And you're going to send it using an EIP-7702 transaction now that you understand it.`,
+        type: "signOrReject",
+        expectedAction: "reject",
+        walletType: "metamask",
+        interactionButtonText: "Send Tokens",
+        fakeWebsiteType: "SendToken",
+        wrongAnswerPopupContent: "Oh no!\nYou just gave North Korea access to all your funds and all your tokens are drained to 0!",
+        feedbackContent: {
+            pages: [`Most wallets don't allow this functionality, but when you upgrade your wallet to a smart contract wallet, you must be absolutely sure the contract that you're borrowing the code from is safe. In this case, ${NORTH_KOREA} was the wallet associated with the Bybit hack, and is a [North Korean Hacker controlled address](https://etherscan.io/address/0x47666fab8bd0ac7003bce3f5c3585383f09486e2).
+To protect against this, you have two options:
+
+1. Use wallets that force you to upgrade to "safer" EIP-7702 wallets (like Metamask)
+2. Make sure your verify the smart contract wallet you're upgrading to.`,
+
+                `But, remember, even if the smart contract wallet is "safe" the transactions could still be malicious. Always be diligent to check!`]
+        },
+        transactionOrSignatureData: {
+            networkName: "Ethereum",
+            fromAccount: YOUR_WALLET,
+            toAccount: YOUR_WALLET,
+            amount: "0 ETH",
+            estimatedFee: {
+                usd: "$0.12",
+                eth: "0.00124ETH"
+            },
+            functionName: "execute((address,uint256,bytes))",
+            contracts: [ETH_USDC_ADDRESS],
+            data: [`0xa9059cbb000000000000000000000000d8da6bf26964af9d7eed9e03e53415d37aa960450000000000000000000000000000000000000000000000000000000002faf080`],
+            upgradeAccount: `${NORTH_KOREA}`,
+        },
+        otherData: ["50"],
+    },
+    {
         question: "Sign or reject this signature.",
         questionContext: `Assume your wallet address is ${YOUR_WALLET}, and you are a signer on a valid mutlisig wallet at address ${MULTI_SIGNATURE_WALLET}. You are attempting to send 1 WETH to address: ${FRIEND_WALLET} on the Arbitrum network. Please sign or reject this transaction, if doing so will bring you closer to executing.`,
         type: "signOrReject",
         expectedAction: "sign",
         walletType: "metamask",
         interactionButtonText: "Sign",
-        fakeWebsiteType: "SafeWallet",
+        fakeWebsiteType: "SendWethSafeWallet",
         transactionOrSignatureData: {
             networkName: "Arbitrum",
             requestFrom: "https://app.safe.global/",
             message: `{"types":{"SafeTx":[{"type":"address","name":"to"},{"type":"uint256","name":"value"},{"type":"bytes","name":"data"},{"type":"uint8","name":"operation"},{"type":"uint256","name":"safeTxGas"},{"type":"uint256","name":"baseGas"},{"type":"uint256","name":"gasPrice"},{"type":"address","name":"gasToken"},{"type":"address","name":"refundReceiver"},{"type":"uint256","name":"nonce"}],"EIP712Domain":[{"name":"chainId","type":"uint256"},{"name":"verifyingContract","type":"address"}]},"domain":{"chainId":"42161","verifyingContract":"${MULTI_SIGNATURE_WALLET}"},"primaryType":"SafeTx","message":{"to":"${ARBITRUM_WETH}","value":"0","data":"0xa9059cbb000000000000000000000000d8da6bf26964af9d7eed9e03e53415d37aa960450000000000000000000000000000000000000000000000000de0b6b3a7640000","operation":"0","safeTxGas":"0","baseGas":"0","gasPrice":"0","gasToken":"0x0000000000000000000000000000000000000000","refundReceiver":"0x0000000000000000000000000000000000000000","nonce":"29"}}`
         },
+        otherData: [{
+            "chainPrefix": "arb",
+            "chain": "arbitrum",
+            "recipient": FRIEND_WALLET,
+            "amount": "1",
+            "wadValue": "1000000000000000000",
+            "nonce": 29,
+            "rawData": "0xa9059cbb000000000000000000000000d8da6bf26964af9d7eed9e03e53415d37aa960450000000000000000000000000000000000000000000000000de0b6b3a7640000",
+            "title": "Send tokens",
+            "rawDataSize": "68 bytes",
+            "targetContract": "WETH 1",
+            "targetFunction": "transfer",
+            "signers": "2/10"
+        }],
         feedbackContent: {
             pages: [
                 `It's correct to sign this transaction. This is a valid EIP-712 structured message for a multisig transaction with Safe{Wallet} (formerly Gnosis Safe) that matches your intention to send 1 WETH to your friend's address.
@@ -369,12 +573,26 @@ Assume your wallet address is ${YOUR_WALLET}, and you are a signer on a valid mu
         expectedAction: "sign",
         walletType: "trezor",
         interactionButtonText: "Sign",
-        fakeWebsiteType: "SafeWallet",
+        fakeWebsiteType: "SendWethSafeWallet",
         transactionOrSignatureData: {
             networkName: "Arbitrum",
             requestFrom: "https://app.safe.global/",
             message: `{"types":{"SafeTx":[{"type":"address","name":"to"},{"type":"uint256","name":"value"},{"type":"bytes","name":"data"},{"type":"uint8","name":"operation"},{"type":"uint256","name":"safeTxGas"},{"type":"uint256","name":"baseGas"},{"type":"uint256","name":"gasPrice"},{"type":"address","name":"gasToken"},{"type":"address","name":"refundReceiver"},{"type":"uint256","name":"nonce"}],"EIP712Domain":[{"name":"chainId","type":"uint256"},{"name":"verifyingContract","type":"address"}]},"domain":{"chainId":"42161","verifyingContract":"${MULTI_SIGNATURE_WALLET}"},"primaryType":"SafeTx","message":{"to":"${ARBITRUM_WETH}","value":"0","data":"0xa9059cbb000000000000000000000000d8da6bf26964af9d7eed9e03e53415d37aa960450000000000000000000000000000000000000000000000000de0b6b3a7640000","operation":"0","safeTxGas":"0","baseGas":"0","gasPrice":"0","gasToken":"0x0000000000000000000000000000000000000000","refundReceiver":"0x0000000000000000000000000000000000000000","nonce":"29"}}`
         },
+        otherData: [{
+            "chainPrefix": "arb",
+            "chain": "arbitrum",
+            "recipient": FRIEND_WALLET,
+            "amount": "1",
+            "wadValue": "1000000000000000000",
+            "nonce": 29,
+            "rawData": "0xa9059cbb000000000000000000000000d8da6bf26964af9d7eed9e03e53415d37aa960450000000000000000000000000000000000000000000000000de0b6b3a7640000",
+            "title": "Send tokens",
+            "rawDataSize": "68 bytes",
+            "targetContract": "WETH 1",
+            "targetFunction": "transfer",
+            "signers": "2/10"
+        }],
         feedbackContent: {
             pages: [
                 `This is a valid EIP-712 structured message for a multisig transaction with Safe{Wallet} (formerly Gnosis Safe) that matches your intention to send 1 WETH to your friend's address.
@@ -453,7 +671,7 @@ Hint: Here is the starting JSON data that is being signed:
     },
     "domain": {
         "chainId": "0x144",
-        "verifyingContract": "0x4087d2046A7435911fC26DCFac1c2Db26957Ab72"
+        "verifyingContract": "${MULTI_SIGNATURE_WALLET}"
     },
     "primaryType": "SafeTx",
     "message": {
@@ -533,22 +751,22 @@ Something else to note, is that on wallets with small screens, it can be really 
     },
     "domain": {
         "chainId": "0x144",
-        "verifyingContract": "0x4087d2046A7435911fC26DCFac1c2Db26957Ab72"
+        "verifyingContract": "${MULTI_SIGNATURE_WALLET}"
     },
-    "primaryType": "SafeTx",
-    "message": {
-        "to": "${ZKSYNC_AAVE_WRAPPED_TOKEN_GATEWAY_V3}",
-        "value": "100000000000000000",
-        "data": "0x474cf53d0000000000000000000000004087d2046a7435911fc26dcfac1c2db26957ab720000000000000000000000004087d2046a7435911fc26dcfac1c2db26957ab720000000000000000000000000000000000000000000000000000000000000000",
-        "operation": "0",
-        "safeTxGas": "0",
-        "baseGas": "0",
-        "gasPrice": "0",
-        "gasToken": "0x0000000000000000000000000000000000000000",
-        "refundReceiver": "0x0000000000000000000000000000000000000000",
-        "nonce": "1"
+        "primaryType": "SafeTx",
+        "message": {
+            "to": "${ZKSYNC_AAVE_WRAPPED_TOKEN_GATEWAY_V3}",
+            "value": "100000000000000000",
+            "data": "0x474cf53d0000000000000000000000004087d2046a7435911fc26dcfac1c2db26957ab720000000000000000000000004087d2046a7435911fc26dcfac1c2db26957ab720000000000000000000000000000000000000000000000000000000000000000",
+            "operation": "0",
+            "safeTxGas": "0",
+            "baseGas": "0",
+            "gasPrice": "0",
+            "gasToken": "0x0000000000000000000000000000000000000000",
+            "refundReceiver": "0x0000000000000000000000000000000000000000",
+            "nonce": "1"
+        }
     }
-}
 \`\`\`
 
 And this _seems_ great, but is it? So we should be signing the hash associated with this data. But what happens if we calculate it? 
@@ -575,6 +793,23 @@ This is different that what we saw in our Trezor wallet!!`, `It turned out, in t
 If you update your \`file.json\` to have the \`operation\` as a \`1\`, and run the same command, you will get the same hash as our Trezor wallet.`
             ]
         },
+        otherData: [{
+            "chainPrefix": "zks",
+            "chain": "zksync",
+            "recipient": ZKSYNC_AAVE_WRAPPED_TOKEN_GATEWAY_V3,
+            "amount": "0.1",
+            "wadValue": "100000000000000000",
+            "nonce": 1,
+            "rawData": "0x474cf53d0000000000000000000000004087d2046a7435911fc26dcfac1c2db26957ab720000000000000000000000004087d2046a7435911fc26dcfac1c2db26957ab720000000000000000000000000000000000000000000000000000000000000000",
+            "title": "Aave",
+            "rawDataSize": "NONE",
+            "targetContract": "WrappedTokenGatewayV3",
+            "targetFunction": "depositETH",
+            "domainHash": "0xe0392d263ff13e09757bfce9b182ead6ceabd9d1b404aa7df77e65b304969130",
+            "messageHash": "0x02def9296d874a88cd65d1adfdb9c220a186f812113ae9a6080836932e3df670",
+            "eip712Hash": "0x87414b6a2a5c6664ddbc9b79392a2fd4ac5a294a6b807b70b28641b3b8af297b",
+            "signers": "2/10"
+        }],
         transactionOrSignatureData: {
             networkName: "ZKsync Era",
             requestFrom: "https://app.safe.global/",
@@ -671,6 +906,41 @@ Please sign this transaction if doing so will bring you closer to executing, oth
         }
     }`
         },
+        // safe-hash tx --safe-address ${MULTI_SIGNATURE_WALLET} --nonce 3 --safe-version 1.4.1 --chain arbitrum --to 0x82af49447d8a07e3bd95bd0d56f35241523fbab1 --data 0xa9059cbb000000000000000000000000d8da6bf26964af9d7eed9e03e53415d37aa96045000000000000000000000000000000000000000000000000002386f26fc10000  --offline
+        otherData: [{
+            "chainPrefix": "arb",
+            "chain": "arbitrum",
+            "recipient": ARBITRUM_WETH,
+            "amount": "0.01",
+            "wadValue": "10000000000000000",
+            "nonce": 3,
+            "rawData": "0xa9059cbb000000000000000000000000d8da6bf26964af9d7eed9e03e53415d37aa96045000000000000000000000000000000000000000000000000002386f26fc10000",
+            "title": "Send tokens",
+            "rawDataSize": "68 bytes",
+            "targetContract": "WETH 1",
+            "targetFunction": "transfer",
+            "domainHash": "0x886981c7ac254ace571077f0a055e84e72dac298c286f3b83638eaa308820d082",
+            "messageHash": "0xa95cd534867e78aa5866b22e278984004eca36cff555462c50be402f7b292832",
+            "eip712Hash": "0x46fcaf713a45a85097ddb1b9e0fbcc247e822d2032c8f69e73685c7d8f507fa0",
+            "signers": "2/10"
+        },
+        {
+            "chainPrefix": "arb",
+            "chain": "arbitrum",
+            "recipient": FRIEND_WALLET,
+            "amount": "0.01",
+            "wadValue": "10000000000000000",
+            "nonce": 5,
+            "rawData": "0xd4d9bdcd46fcaf713a45a85097ddb1b9e0fbcc247e822d2032c8f69e73685c7d8f507fa0",
+            "title": "Nested transaction:",
+            "rawDataSize": "68 bytes",
+            "targetContract": MULTI_SIGNATURE_WALLET,
+            "targetFunction": "approveHash",
+            "domainHash": "0x3269807350d9dc0089b20781ce2f4ca71614ada2a1a116d0c79a6d801e033f8d",
+            "messageHash": "0x870f0b85c95ffc9657a8ba0b4fbdc43d4cca1ed8400290ab97b19b5befe51e49",
+            "eip712Hash": "0xde604d0d4e6cdb1cf39e8ff1b8c3ece230c2ec921b2538d6bbdb9cae54534c06",
+            "signers": "1/4"
+        }],
         feedbackContent: {
             pages: [
                 `This is a valid nested Safe transaction signature, and we should sign it. You're signing a transaction from one Safe wallet that will be used to sign another Safe transaction. Whenever a Safe{Wallet} is a signer of another Safe{Wallet}, the signing wallet calls the \`approveHash(bytes32)\` function on the original Safe{Wallet}. Knowing this, there are a few ways we can verify this.
@@ -685,7 +955,7 @@ Using [safe-hash](https://github.com/Cyfrin/safe-hash-rs) we could either try:
 Let's start with the easiest way`, `If we did the following:
 
 \`\`\`bash
-safe-hash tx --safe-address 0x4087d2046A7435911fC26DCFac1c2Db26957Ab72 --nonce 3 --safe-version 1.4.1 --chain arbitrum --to 0x82af49447d8a07e3bd95bd0d56f35241523fbab1 --data 0xa9059cbb000000000000000000000000d8da6bf26964af9d7eed9e03e53415d37aa96045000000000000000000000000000000000000000000000000002386f26fc10000  --offline --nested-safe-address 0x5031f5E2ed384978dca63306dc28A68a6Fc33e81 --nested-safe-nonce 5
+safe-hash tx --safe-address ${MULTI_SIGNATURE_WALLET} --nonce 3 --safe-version 1.4.1 --chain arbitrum --to 0x82af49447d8a07e3bd95bd0d56f35241523fbab1 --data 0xa9059cbb000000000000000000000000d8da6bf26964af9d7eed9e03e53415d37aa96045000000000000000000000000000000000000000000000000002386f26fc10000  --offline --nested-safe-address ${MULTI_SIGNATURE_SIGNER_WALLET} --nested-safe-nonce 5
 \`\`\`
 
 This would output all of the information we need to verify the transaction!
@@ -712,7 +982,7 @@ We want to use "0xd4d9bdcd" because that's the result of \`cast sig "approveHash
                 `If we are having a hard time, we could manually calcuate these ourselves, first by getting the safe TX hash of the main transaction:
                 
 \`\`\`bash
-safe-hash tx --safe-address 0x4087d2046A7435911fC26DCFac1c2Db26957Ab72 --nonce 3 --safe-version 1.4.1 --chain arbitrum --to 0x82af49447d8a07e3bd95bd0d56f35241523fbab1 --data 0xa9059cbb000000000000000000000000d8da6bf26964af9d7eed9e03e53415d37aa96045000000000000000000000000000000000000000000000000002386f26fc10000  --offline
+safe-hash tx --safe-address ${MULTI_SIGNATURE_WALLET} --nonce 3 --safe-version 1.4.1 --chain arbitrum --to 0x82af49447d8a07e3bd95bd0d56f35241523fbab1 --data 0xa9059cbb000000000000000000000000d8da6bf26964af9d7eed9e03e53415d37aa96045000000000000000000000000000000000000000000000000002386f26fc10000  --offline
 
 ####### Results in
 # Main transaction
@@ -724,7 +994,7 @@ safe-hash tx --safe-address 0x4087d2046A7435911fC26DCFac1c2Db26957Ab72 --nonce 3
 And using the output to the nested safe:
 
 \`\`\`bash
-safe-hash tx --safe-address 0x5031f5E2ed384978dca63306dc28A68a6Fc33e81 --nonce 5 --safe-version 1.4.1 --chain arbitrum --to 0x4087d2046A7435911fC26DCFac1c2Db26957Ab72 --data 0xd4d9bdcd46fcaf713a45a85097ddb1b9e0fbcc247e822d2032c8f69e73685c7d8f507fa0  --offline
+safe-hash tx --safe-address ${MULTI_SIGNATURE_SIGNER_WALLET} --nonce 5 --safe-version 1.4.1 --chain arbitrum --to ${MULTI_SIGNATURE_WALLET} --data 0xd4d9bdcd46fcaf713a45a85097ddb1b9e0fbcc247e822d2032c8f69e73685c7d8f507fa0  --offline
 
 ####### Results in
 # Main transaction
@@ -739,7 +1009,7 @@ safe-hash tx --safe-address 0x5031f5E2ed384978dca63306dc28A68a6Fc33e81 --nonce 5
     },
     {
         question: "Execute or reject this transaction.",
-        questionContext: `And now, we tie it all together! Will this transaction execute? Sign if you think so... Otherwise reject it. This is the same transaction from question 8! Except this time, we are executing it.
+        questionContext: `And now, we tie it all together! Will this transaction execute? Sign if you think so... Otherwise reject it. This is the same transaction from a previous one Except this time, we are executing it.
 
 Assume your wallet address is ${YOUR_WALLET}, and you are a signer on a valid mutlisig wallet at address ${MULTI_SIGNATURE_WALLET}. You are attempting to deposit 0.1 ETH to the ZKsync Aave token pool. Please execute this transaction if you think it will not revert based on the calldata.`,
         type: "signOrReject",
@@ -759,6 +1029,23 @@ Assume your wallet address is ${YOUR_WALLET}, and you are a signer on a valid mu
             functionName: "execTransaction(address,uint256,bytes,uint8,uint256,uint256,uint256,address,address,bytes)",
             data: "0x6a7612020000000000000000000000004087d2046A7435911fC26DCFac1c2Db26957Ab720000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000014000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000001e00000000000000000000000000000000000000000000000000000000000000064474cf53d0000000000000000000000004087d2046a7435911fc26dcfac1c2db26957ab720000000000000000000000004087d2046a7435911fc26dcfac1c2db26957ab720000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000035277d26a45add5775f21256159f089769892cea5b0000000000000000000000000000000000000000000000000000000000000000010000000000000000000000",
         },
+        otherData: [{
+            "chainPrefix": "zks",
+            "chain": "zksync",
+            "recipient": ZKSYNC_AAVE_WRAPPED_TOKEN_GATEWAY_V3,
+            "amount": "0.1",
+            "wadValue": "100000000000000000",
+            "nonce": 1,
+            "rawData": "0x474cf53d0000000000000000000000009f07eebdf3675f60dcec65a092f1821fb99726f3000000000000000000000000f39fd6e51aad88f6f4ce6ab8827279cfffb922660000000000000000000000000000000000000000000000000000000000000000",
+            "title": "Aave",
+            "rawDataSize": "NONE",
+            "targetContract": "WrappedTokenGatewayV3",
+            "targetFunction": "depositETH",
+            "domainHash": "0x6b7b2f6fc32adea40689c72912cf0fd00f9a2455204e0a2edfd9e5684b64db1b",
+            "messageHash": "0xe0392d263ff13e09757bfce9b182ead6ceabd9d1b404aa7df77e65b304969130",
+            "eip712Hash": "0xdcab1ef0579aa50678fcb3a1e815b6e7fa271ad33db76832199632fa61c47bf4",
+            "signers": "1/3"
+        }],
         feedbackContent: {
             pages: [
                 `This transaction was so close! But it would not go through. The good thing about this one, is that it's not too dangerous if you got this one wrong. The signature is just incorrect, and the transaction would have reverted. 
@@ -770,7 +1057,7 @@ When you execute a transaction, and you are the last signer, Safe{Wallet} contra
 cast calldata-decode "execTransaction(address,uint256,bytes,uint8,uint256,uint256,uint256,address,address,bytes)" 0x6a7612020000000000000000000000004087d2046A7435911fC26DCFac1c2Db26957Ab720000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000014000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000001e00000000000000000000000000000000000000000000000000000000000000064474cf53d0000000000000000000000004087d2046a7435911fc26dcfac1c2db26957ab720000000000000000000000004087d2046a7435911fc26dcfac1c2db26957ab720000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000035277d26a45add5775f21256159f089769892cea5b0000000000000000000000000000000000000000000000000000000000000000010000000000000000000000
 
 ### Results
-# 0x4087d2046A7435911fC26DCFac1c2Db26957Ab72
+# ${MULTI_SIGNATURE_WALLET}
 # 0
 # 0x474cf53d0000000000000000000000004087d2046a7435911fc26dcfac1c2db26957ab720000000000000000000000004087d2046a7435911fc26dcfac1c2db26957ab720000000000000000000000000000000000000000000000000000000000000000
 # 0
