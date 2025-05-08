@@ -1,12 +1,13 @@
 "use client";
 
 import { FaTimes } from "react-icons/fa";
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import QuestionComponent from "./QuestionComponent";
 import WalletPopupComponent from "./WalletPopupComponent";
 import SimulatedWebsite from "./SimulatedWebsite";
 import FeedbackComponent from "./FeedbackComponent";
+import ProgressComponent from "./ProgressComponent";
 import { FakeWebsiteType, TransactionDetails, SignatureDetails } from "@/types";
 import React, { forwardRef } from "react";
 
@@ -76,6 +77,35 @@ const PageRenderer = forwardRef((props: PageRendererProps, ref) => {
     // Reference to the actual question component for multi-choice questions
     const questionComponentRef = useRef(null);
 
+    // Check localStorage on component mount to see if this question has been answered
+    useEffect(() => {
+        checkQuestionAnsweredStatus();
+    }, [questionNumber]);
+
+    // Function to check if the current question has been answered
+    const checkQuestionAnsweredStatus = () => {
+        try {
+            const existingResultsJSON = localStorage.getItem('quizResults');
+            if (!existingResultsJSON) return;
+
+            const results: QuestionResult[] = JSON.parse(existingResultsJSON);
+            const existingResult = results.find(result => result.id === questionNumber);
+
+            if (existingResult) {
+                setHasAnswered(true);
+                setIsCorrect(existingResult.isCorrect);
+                setShowFeedback(true);
+            } else {
+                // Reset states if no answer found
+                setHasAnswered(false);
+                setIsCorrect(false);
+                setShowFeedback(false);
+            }
+        } catch (error) {
+            console.error("Error checking question status:", error);
+        }
+    };
+
     const handlePrevQuestion = () => {
         if (prevPageUrl) {
             router.push(prevPageUrl);
@@ -91,12 +121,8 @@ const PageRenderer = forwardRef((props: PageRendererProps, ref) => {
         }
     };
 
-    const handleRestartQuiz = () => {
-        // Go to the first question
-        router.push('/simulated/questions/1');
-    };
-
     const handleSignInClick = () => {
+        // Allow interaction even if previously answered
         setShowWalletPopup(true);
     };
 
@@ -146,6 +172,9 @@ const PageRenderer = forwardRef((props: PageRendererProps, ref) => {
         <div className="min-h-screen bg-gray-50 pb-20 relative">
             {/* Main content container - not affected by wallet popup */}
             <div className="w-full">
+                {/* Progress Component */}
+                <ProgressComponent currentQuestion={questionNumber} />
+
                 {/* Pass hasAnswered and isCorrect to QuestionComponent for signOrReject type */}
                 <QuestionComponent
                     ref={questionComponentRef}
@@ -186,7 +215,7 @@ const PageRenderer = forwardRef((props: PageRendererProps, ref) => {
                         questionId={questionId}
                         primaryButtonText={props.interactionButtonText || "Sign in with Ethereum"}
                         onPrimaryButtonClick={handleSignInClick}
-                        buttonDisabled={hasAnswered}
+                        buttonDisabled={false} // Changed from hasAnswered to always allow interaction
                     />
                 )}
             </div>

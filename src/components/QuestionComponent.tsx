@@ -49,7 +49,6 @@ const QuestionComponent = forwardRef(({
     showNavigationButtons = true,
     onInteractWithWallet,
     questionContext,
-    // Accept the states from parent
     hasAnswered: externalHasAnswered,
     isCorrect: externalIsCorrect,
     onCheckAnswer // Properly destructured here
