@@ -2,16 +2,11 @@
 
 import { useState } from "react";
 import { FaEthereum, FaPaperPlane } from "react-icons/fa";
-import { FakeWebsiteComponentProps } from "@/types";
+import { FakeWebsiteComponentProps, TransactionDetails } from "@/types";
 import BrowserNavBar from "@/components/fakeWebsites/BrowserNavBar";
+import { questions, SignOrRejectQuestionData, TREZOR_FRIEND_WALLET } from "@/data/questions";
 
 const URL = "https://portfolio.metamask.io/transfer?tab=send";
-// Default values
-const DEFAULT_ADDRESS = "0x70997970C51812dc3A010C7d01b50e0d17dc79C8";
-const DEFAULT_AMOUNT_ETH = 5;
-// 1 ETH = 10^18 wei
-const DEFAULT_AMOUNT_WEI = DEFAULT_AMOUNT_ETH * 10 ** 18;
-const DEFAULT_AMOUNT_WEI_STRING = DEFAULT_AMOUNT_WEI.toLocaleString('fullwide', { useGrouping: false });
 
 export default function SendEth({
     questionId,
@@ -19,11 +14,12 @@ export default function SendEth({
     onPrimaryButtonClick,
     buttonDisabled = false,
 }: FakeWebsiteComponentProps) {
-    const [address] = useState(DEFAULT_ADDRESS);
-    const [amountEth] = useState(DEFAULT_AMOUNT_ETH);
+    const transactionOrSignatureData = (questions[questionId - 1] as SignOrRejectQuestionData).transactionOrSignatureData;
+    const amount = (transactionOrSignatureData as TransactionDetails).amount!;
+    const amountWei = (parseFloat(amount) * 10 ** 18).toLocaleString('fullwide', { useGrouping: false });
+    const ethToShow = questions[questionId - 1].otherData!;
 
-    // Calculate wei amount whenever ETH amount changes
-    const amountWei = (amountEth * 10 ** 18).toLocaleString('fullwide', { useGrouping: false });
+    console.log(ethToShow)
 
     return (
         <div className="max-w-6xl mx-auto bg-[#111111] text-white rounded-lg shadow-md overflow-hidden mt-8 relative">
@@ -42,7 +38,7 @@ export default function SendEth({
                         <label className="block text-gray-400 mb-2 font-medium">Recipient Address</label>
                         <input
                             type="text"
-                            value={address}
+                            value={TREZOR_FRIEND_WALLET}
                             readOnly
                             className="w-full bg-[#222222] px-4 py-3 rounded-lg border border-gray-700 focus:outline-none focus:border-blue-500 cursor-not-allowed"
                             placeholder="ETH Address (0x...)"
@@ -59,7 +55,7 @@ export default function SendEth({
                                 </div>
                                 <input
                                     type="number"
-                                    value={amountEth}
+                                    value={ethToShow}
                                     readOnly
                                     className="w-full bg-[#222222] pl-10 pr-4 py-3 rounded-lg border border-gray-700 focus:outline-none focus:border-blue-500 cursor-not-allowed"
                                     placeholder="0.00"

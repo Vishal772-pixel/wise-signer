@@ -9,6 +9,7 @@ export interface BaseQuestionData {
     fakeWebsiteType?: FakeWebsiteType;
     questionId?: number;
     questionContext?: string;
+    otherData?: string;
 }
 
 export interface MultiChoiceQuestionData extends BaseQuestionData {
@@ -47,6 +48,8 @@ export interface SiteData {
 
 // export const ZKSYNC_AAVE_WRAPPED_TOKEN_GATEWAY_V3 = "0x9F07eEBdf3675f60dCeC65a092F1821Fb99726F3"
 export const ZKSYNC_AAVE_WRAPPED_TOKEN_GATEWAY_V3 = "0xAE2b00D676130Bdf22582781BbBA8f4F21e8B0ff"
+export const TREZOR_FRIEND_WALLET = "0x70997970C51812dc3A010C7d01b50e0d17dc79C8"
+export const TREZOR_POISONING_WALLET = "0x70997970C51812da3A010C7d01b50e0d17dc79C8"
 export const FRIEND_WALLET = "0xd8dA6BF26964aF9D7eEd9e03E53415D37aA96045"
 export const YOUR_WALLET = "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266"
 export const ARBITRUM_WETH = "0x82af49447d8a07e3bd95bd0d56f35241523fbab1"
@@ -130,7 +133,7 @@ Issued At: ${new Date().toISOString()}`
     {
         id: 4,
         question: `Execute or reject this transaction.`,
-        questionContext: `This transaction requires your Trezor hardware wallet. You're attempting to send your friend \`0x70997970C51812dc3A010C7d01b50e0d17dc79C8\` \`0.5 ETH\` on the Ethereum chain. Assume your wallet is \`${YOUR_WALLET}.\` 
+        questionContext: `This transaction requires your Trezor hardware wallet. You're attempting to send your friend \`${TREZOR_FRIEND_WALLET}\` \`0.5 ETH\` on the Ethereum chain. Assume your wallet is \`${YOUR_WALLET}\` which is the #1 wallet from the standard ETH derivation path.
         
 Only trust what the hardware wallet shows you. If sending this transaction will get you want you want, sign it!`,
         type: "signOrReject",
@@ -147,7 +150,7 @@ Only trust what the hardware wallet shows you. If sending this transaction will 
         },
         transactionOrSignatureData: {
             fromAccount: `${YOUR_WALLET}`,
-            toAccount: "0x70997970C51812dc3A010C7d01b50e0d17dc79C8",
+            toAccount: `${TREZOR_FRIEND_WALLET}`,
             amount: "0.5 ETH",
             estimatedFee: {
                 usd: "$4.52",
@@ -155,10 +158,48 @@ Only trust what the hardware wallet shows you. If sending this transaction will 
             },
             functionName: "",
             data: ""
-        }
+        },
+        otherData: "5",
     },
     {
         id: 5,
+        question: `Execute or reject this transaction.`,
+        questionContext: `This transaction requires your trezor wallet, and it's similar to the last question! You're attempting to send your friend who has address: \`${TREZOR_FRIEND_WALLET}\` \`0.5 ETH\` on the Ethereum chain. Assume your wallet is \`${YOUR_WALLET}\` which is the #1 wallet from the standard ETH derivation path.
+        
+Only trust what the hardware wallet shows you. If sending this transaction will get you want you want, sign it!`,
+        type: "signOrReject",
+        expectedAction: "reject",
+        walletType: "trezor",
+        interactionButtonText: "Transfer",
+        fakeWebsiteType: "SendEth",
+        feedbackContent: {
+            pages: [
+                `This is known as an [address poisoning](https://trezor.io/support/a/address-poisoning-attacks) attack, where you're tricked into sending funds to a malicious address. The address looks REALLY close to your friend's address, but it's not! Take a look:
+\`\`\`bash
+${TREZOR_FRIEND_WALLET} - Friend's wallet (What the website said)
+${TREZOR_POISONING_WALLET} - What showed up in our Trezor
+\`\`\`
+`,
+                `A website can become compromised, and even though the website looks good, the data that is sent to your wallet is wrong. Always make sure to check the address is exaclty what you expect!`
+            ]
+        },
+        wrongAnswerPopupContent: "Oh no!\n\nYou sent money to the wrong address!",
+
+        transactionOrSignatureData: {
+            fromAccount: `${YOUR_WALLET}`,
+            toAccount: `${TREZOR_POISONING_WALLET}`,
+            amount: "0.5 ETH",
+            estimatedFee: {
+                usd: "$4.52",
+                eth: "0.00198ETH"
+            },
+            functionName: "",
+            data: ""
+        },
+        otherData: "0.5",
+    },
+    {
+        id: 6,
         question: "Execute or reject this transaction.",
         questionContext: `Assume your wallet address is ${YOUR_WALLET}. You want to deposit 1 ETH into Aave to begin gaining interest on the ZKsync Era network. Yes, use the real Aave contract address on ZKsync Era if that helps. 
         
@@ -215,7 +256,7 @@ The second parameter stands for \`onbehalfOf\`, meaning we are depositing ETH fo
         }
     },
     {
-        id: 6,
+        id: 7,
         question: "Sign or reject this signature.",
         questionContext: `Assume your wallet address is ${YOUR_WALLET}, and you are a signer on a valid mutlisig wallet at address ${MULTI_SIGNATURE_WALLET}. You are attempting to send 1 WETH to address: ${FRIEND_WALLET} on the Arbitrum network. Please sign or reject this transaction, if doing so will bring you closer to executing.`,
         type: "signOrReject",
@@ -258,7 +299,7 @@ This decodes to:
         },
     },
     {
-        id: 7,
+        id: 8,
         question: "Sign or reject this signature.",
         questionContext: `Now, you'll have to verify the same transaction, but with a hardware wallet! But are you sure this one is correct?
         
@@ -284,7 +325,7 @@ Our next question will force you to actually check the hashes 😈`,
         }
     },
     {
-        id: 8,
+        id: 9,
         question: "Sign or reject this signature.",
         questionContext: `Verifying the massive JSON data on your hardware wallet can be a nightmare, as you'll have to scroll through many many screens to see all the data, which can lead to [security fatigue](https://www.nist.gov/news-events/news/2016/10/security-fatigue-can-cause-computer-users-feel-hopeless-and-act-recklessly). So you should get good at verifying using only the domain and message hash (or, the EIP-712 hash).
 
@@ -481,7 +522,7 @@ If you update your \`file.json\` to have the \`operation\` as a \`1\`, and run t
         }
     },
     {
-        id: 9,
+        id: 10,
         question: "Sign or reject this signature.",
         questionContext: `Now, can you sign a safe transaction where the signer is another safe? Let's find out...
 
@@ -637,7 +678,7 @@ safe-hash tx --safe-address 0x5031f5E2ed384978dca63306dc28A68a6Fc33e81 --nonce 5
         }
     },
     {
-        id: 10,
+        id: 11,
         question: "Execute or reject this transaction.",
         questionContext: `And now, we tie it all together! Will this transaction execute? Sign if you think so... Otherwise reject it. This is the same transaction from question 8! Except this time, we are executing it.
 
@@ -695,7 +736,7 @@ The last parameter is populated with the signatures. However, the last signer ca
 
 // Helper function to get a specific question by ID
 export function getQuestionById(id: number): QuestionData | undefined {
-    return questions.find(q => q.id === id);
+    return questions[id - 1];
 }
 
 // Helper function to get next question ID
