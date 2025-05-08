@@ -317,7 +317,7 @@ export default function SafeWallet({
                                             </div>
                                         </div>
                                     )}
-                                    {(questionId === SAFE_WALLET_QUESTION_START + 1) && (
+                                    {(questionId === SAFE_WALLET_QUESTION_START + 1) && otherDataNumber === 0 && (
                                         <div className="space-y-2">
                                             <div className="flex items-center">
                                                 <span className="text-gray-400 w-16 text-base">dst (address)</span>
