@@ -12,7 +12,7 @@ export interface BaseQuestionData {
 }
 
 export interface MultiChoiceQuestionData extends BaseQuestionData {
-    type: "single" | "multi";
+    type: "multi";
     options: { id: string; text: string }[];
     correctAnswers: string[];
 }

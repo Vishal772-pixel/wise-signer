@@ -52,7 +52,7 @@ export interface BaseQuestionProps {
 }
 
 export interface MultiChoiceQuestionProps extends BaseQuestionProps {
-    type: "single" | "multi";
+    type: "multi";
     options: { id: string; text: string }[];
     correctAnswers: string[];
 }

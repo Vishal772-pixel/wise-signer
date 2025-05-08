@@ -35,7 +35,7 @@ export default function QuestionPage({ questionId }: { questionId: number }) {
         isLastQuestion
     };
 
-    if (question.type === "single" || question.type === "multi") {
+    if (question.type === "multi") {
         return (
             <PageRenderer
                 {...commonProps}

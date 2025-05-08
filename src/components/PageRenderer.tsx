@@ -22,7 +22,7 @@ interface PageRendererProps {
     question: string;
     options?: { id: string; text: string }[]; // Optional for signOrReject type
     correctAnswers?: string[]; // Optional for signOrReject type
-    type: "single" | "multi" | "signOrReject";
+    type: "multi" | "signOrReject";
     feedbackContent: {
         pages: string[];
     };
@@ -69,8 +69,8 @@ const PageRenderer = forwardRef((props: PageRendererProps, ref) => {
     } = props;
 
     // Extract type-specific props
-    const options = type === 'single' || type === 'multi' ? props.options : [];
-    const correctAnswers = type === 'single' || type === 'multi' ? props.correctAnswers : [];
+    const options = type === 'multi' ? props.options : [];
+    const correctAnswers = type === 'multi' ? props.correctAnswers : [];
     const wrongAnswerPopupContent = 'wrongAnswerPopupContent' in props ? props.wrongAnswerPopupContent : undefined;
     const expectedAction = type === 'signOrReject' ? props.expectedAction : undefined;
     const walletType = type === 'signOrReject' ? props.walletType : undefined;

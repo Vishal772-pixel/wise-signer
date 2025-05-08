@@ -1,16 +1,110 @@
-> [!NOTE]
-> This repo is a work in progress
-
-
 # Wise Signer
 
-This is a website for teaching people how to sign transactions, and how to make sure they are signing what's correct. It's broken down into 2 segments.
+<div align="center">
+  <img src="public/landing-page.png" alt="Wise Signer Landing Page" width="700" />
+  <h3>Train your wallet security skills in a safe environment</h3>
+</div>
 
-1. Simulated wallets
-   1. Just show images, don't use an actual wallet
-2. Real wallets
+## About
 
-# Docs coming soon...
+Wise Signer is an educational platform designed to help Web3 users develop critical security skills for interacting with cryptocurrency wallets. Through interactive challenges and simulations, users learn to identify and avoid common security threats, phishing attempts, and deceptive transactions.
+
+## Features
+
+- **Simulated Wallet Mode**: Practice making sign/reject decisions in quick, focused challenges without real network connections.
+- **Interactive Learning**: Engage with realistic scenarios that mimic common attack vectors and security threats.
+- **Educational Resources**: Access a comprehensive collection of tools and resources related to wallet security.
+- **Progressive Difficulty**: Learn at your own pace with challenges that gradually increase in complexity.
+- **Transaction Verification Training**: Master the skills to verify transaction details in multi-signature wallets.
+
+## Getting Started
+
+### Prerequisites
+
+- Node.js 18.0.0 or higher
+- npm 8.0.0 or higher
+
+### Installation
+
+1. Clone the repository:
+   ```bash
+   git clone https://github.com/Cyfrin/wise-signer.git
+   cd wise-signer
+   ```
+
+2. Install dependencies:
+   ```bash
+   npm install
+   ```
+
+3. Start the development server:
+   ```bash
+   npm run dev
+   ```
+
+4. Open [http://localhost:3000](http://localhost:3000) in your browser to see the application.
+
+## Project Structure
+
+```
+./src
+├── app                  # App Router pages and routing
+│   ├── layout.tsx       # Root layout
+│   ├── page.tsx         # Home page
+│   ├── simulated        # Simulated wallet routes
+│   ├── tenderly         # Tenderly routes (coming soon)
+│   └── tools            # Tools & resources
+├── components           # Reusable components
+├── data                 # Data files and configurations
+├── types                # TypeScript type definitions
+└── utils                # Utility functions
+```
+
+## Security Topics Covered
+
+- Multi-signature wallet verification
+- Hardware wallet security
+- Phishing detection
+- Address poisoning attacks
+- Malicious transaction identification
+- Website security verification
+- Smart contract interaction safety
+
+## Tools and Resources
+
+Wise Signer includes links to valuable resources for wallet security:
+
+- Calldata decoders
+- Safe{Wallet} transaction verifiers
+- Educational videos
+- Information about notable exploits and hacks
+
+## Contributing
+
+We welcome contributions to Wise Signer! Please see our [CONTRIBUTING.md](CONTRIBUTING.md) for details on how to get started.
+
+## Future Development
+
+- **Tenderly Virtualnet Mode**: A realistic environment using Tenderly virtual testnet for actual blockchain interactions without risking real assets.
+- **Expanded Lessons**: Additional scenarios covering a wider range of security threats.
+- **Security Certifications**: Earn certificates for completing training modules.
+
+## License
+
+This project is licensed under the [GNU Affero General Public License v3.0 (AGPL-3.0)](https://www.gnu.org/licenses/agpl-3.0.en.html) - see the [LICENSE](LICENSE) file for details.
+
+The AGPL-3.0 license ensures that if you modify this software and use it to provide a service over a network, you must release your modifications under the same terms. This promotes open collaboration and ensures improvements remain accessible to the community.
+
+## Acknowledgments
+
+- Built by [Cyfrin](https://cyfrin.io)
+- Inspired by the [Red Guild Phishing Dojo](https://phishing.therektgames.com/)
+
+---
+
+<div align="center">
+  <strong>Stay safe in Web3</strong>
+</div>
 
 <!-- Simulated Wallet Challenges (leave for Updraft):
 - EOA
