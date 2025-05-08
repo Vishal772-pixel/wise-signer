@@ -19,7 +19,7 @@ interface QuestionProps {
     question: string;
     options?: Option[];
     correctAnswers?: string[];
-    type: "single" | "multi" | "signOrReject";
+    type: "multi" | "signOrReject";
     feedbackContent: FeedbackContent;
     onNextQuestion?: () => void;
     onPrevQuestion?: () => void;
@@ -78,12 +78,6 @@ const QuestionComponent = forwardRef(({
     const toggleOption = (optionId: string) => {
         if (effectiveHasAnswered && !onRetry) return; // Only prevent if no retry function
 
-        if (type === "single") {
-            setSelectedOptions([optionId]);
-            return;
-        }
-
-        // For multi-select
         if (selectedOptions.includes(optionId)) {
             setSelectedOptions(selectedOptions.filter(id => id !== optionId));
         } else {
@@ -186,19 +180,20 @@ const QuestionComponent = forwardRef(({
 
                 {showNavigationButtons && (
                     <div className="flex justify-between">
-                        {onPrevQuestion && (
-                            <button
-                                onClick={onPrevQuestion}
-                                className="cursor-pointer inline-flex items-center rounded-md bg-white px-4 py-2 text-sm font-medium text-gray-700 shadow-sm border border-gray-300 hover:bg-gray-50"
-                            >
-                                <FaChevronLeft className="mr-2" />
-                                Previous
-                            </button>
-                        )}
+                        <div>
+                            {onPrevQuestion && (
+                                <button
+                                    onClick={onPrevQuestion}
+                                    className="cursor-pointer inline-flex items-center rounded-md bg-white px-4 py-2 text-sm font-medium text-gray-700 shadow-sm border border-gray-300 hover:bg-gray-50"
+                                >
+                                    <FaChevronLeft className="mr-2" />
+                                    Previous
+                                </button>
+                            )}
+                        </div>
 
                         <div className="flex space-x-4">
-                            {/* Show "Try Again" when question has been answered */}
-                            {effectiveHasAnswered && onRetry && type !== "signOrReject" && (
+                            {effectiveHasAnswered && onRetry && (
                                 <button
                                     onClick={handleRetry}
                                     className="cursor-pointer inline-flex items-center rounded-md bg-gray-600 px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-gray-700"

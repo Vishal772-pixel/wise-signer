@@ -1,5 +1,3 @@
-'use client';
-
 import { useState, useEffect } from "react";
 import Image from "next/image";
 import { useNetwork } from "@/components/NetworkContext";
@@ -25,16 +23,9 @@ const Header = () => {
         setMounted(true);
     }, []);
 
-    // const showConnectButton = mounted && !isLoading && !!networkInfo && isTenderlyQuestionsPage;
     // This will always be false for now
     const showConnectButton = mounted && !isLoading && !!networkInfo && isTenderlyQuestionsPage && false; // Add false to disable it
 
-
-    // const handlePlayNowClick = (e: React.MouseEvent<HTMLButtonElement>) => {
-    //     if (!(e.clientX > e.currentTarget.getBoundingClientRect().right - 30)) {
-    //         window.location.href = "/simulated/questions/1";
-    //     }
-    // };
     const handlePlayNowClick = (e: React.MouseEvent<HTMLButtonElement>) => {
         if (!(e.clientX > e.currentTarget.getBoundingClientRect().right - 30)) {
             window.location.href = "/simulated/questions/1";
@@ -74,6 +65,14 @@ const Header = () => {
             </div>
 
             <div className="flex items-center gap-4">
+                {/* Tools Link */}
+                <Link
+                    href="/tools"
+                    className="text-white hover:text-gray-300 transition"
+                >
+                    Tools
+                </Link>
+
                 {/* Only render ConnectButton wrapper when needed */}
                 {showConnectButton && (
                     <div className="flex flex-row items-center">
