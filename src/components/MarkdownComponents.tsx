@@ -1,6 +1,8 @@
 "use client"
 
 import { type ComponentPropsWithoutRef } from 'react';
+import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter';
+import { oneDark } from 'react-syntax-highlighter/dist/esm/styles/prism';
 
 // Helper function to preprocess markdown content
 export const processMarkdownNewlines = (content: string): string => {
@@ -16,48 +18,82 @@ export const processMarkdownNewlines = (content: string): string => {
 };
 
 const markdownComponents = {
-    pre: (props: ComponentPropsWithoutRef<'pre'>) => (
-        <pre
-            className="max-w-full bg-gray-50 rounded-md p-3 my-4 overflow-hidden"
-            style={{
-                whiteSpace: 'pre-wrap',
-                overflowWrap: 'anywhere'
-            }}
-            {...props}
-        />
-    ),
-    code: ({ className, ...props }: ComponentPropsWithoutRef<'code'>) => {
-        const isInline = !className?.includes('language-');
+    // Simplified pre component
+    pre: (props: ComponentPropsWithoutRef<'pre'>) => {
         return (
-            <code
-                className={isInline
-                    ? "bg-gray-100 px-1 py-0.5 rounded text-sm font-mono"
-                    : "font-mono text-sm"
-                }
-                style={!isInline ? {
+            <pre
+                className="max-w-full bg-gray-50 rounded-md p-3 my-4 overflow-x-auto"
+                style={{
                     whiteSpace: 'pre-wrap',
-                    overflowWrap: 'anywhere',
-                    display: 'block',
-                    maxWidth: '100%'
-                } : undefined}
+                    overflowWrap: 'anywhere'
+                }}
                 {...props}
             />
         );
     },
+
+    // Code component handles syntax highlighting directly
+    code: ({ className, children, ...props }: ComponentPropsWithoutRef<'code'>) => {
+        const isInline = !className?.includes('language-');
+
+        if (isInline) {
+            return (
+                <code
+                    className="bg-gray-100 px-1 py-0.5 rounded text-sm font-mono"
+                    {...props}
+                >
+                    {children}
+                </code>
+            );
+        }
+
+        // Extract language from className
+        const match = /language-(\w+)/.exec(className || '');
+        const language = match ? match[1] : 'text';
+        const code = String(children);
+
+        return (
+            <div className="max-w-full">
+                <SyntaxHighlighter
+                    language={language}
+                    style={oneDark}
+                    customStyle={{
+                        borderRadius: '0.375rem',
+                        padding: '0.75rem',
+                        fontSize: '0.875rem',
+                        lineHeight: '1.5',
+                        margin: '1rem 0',
+                        wordBreak: 'break-all',
+                        whiteSpace: 'pre-wrap'
+                    }}
+                    wrapLines={true}
+                    wrapLongLines={true}
+                    codeTagProps={{
+                        style: {
+                            whiteSpace: 'pre-wrap',
+                            wordBreak: 'break-all'
+                        }
+                    }}
+                >
+                    {code}
+                </SyntaxHighlighter>
+            </div>
+        );
+    },
+
     // Enhanced paragraph component
     p: (props: ComponentPropsWithoutRef<'p'>) => {
         // Get the content as a string
         const content = props.children?.toString() || '';
 
         // Special handling for non-breaking space paragraphs
-        // These were inserted by our preprocessing function
         if (content.trim() === '&nbsp;') {
             return <div className="h-4" aria-hidden="true" />;
         }
 
         return (
             <p
-                className="max-w-full mb-4" // Add bottom margin for spacing
+                className="max-w-full mb-4"
                 style={{
                     wordWrap: 'break-word',
                     overflowWrap: 'break-word'
@@ -66,6 +102,7 @@ const markdownComponents = {
             />
         );
     },
+
     // Add styling for links with target="_blank"
     a: (props: ComponentPropsWithoutRef<'a'>) => (
         <a
@@ -75,6 +112,7 @@ const markdownComponents = {
             {...props}
         />
     ),
+
     // Enhanced handling for breaks to ensure they create vertical space
     br: () => <div className="h-4" aria-hidden="true" />,
 
@@ -82,9 +120,7 @@ const markdownComponents = {
     text: (props: { children?: React.ReactNode }) => {
         const content = props.children?.toString() || '';
 
-        // If we see our special marker, render appropriate spacing
         if (content.includes('&nbsp;')) {
-            // Replace it with a proper space that will render correctly
             return <>{content.replace(/&nbsp;/g, ' ')}</>;
         }
 

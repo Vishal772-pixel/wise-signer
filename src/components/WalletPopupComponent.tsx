@@ -165,12 +165,28 @@ const WalletPopupComponent = ({
                         View details <FaChevronDown className={`ml-1 text-xs transition-transform duration-200 ${showTransactionDetails ? 'transform rotate-180' : ''}`} />
                     </button>
 
+                    {/* Modify this section in the renderTransactionWallet function where transaction details are shown */}
                     {showTransactionDetails && (
                         <div className="mt-3 p-3 bg-gray-50 rounded-md border border-gray-200">
                             <div className="mb-2">
                                 <span className="text-xs text-gray-500">Function:</span>
                                 <span className="text-xs font-mono ml-2 text-gray-800 break-all">{transactionDetails.functionName}</span>
                             </div>
+
+                            {/* Add this new section to display function parameters */}
+                            {transactionDetails.params && transactionDetails.params.length > 0 && (
+                                <div className="mb-2">
+                                    {transactionDetails.params.map((param, index) => (
+                                        <div key={index} className="flex items-start mt-2">
+                                            <span className="text-xs text-gray-500 whitespace-nowrap mr-2">Param #{index + 1}</span>
+                                            <span className="text-xs font-mono text-gray-800 break-all bg-gray-100 px-2 py-1 rounded flex-1">
+                                                {param}
+                                            </span>
+                                        </div>
+                                    ))}
+                                </div>
+                            )}
+
                             <div>
                                 <span className="text-xs text-gray-500">Data:</span>
                                 <div className="mt-1 p-2 bg-gray-100 rounded font-mono text-xs text-gray-800 break-all">

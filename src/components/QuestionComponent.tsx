@@ -1,8 +1,8 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Link from "next/link";
-import { FaLightbulb, FaChevronLeft, FaChevronRight, FaTimes } from "react-icons/fa";
+import { FaLightbulb, FaChevronLeft, FaChevronRight, FaTimes, FaRedo } from "react-icons/fa";
 import FeedbackComponent from "./FeedbackComponent";
 import ReactMarkdown from 'react-markdown';
 import markdownComponents from "@/components/MarkdownComponents";
@@ -28,12 +28,16 @@ interface QuestionProps {
     onInteractWithWallet?: () => void;
     expectedAction?: "sign" | "reject";
     wrongAnswerPopupContent?: string;
-    questionContext?: string; // Added back for context display
+    questionContext?: string;
     // State props passed from parent 
     hasAnswered?: boolean;
     isCorrect?: boolean;
     // Callback for when an answer is checked
     onCheckAnswer?: (isCorrect: boolean) => void;
+    // Added prop to control feedback visibility from parent
+    showFeedback?: boolean;
+    // Callback for when a user wants to retry a question
+    onRetry?: () => void;
 }
 
 import React, { forwardRef, useImperativeHandle } from "react";
@@ -49,18 +53,28 @@ const QuestionComponent = forwardRef(({
     showNavigationButtons = true,
     onInteractWithWallet,
     questionContext,
-    // Accept the states from parent
     hasAnswered: externalHasAnswered,
     isCorrect: externalIsCorrect,
-    onCheckAnswer // Properly destructured here
+    onCheckAnswer,
+    showFeedback: externalShowFeedback,
+    onRetry,
 }: QuestionProps, ref) => {
     const [selectedOptions, setSelectedOptions] = useState<string[]>([]);
-    const [showFeedback, setShowFeedback] = useState(false);
+    const [internalShowFeedback, setInternalShowFeedback] = useState(false);
     const effectiveHasAnswered = externalHasAnswered ?? false;
     const effectiveIsCorrect = externalIsCorrect ?? false;
 
+    // Use external feedback control if provided, otherwise use internal state
+    const showFeedback = externalShowFeedback !== undefined ? externalShowFeedback : internalShowFeedback;
+
+    // Reset selected options when question changes
+    useEffect(() => {
+        setSelectedOptions([]);
+        setInternalShowFeedback(false);
+    }, [question]);
+
     const toggleOption = (optionId: string) => {
-        if (effectiveHasAnswered) return;
+        if (effectiveHasAnswered && !onRetry) return; // Only prevent if no retry function
 
         if (type === "single") {
             setSelectedOptions([optionId]);
@@ -80,7 +94,6 @@ const QuestionComponent = forwardRef(({
             if (onInteractWithWallet) {
                 onInteractWithWallet();
             }
-
             return;
         }
 
@@ -97,7 +110,17 @@ const QuestionComponent = forwardRef(({
             onCheckAnswer(isEqual);
         }
 
-        setShowFeedback(true);
+        // Only control internal feedback state
+        setInternalShowFeedback(true);
+    };
+
+    const handleRetry = () => {
+        // Clear selected options
+        setSelectedOptions([]);
+        // Call parent's retry handler if provided
+        if (onRetry) {
+            onRetry();
+        }
     };
 
     const getOptionClass = (optionId: string) => {
@@ -149,7 +172,7 @@ const QuestionComponent = forwardRef(({
                                 <button
                                     key={option.id}
                                     onClick={() => toggleOption(option.id)}
-                                    disabled={effectiveHasAnswered}
+                                    disabled={effectiveHasAnswered && !onRetry} // Only disable if no retry function
                                     className={`p-4 text-left rounded-md shadow-sm border transition duration-150 ${getOptionClass(option.id)}`}
                                 >
                                     {option.id}) {option.text}
@@ -171,8 +194,20 @@ const QuestionComponent = forwardRef(({
                             </button>
                         )}
 
-                        {!effectiveHasAnswered ? (
-                            type !== "signOrReject" && (
+                        <div className="flex space-x-4">
+                            {/* Show "Try Again" when question has been answered */}
+                            {effectiveHasAnswered && onRetry && type !== "signOrReject" && (
+                                <button
+                                    onClick={handleRetry}
+                                    className="cursor-pointer inline-flex items-center rounded-md bg-gray-600 px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-gray-700"
+                                >
+                                    <FaRedo className="mr-2" />
+                                    Try Again
+                                </button>
+                            )}
+
+                            {/* Show "Check Answer" only when not answered or in retry mode with the hasAnswered flag reset */}
+                            {!effectiveHasAnswered && type !== "signOrReject" && (
                                 <button
                                     onClick={checkAnswer}
                                     className="cursor-pointer inline-flex items-center rounded-md bg-blue-600 px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-blue-700"
@@ -180,9 +215,10 @@ const QuestionComponent = forwardRef(({
                                 >
                                     Check Answer
                                 </button>
-                            )
-                        ) : (
-                            onNextQuestion && (
+                            )}
+
+                            {/* Show "Next" when question has been answered */}
+                            {effectiveHasAnswered && onNextQuestion && (
                                 <button
                                     onClick={onNextQuestion}
                                     className="cursor-pointer inline-flex items-center rounded-md bg-blue-600 px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-blue-700"
@@ -190,8 +226,8 @@ const QuestionComponent = forwardRef(({
                                     Next
                                     <FaChevronRight className="ml-2" />
                                 </button>
-                            )
-                        )}
+                            )}
+                        </div>
                     </div>
                 )}
 

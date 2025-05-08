@@ -1,0 +1,58 @@
+{
+    "version": "2.5",
+    "data": {
+        "addressBook": {
+            "11155111": {
+                "0x135D01144a5b66766ee48B487E4efA2A1D79dD2e": "Wise Signer"
+            }
+        },
+        "addedSafes": {
+            "11155111": {
+                "0x135D01144a5b66766ee48B487E4efA2A1D79dD2e": {
+                    "owners": [
+                        {
+                            "value": "0x6f17CF065E3f4FF35a176fC7E2ee5791047035F6"
+                        },
+                        {
+                            "value": "0x9965507D1a55bcC2695C58ba16FB37d819B0A4dc"
+                        },
+                        {
+                            "value": "0x976EA74026E726554dB657fA54763abd0C3a0aa9"
+                        }
+                    ],
+                    "threshold": 2,
+                    "ethBalance": "0"
+                }
+            }
+        },
+        "settings": {
+            "currency": "usd",
+            "tokenList": "TRUSTED",
+            "shortName": {
+                "show": true,
+                "copy": true,
+                "qr": true
+            },
+            "theme": {},
+            "env": {
+                "rpc": {},
+                "tenderly": {
+                    "orgName": "",
+                    "projectName": "",
+                    "accessToken": ""
+                },
+                "ipfs": "",
+                "walletConnectApiKey": "",
+                "walletConnectPairingCode": ""
+            },
+            "signing": {
+                "onChainSigning": false
+            },
+            "transactionExecution": true
+        },
+        "safeApps": {},
+        "addedTxs": {},
+        "customTokens": {},
+        "customChains": []
+    }
+}

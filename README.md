@@ -35,4 +35,50 @@ Connected Wallet Challenges:
 - Smart contract wallet
   - Basic ETH transfer, first signer
 
+# Tenderly game plan 
+- Options:
+  - Create tenderly network from API Key, account name, and project name
+    - Saves http endpoint to local storage
+  - I already have a tenderly virtual network (connect, set/check chainId)
+    - Save http endpoint to local storage
+  
+# Safe Wallet Game Plan...
+1. User connects wallet 
+   1. Fund user wallet with 10 ETH
+   2. Fund anvil5 address with 10 ETH 
+      1. https://virtual.sepolia.rpc.tenderly.co/2266f442-859b-4462-8195-99a709746ffe 
+  payload:
+  ```
+   {method: "tenderly_addBalance",…}
+   id
+   : 
+   3
+   jsonrpc
+   : 
+   "2.0"
+   method
+   : 
+   "tenderly_addBalance"
+   params
+   : 
+   [["ADDRESS_TO_FUND"], "0xde0b6b3a7640000"]
+   0
+   : 
+   ["ADDRESS_TO_FUND"]
+   0
+   : 
+   "ADDRESS_TO_FUND"
+   1
+   : 
+   "0xde0b6b3a7640000"
+   ```
+   1. Have user deploy custom Safe address for each question, as question 1, and save to local storage
+   2. For each question, set 2/3 signers as:
+      1. anvil5
+      2. whatever wallet is connected
+      3. anvil6
+1. Question 2 is to setup eternalsafe with custom network, saying "oh no, the safe UI is down!!", can you connect?
+2. Drop user to question 3
+
+
 

@@ -3,12 +3,12 @@ import { WalletType, TransactionDetails, FeedbackContent, FakeWebsiteType, Signa
 
 // Define question types for TypeScript
 export interface BaseQuestionData {
-    id: number;
     question: string;
     feedbackContent: FeedbackContent;
     fakeWebsiteType?: FakeWebsiteType;
     questionId?: number;
     questionContext?: string;
+    otherData?: string;
 }
 
 export interface MultiChoiceQuestionData extends BaseQuestionData {
@@ -47,6 +47,8 @@ export interface SiteData {
 
 // export const ZKSYNC_AAVE_WRAPPED_TOKEN_GATEWAY_V3 = "0x9F07eEBdf3675f60dCeC65a092F1821Fb99726F3"
 export const ZKSYNC_AAVE_WRAPPED_TOKEN_GATEWAY_V3 = "0xAE2b00D676130Bdf22582781BbBA8f4F21e8B0ff"
+export const TREZOR_FRIEND_WALLET = "0x70997970C51812dc3A010C7d01b50e0d17dc79C8"
+export const TREZOR_POISONING_WALLET = "0x70997970C51812da3A010C7d01b50e0d17dc79C8"
 export const FRIEND_WALLET = "0xd8dA6BF26964aF9D7eEd9e03E53415D37aA96045"
 export const YOUR_WALLET = "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266"
 export const ARBITRUM_WETH = "0x82af49447d8a07e3bd95bd0d56f35241523fbab1"
@@ -57,7 +59,6 @@ export type QuestionData = MultiChoiceQuestionData | SignOrRejectQuestionData;
 
 export const questions: QuestionData[] = [
     {
-        id: 1,
         "question": "What's the security trade off between using a browser wallet (ie. Metamask, Rabby, Phantom) and a hardware wallet (ie. Trezor, Ledger, Grid+)?",
         "type": "single",
         "options": [
@@ -77,7 +78,6 @@ export const questions: QuestionData[] = [
         }
     },
     {
-        id: 2,
         "question": "What are the benefits, and trade-offs of a multi-signature wallet (ie. Safe{Wallet}) over a hardware or a software wallet?",
         "type": "multi",
         "options": [
@@ -100,7 +100,6 @@ export const questions: QuestionData[] = [
         }
     },
     {
-        id: 3,
         question: "Sign or reject this signature.",
         questionContext: `Assume your wallet address is ${YOUR_WALLET}. You want to sign into Opensea to see your NFTs. Will signing this accomplish that? If so, please sign, otherwise reject.`,
         type: "signOrReject",
@@ -128,9 +127,8 @@ Issued At: ${new Date().toISOString()}`
         }
     },
     {
-        id: 4,
         question: `Execute or reject this transaction.`,
-        questionContext: `This transaction requires your Trezor hardware wallet. You're attempting to send your friend \`0x70997970C51812dc3A010C7d01b50e0d17dc79C8\` \`0.5 ETH\` on the Ethereum chain. Assume your wallet is \`${YOUR_WALLET}.\` 
+        questionContext: `This transaction requires your Trezor hardware wallet. You're attempting to send your friend \`${TREZOR_FRIEND_WALLET}\` \`0.5 ETH\` on the Ethereum chain. Assume your wallet is \`${YOUR_WALLET}\` which is the #1 wallet from the standard ETH derivation path.
         
 Only trust what the hardware wallet shows you. If sending this transaction will get you want you want, sign it!`,
         type: "signOrReject",
@@ -147,7 +145,7 @@ Only trust what the hardware wallet shows you. If sending this transaction will 
         },
         transactionOrSignatureData: {
             fromAccount: `${YOUR_WALLET}`,
-            toAccount: "0x70997970C51812dc3A010C7d01b50e0d17dc79C8",
+            toAccount: `${TREZOR_FRIEND_WALLET}`,
             amount: "0.5 ETH",
             estimatedFee: {
                 usd: "$4.52",
@@ -155,12 +153,118 @@ Only trust what the hardware wallet shows you. If sending this transaction will 
             },
             functionName: "",
             data: ""
+        },
+        otherData: "5",
+    },
+    {
+        question: `Execute or reject this transaction.`,
+        questionContext: `This transaction requires your trezor wallet, and it's similar to the last question! You're attempting to send your friend who has address: \`${TREZOR_FRIEND_WALLET}\` \`0.5 ETH\` on the Ethereum chain. Assume your wallet is \`${YOUR_WALLET}\` which is the #1 wallet from the standard ETH derivation path.
+        
+Only trust what the hardware wallet shows you. If sending this transaction will get you want you want, sign it!`,
+        type: "signOrReject",
+        expectedAction: "reject",
+        walletType: "trezor",
+        interactionButtonText: "Transfer",
+        fakeWebsiteType: "SendEth",
+        feedbackContent: {
+            pages: [
+                `This is known as an [address poisoning](https://trezor.io/support/a/address-poisoning-attacks) attack, where you're tricked into sending funds to a malicious address. The address looks REALLY close to your friend's address, but it's not! Take a look:
+\`\`\`bash
+${TREZOR_FRIEND_WALLET} - Friend's wallet (What the website said)
+${TREZOR_POISONING_WALLET} - What showed up in our Trezor
+\`\`\`
+`,
+                `A website can become compromised, and even though the website looks good, the data that is sent to your wallet is wrong. Always make sure to check the address is exaclty what you expect!`
+            ]
+        },
+        wrongAnswerPopupContent: "Oh no!\n\nYou sent money to the wrong address!",
+
+        transactionOrSignatureData: {
+            fromAccount: `${YOUR_WALLET}`,
+            toAccount: `${TREZOR_POISONING_WALLET}`,
+            amount: "0.5 ETH",
+            estimatedFee: {
+                usd: "$4.52",
+                eth: "0.00198ETH"
+            },
+            functionName: "",
+            data: ""
+        },
+        otherData: "0.5",
+    },
+    {
+        question: "Execute or reject this transaction.",
+        questionContext: `Assume your wallet address is ${YOUR_WALLET}. You want to deposit 1 ETH into Aave to begin gaining interest on the ZKsync Era network. Yes, use the real Aave contract address on ZKsync Era if that helps. 
+        
+Will signing this accomplish that? If so, please sign, otherwise reject.`,
+        type: "signOrReject",
+        expectedAction: "sign",
+        walletType: "metamask",
+        interactionButtonText: "Deposit ETH",
+        fakeWebsiteType: "Aave",
+        feedbackContent: {
+            pages: [
+                `We should always understand what we are signing. As with all transactions we should first check that the address is correct. We can see in an official [Aave GitHub repo](https://github.com/bgd-labs/aave-address-book/blob/main/src/ts/AaveV3ZkSync.ts) that the contract address ${ZKSYNC_AAVE_WRAPPED_TOKEN_GATEWAY_V3} is indeed the Aave contract on ZKsync Era. We can also check that the amount is correct, and that we are on the right network.
+                
+Then, we want to make sure we're calling the correct function.
+
+This was an example of calling a function on a smart contract that is correct. The function that we called was:          
+\`\`\`bash
+depositETH(address,address,uint16)
+\`\`\`
+
+Where:
+
+- \`Param #1 (address)\` - A blank address, that could be anything
+- \`Param #2 (address)\` - The \`onBehalfOf\` address, which is the address that will receive the interest, we want this to be us!
+- \`Param #3 (uint16)\` - The referral code, which is a number that Aave uses to track referrals. This is not important for us, and we can leave it as 0.
+
+You can either check with the [Aave documentation](https://aave.com/docs/developers/smart-contracts/wrapped-token-gateway#write-methods-depositeth) to understand what each parameter means, or, we can go [directly to the explorer.](https://era.zksync.network/address/0xAE2b00D676130Bdf22582781BbBA8f4F21e8B0ff#code)
+`, `Here, if we look into the code, we'd see the function definition in the codebase:
+
+NOTE: You don't have to be able to read code! But you can read the \`@param\` tags, where it says \`onBehalfOf\` and \`referralCode\`:
+
+\`\`\`javascript
+/**
+   * @dev deposits WETH into the reserve, using native ETH. A corresponding amount of the overlying asset (aTokens)
+   * is minted.
+   * @param onBehalfOf address of the user who will receive the aTokens representing the deposit
+   * @param referralCode integrators are assigned a referral code and can potentially receive rewards.
+   **/
+  function depositETH(address, address onBehalfOf, uint16 referralCode) external payable override {
+    WETH.deposit{value: msg.value}();
+    POOL.deposit(address(WETH), msg.value, onBehalfOf, referralCode);
+  }
+\`\`\`
+
+Now, if we assume the code is good, we can use this to verify that at least we are setting the correct parameters!
+`,
+
+            ]
+        },
+        transactionOrSignatureData: {
+            networkName: "ZKsync Era",
+            fromAccount: YOUR_WALLET,
+            toAccount: ZKSYNC_AAVE_WRAPPED_TOKEN_GATEWAY_V3,
+            amount: "1 ETH",
+            estimatedFee: {
+                usd: "$0.02",
+                eth: "0.00004ETH"
+            },
+            functionName: "depositETH(address,address,uint16)",
+            params: [
+                `${YOUR_WALLET}`,
+                `${YOUR_WALLET}`,
+                "0"
+            ],
+            data: `0x474cf53d000000000000000000000000f39fd6e51aad88f6f4ce6ab8827279cfffb92266000000000000000000000000f39fd6e51aad88f6f4ce6ab8827279cfffb922660000000000000000000000000000000000000000000000000000000000000000`,
         }
     },
     {
-        id: 5,
         question: "Execute or reject this transaction.",
-        questionContext: `Assume your wallet address is ${YOUR_WALLET}. You want to deposit 1 ETH into Aave to begin gaining interest on the ZKsync Era network. Yes, use the real Aave contract address on ZKsync Era if that helps. 
+        questionContext: `Here we go again! But this time, your wallet is having a hard time decoding the data. This can often happen if the transaction data is too complicated or your wallet doesn't recognize the type of transaction. 
+
+Assume your wallet address is ${YOUR_WALLET}. You want to deposit 1 ETH into Aave to begin gaining interest on the ZKsync Era network. Yes, use the real Aave contract address on ZKsync Era if that helps. 
         
 Will signing this accomplish that? If so, please sign, otherwise reject.`,
         type: "signOrReject",
@@ -215,7 +319,6 @@ The second parameter stands for \`onbehalfOf\`, meaning we are depositing ETH fo
         }
     },
     {
-        id: 6,
         question: "Sign or reject this signature.",
         questionContext: `Assume your wallet address is ${YOUR_WALLET}, and you are a signer on a valid mutlisig wallet at address ${MULTI_SIGNATURE_WALLET}. You are attempting to send 1 WETH to address: ${FRIEND_WALLET} on the Arbitrum network. Please sign or reject this transaction, if doing so will bring you closer to executing.`,
         type: "signOrReject",
@@ -258,7 +361,6 @@ This decodes to:
         },
     },
     {
-        id: 7,
         question: "Sign or reject this signature.",
         questionContext: `Now, you'll have to verify the same transaction, but with a hardware wallet! But are you sure this one is correct?
         
@@ -284,7 +386,6 @@ Our next question will force you to actually check the hashes 😈`,
         }
     },
     {
-        id: 8,
         question: "Sign or reject this signature.",
         questionContext: `Verifying the massive JSON data on your hardware wallet can be a nightmare, as you'll have to scroll through many many screens to see all the data, which can lead to [security fatigue](https://www.nist.gov/news-events/news/2016/10/security-fatigue-can-cause-computer-users-feel-hopeless-and-act-recklessly). So you should get good at verifying using only the domain and message hash (or, the EIP-712 hash).
 
@@ -481,7 +582,7 @@ If you update your \`file.json\` to have the \`operation\` as a \`1\`, and run t
         }
     },
     {
-        id: 9,
+
         question: "Sign or reject this signature.",
         questionContext: `Now, can you sign a safe transaction where the signer is another safe? Let's find out...
 
@@ -637,7 +738,6 @@ safe-hash tx --safe-address 0x5031f5E2ed384978dca63306dc28A68a6Fc33e81 --nonce 5
         }
     },
     {
-        id: 10,
         question: "Execute or reject this transaction.",
         questionContext: `And now, we tie it all together! Will this transaction execute? Sign if you think so... Otherwise reject it. This is the same transaction from question 8! Except this time, we are executing it.
 
@@ -694,24 +794,26 @@ The last parameter is populated with the signatures. However, the last signer ca
 ];
 
 // Helper function to get a specific question by ID
+// Helper function to get a specific question by ID
 export function getQuestionById(id: number): QuestionData | undefined {
-    return questions.find(q => q.id === id);
+    if (id < 1 || id > questions.length) {
+        return undefined;
+    }
+    return questions[id - 1];
 }
 
 // Helper function to get next question ID
 export function getNextQuestionId(currentId: number): number | null {
-    const currentIndex = questions.findIndex(q => q.id === currentId);
-    if (currentIndex === -1 || currentIndex === questions.length - 1) {
+    if (currentId < 1 || currentId >= questions.length) {
         return null;
     }
-    return questions[currentIndex + 1].id;
+    return currentId + 1;
 }
 
 // Helper function to get previous question ID
 export function getPrevQuestionId(currentId: number): number | null {
-    const currentIndex = questions.findIndex(q => q.id === currentId);
-    if (currentIndex <= 0) {
+    if (currentId <= 1 || currentId > questions.length) {
         return null;
     }
-    return questions[currentIndex - 1].id;
+    return currentId - 1;
 }
