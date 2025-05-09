@@ -356,9 +356,10 @@ Will signing this accomplish that? If so, please sign, otherwise reject.`,
             pages: [
                 `The following were correct on this transaction:
                 
-                1. Address: It is the correct ZKsync Era Aave contract.
-                2. Correct amount: The amoount of ETH is the amount you want to deposit.
-                3. Website: You initiated this transaction yourself from a trusted website URL.
+1. Address: It is the correct ZKsync Era Aave contract.
+2. Correct amount: The amoount of ETH is the amount you want to deposit.
+3. Website: You initiated this transaction yourself from a trusted website URL.
+
 However, the transaction calldata is not correct!
 This could happen if the Aave UI is compromised. Website interfaces compromises unfourtunately are all too common.`,
                 `For this transaction, the calldata was: 
