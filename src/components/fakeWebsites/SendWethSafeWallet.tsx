@@ -7,6 +7,7 @@ import BrowserNavBar from "@/components/fakeWebsites/BrowserNavBar";
 import ChainButton from "@/components/ChainButton";
 import { FRIEND_WALLET, ZKSYNC_AAVE_WRAPPED_TOKEN_GATEWAY_V3, YOUR_WALLET, ARBITRUM_WETH, MULTI_SIGNATURE_WALLET, questions } from "@/data/questions";
 import { truncateAddress } from "@/utils/truncateAddress";
+import { form } from "viem/chains";
 
 const URL = "https://app.safe.global";
 
@@ -46,6 +47,7 @@ export default function SafeWallet({
 
     useEffect(() => {
         if (localQuestionId) {
+
             setAmount(questions[localQuestionId - 1].otherData![0].amount);
             setFormattedAmount(parseFloat(questions[localQuestionId].otherData![0].amount).toString());
             setChainPrefix(questions[localQuestionId - 1].otherData![0].chainPrefix);
@@ -275,7 +277,7 @@ export default function SafeWallet({
                                         <div className="flex-1">
                                             <input
                                                 type="text"
-                                                value={formattedAmount}
+                                                value={amount}
                                                 className="w-full bg-[#222] border border-[#333] rounded-l-lg p-3 focus:outline-none focus:border-blue-500"
                                                 readOnly
                                             />
