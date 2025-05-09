@@ -403,10 +403,10 @@ export default function SafeWallet({
                                         <div className="flex justify-between items-center mb-2">
                                             <span className="text-gray-400">value:</span>
                                             <div className="flex items-center">
-                                                <span>0</span>
+                                                <span>{wadValue}</span>
                                                 <button
                                                     className="ml-2 text-gray-400 hover:text-gray-300 cursor-pointer"
-                                                    onClick={() => copyToClipboard("0")}
+                                                    onClick={() => copyToClipboard(wadValue)}
                                                 >
                                                     <FaCopy size={14} />
                                                 </button>

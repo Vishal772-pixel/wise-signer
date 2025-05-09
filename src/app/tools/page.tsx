@@ -86,10 +86,16 @@ const Tools = () => {
                     name: "Security Fatigue",
                     url: "https://www.nist.gov/news-events/news/2016/10/security-fatigue-can-cause-computer-users-feel-hopeless-and-act-recklessly",
                     description: "NIST article on security fatigue and its consequences"
+                },
+                {
+                    name: "Password Manager Keys Leak",
+                    url: "https://blog.lastpass.com/posts/notice-of-recent-security-incident",
+                    description: "LastPass security incident report where thousands of private keys were leaked and funds stolen"
                 }
             ]
         }
     ];
+
 
     return (
         <div className="container mx-auto py-8 px-4 min-h-screen">

@@ -48,6 +48,7 @@ export const SAFE_WALLET_QUESTION_START = 13
 
 // export const ZKSYNC_AAVE_WRAPPED_TOKEN_GATEWAY_V3 = "0x9F07eEBdf3675f60dCeC65a092F1821Fb99726F3"
 export const ZKSYNC_AAVE_WRAPPED_TOKEN_GATEWAY_V3 = "0xAE2b00D676130Bdf22582781BbBA8f4F21e8B0ff"
+export const SAFE_VERSION = "1.4.1"
 export const TREZOR_FRIEND_WALLET = "0x70997970C51812dc3A010C7d01b50e0d17dc79C8"
 export const TREZOR_POISONING_WALLET = "0x70997971C51812ec3A01f47e01b51d5d17dc79C8"
 export const FRIEND_WALLET = "0xd8dA6BF26964aF9D7eEd9e03E53415D37aA96045"
@@ -137,7 +138,7 @@ Issued At: ${new Date().toISOString()}`
         question: `Execute or reject this transaction.`,
         questionContext: `This transaction requires your Trezor hardware wallet. You're attempting to send your friend \`${TREZOR_FRIEND_WALLET}\` \`0.5 ETH\` on the Ethereum chain. Assume your wallet is \`${YOUR_WALLET}\` which is the #1 wallet from the standard ETH derivation path.
         
-Only trust what the hardware wallet shows you. If sending this transaction will get you want you want, sign it!`,
+Only trust what the wallet shows you. If sending this transaction will get you want you want, sign it!`,
         type: "signOrReject",
         expectedAction: "sign",
         walletType: "trezor",
@@ -147,7 +148,7 @@ Only trust what the hardware wallet shows you. If sending this transaction will 
             pages: [
                 `It's good to sign this transaction! This appears to be a legitimate ETH transfer to your friend's address.\nEven though the website gave the wrong information, the information on the actual wallet is correct.
                 
-Our website told us it would send \`5 ETH\`, but the wallet populated with the correct amount. This is to show you that you cannot always trust the UI...`,
+Our website told us it would send \`5 ETH\`, but the wallet populated with the correct amount. This is to show you that you cannot always trust the UI/website...`,
                 "When evaluating a transaction, consider these key factors which were all aligned here:\n\n1. Expected action: You intended to send ETH to your friend\n2. Correct recipient: The address matches your friend's known address\n3. Reasonable amount: The amount (0.5 ETH) matches what you intended to send\n4. Appropriate network fee: The gas fees look reasonable for an ETH transfer\n5. Transaction origin: You initiated this transaction yourself from a trusted interface\n6. Hardware wallet verification: Your Trezor showed the same transaction details as the website",
                 "Using a hardware wallet like Trezor provides an additional security layer, as it lets you verify transaction details on a separate secure device. Always verify that the recipient address and amount match what you expect before confirming any transaction.\n\n\nAdditionally, `m/44'/60'/0'/0/0` is the standard derivation path for Ethereum accounts.This means that the transaction is being sent from your first Ethereum account, which is what you expect.",
             ]
@@ -183,7 +184,9 @@ ${TREZOR_FRIEND_WALLET} - Friend's wallet (What the website said)
 ${TREZOR_POISONING_WALLET} - What showed up in our Trezor
 \`\`\`
 `,
-                `A website can become compromised, and even though the website looks good, the data that is sent to your wallet is wrong. Always make sure to check the address is exaclty what you expect!`
+                `A website can become compromised, and even though the website looks good, the data that is sent to your wallet is wrong. Always make sure to check the address is exactly what you expect!
+
+Attackers can use sophisticated tools to create addresses that look similar, and this is not a hypothetical attack. For example, this user lost [1155 Wrapped Bitcoin due to such an attack!](https://x.com/CyversAlerts/status/1786363410243858869?)`
             ]
         },
         wrongAnswerPopupContent: "Oh no!\n\nYou sent money to the wrong address!",
@@ -217,7 +220,7 @@ Only trust what the wallet shows you. If sending this transaction will get you w
                 `Even though the website showed \`100 USDC\`, our wallet populated with \`1000 USDC\`. This can happen if a website is compromised, or is trying to attack you! Let's review what we should look out for:
 
 - \`Network Name\`: The network name is ZKsync Era, which is correct.
-- \`to\`: The to address was ${ZKSYNC_USDC_ADDRESS}, which is the correct [USDC.e](https://www.coingecko.com/en/coins/zksync-bridged-usdc-zksync) contract on ZKsync Era that we can verify.
+- \`to\`: The to address was ${ZKSYNC_USDC_ADDRESS}, which is the correct [USDC.e](https://www.coingecko.com/en/coins/zksync-bridged-usdc-zksync) contract on ZKsync Era that we can verify. When sending an ERC20 token, unlike when sending the native blockchain currency (ie: ETH for Ethereum), the \`to\` address should be the contract address of the token, not the recipient's address.  This is correct.
 - \`from\`: The from address is your wallet, which is correct.
 
 Then, we need to hit \`View details\`.
@@ -250,7 +253,9 @@ But now that we have the decimals, we can apply this knowledge to parameter #2:
 1000.000000 # Now we see the REAL amount, which is 1,000, which is too much!
 \`\`\`
 
-                `
+                `, `How did we verify the \`USDC.e\` address was correct?
+
+There are lots of ways to do this, and a simple one is to google the token and find the address. Ideally you reference a trusted source of wallet addresses to find out. For example, the [ZKsync tokens page](https://explorer.zksync.io/tokens) has a list of addresses for different tokens. If the token didn't match, you should assume something is wrong, and either not sign or ask for help!`
             ]
         },
         transactionOrSignatureData: {
@@ -357,7 +362,7 @@ Will signing this accomplish that? If so, please sign, otherwise reject.`,
                 `The following were correct on this transaction:
                 
 1. Address: It is the correct ZKsync Era Aave contract.
-2. Correct amount: The amoount of ETH is the amount you want to deposit.
+2. Correct amount: The amount of ETH is the amount you want to deposit.
 3. Website: You initiated this transaction yourself from a trusted website URL.
 
 However, the transaction calldata is not correct!
@@ -387,7 +392,7 @@ You'll get something like:
 }
 \`\`\`
 
-Which shows that the 2nd parameter is \`0x23618e81E3f5cdF7f54C3d65f7FBc0aBf5B21E8f\`, which is not the wallet address we want!`,
+Which shows that the 2nd parameter is \`0x23618e81E3f5cdF7f54C3d65f7FBc0aBf5B21E8f\`, which is not the wallet address we want! We want our own address here, since we want to deposit _on behalf of our self_.`,
 
                 `Now using a website to decode the calldata is a nice shortcut, but we are now trusting the website to be correct! So often, we want to use our own tools. For developers, if we decode this with [foundry's cast tool](https://book.getfoundry.sh/):
 
@@ -430,9 +435,17 @@ If the transaction that populates does that, please sign it, otherwise reject`,
         interactionButtonText: "Approve & Supply USDC",
         fakeWebsiteType: "Aave2",
         feedbackContent: {
-            pages: [`For EIP-7702 transactions, you set your wallet to gain the power of a smart contract, and it can be a bit confusing how to read your wallet. MetaMask automatically sets the code of our wallet to be ${METAMASK_DELEGATOR}, which means that our EOA now has the power to call functions... On itself! You're actually calling the function \`execute\` on your own address! You can think of it like you're borrowing the code from ${METAMASK_DELEGATOR} until you set your wallet back to being a "normal" EOA wallet.
+            pages: [`This is a valid EIP-7702 transaction. With EIP-7702, you can "upgrade" your wallet to a smart contract wallet. Essentially this means that you "give" your wallet some code, which means that our EOA now has the power to call functions... On itself! You're actually calling the function \`execute\` on your own address! You can think of it like you're borrowing/setting the code from ${METAMASK_DELEGATOR} until you set your wallet back to being a "normal" EOA wallet. When you upgrade your wallet to a smart contract wallet, you must be absolutely sure the code that you've given is safe. In our wallet, we saw this at the top: 
                 
-But with this power, we can batch transactions together, like how we saw a list of transactions in our wallet. If you decode the two transactions using some of the tools we've learned, you'll see:
+\`\`\`
+Type: Smart Account
+${METAMASK_DELEGATOR}
+Function:execute((address,uint256,bytes))
+\`\`\`
+
+Most wallets don't show this, but the code at address \`${METAMASK_DELEGATOR}\` is the code your wallet is being set to. Wallets like MetaMask automatically set this code to be the ${METAMASK_DELEGATOR} code, which isnot malicious. However, you still want to verify the list of transactions as someone could still trick you into signing soething you shouldn't.`,
+
+            `With this power, we can batch transactions together, like how we saw a list of transactions in our wallet. If you decode the two transactions using some of the tools we've learned (ie, [swiss-knife](https://calldata.swiss-knife.xyz/decoder), [foundry's cast](https://book.getfoundry.sh/) or [deth tools](https://tools.deth.net/calldata-decoder)), you'll see:
 
 \`\`\`bash
 #  Transaction #1
@@ -478,42 +491,78 @@ And we've already learned how to spot correct approval transactions. We just nee
         }
     },
     {
-        question: "Execute or reject this transaction.",
-        questionContext: `Whew! You've solved so many of these. You just want to send your friend 50 USDC on the Ethereum network. Assume your wallet is \`${YOUR_WALLET}\` and your friend's wallet is \`${FRIEND_WALLET}\`. And you're going to send it using an EIP-7702 transaction now that you understand it.`,
-        type: "signOrReject",
-        expectedAction: "reject",
-        walletType: "metamask",
-        interactionButtonText: "Send Tokens",
-        fakeWebsiteType: "SendToken",
-        wrongAnswerPopupContent: "Oh no!\nYou just gave North Korea access to all your funds and all your tokens are drained to 0!",
-        feedbackContent: {
-            pages: [`Most wallets don't allow this functionality, but when you upgrade your wallet to a smart contract wallet, you must be absolutely sure the contract that you're borrowing the code from is safe. In this case, ${NORTH_KOREA} was the wallet associated with the Bybit hack, and is a [North Korean Hacker controlled address](https://etherscan.io/address/0x47666fab8bd0ac7003bce3f5c3585383f09486e2).
-To protect against this, you have two options:
+        "question": "Which of the following are acceptable places to store your private key?",
+        "questionContext": `Well done getting this far! After this question, the scenarios get much harder. If you are on a multi-sig, you must be able to verify the next few questions. If you're not, then getting to this point is good by itself!`,
+        "type": "multi",
+        "options": [
+            { "id": "A", "text": "With the auditors you're conducting your security review with" },
+            { "id": "B", "text": "Written on paper stored in a secure physical location like a safe" },
+            { "id": "C", "text": "In a hardware wallet device designed specifically for crypto security" },
+            { "id": "D", "text": "In a .env file so long as a correctly filled in .gitignore is there" },
+            { "id": "E", "text": "In a text file on your desktop labeled 'not_my_private_keys.txt'" },
+            { "id": "F", "text": "In a photo on your iPhone" }
+        ],
+        "correctAnswers": ["B", "C"],
+        "feedbackContent": {
+            "pages": [
+                "Cryptocurrency private keys provide direct, irreversible access to digital assets. Proper storage is one of the most critical security decisions you'll make.\n\nThe correct answers are B and C - these are the gold standard options for private key storage:\n\n- Written on paper in a secure physical location (like a literal, phyiscal safe): This completely offline storage method protects against all digital attacks. Consider using waterproof, fireproof materials like steel plates for long-term backup. Multiple copies in different secure locations provide redundancy.\n\n- Hardware wallets: These specialized devices are designed specifically to securely store private keys offline while still allowing interaction with blockchains. They keep keys isolated even when connected to potentially compromised computers.",
 
-1. Use wallets that force you to upgrade to "safer" EIP-7702 wallets (like Metamask)
-2. Make sure your verify the smart contract wallet you're upgrading to.`,
+                "The incorrect options introduce significant risks:\n\n- Sharing private keys with auditors violates the fundamental 'not your keys, not your coins' principle and introduces unnecessary third-party risk\n\n- \`.env\` files, even with .gitignore, are vulnerable to misconfiguration, local system compromise, and accidental exposure\n\n- Plaintext files on desktops (regardless of filename) are trivially accessible to malware\n\n- Photos on smartphones combine multiple risks: cloud backups, vulnerable to malware, easily accessed if phone is compromised, and potential for accidental sharing",
 
-                `But, remember, even if the smart contract wallet is "safe" the transactions could still be malicious. Always be diligent to check!`]
-        },
-        transactionOrSignatureData: {
-            networkName: "Ethereum",
-            fromAccount: YOUR_WALLET,
-            toAccount: YOUR_WALLET,
-            amount: "0 ETH",
-            estimatedFee: {
-                usd: "$0.12",
-                eth: "0.00124ETH"
-            },
-            functionName: "execute((address,uint256,bytes))",
-            contracts: [ETH_USDC_ADDRESS],
-            data: [`0xa9059cbb000000000000000000000000d8da6bf26964af9d7eed9e03e53415d37aa960450000000000000000000000000000000000000000000000000000000002faf080`],
-            upgradeAccount: `${NORTH_KOREA}`,
-        },
-        otherData: ["50"],
+                "About password managers and cloud secrets managers (like AWS Secrets Manager): These can potentially be acceptable in specific institutional contexts, but require significant additional security considerations:\n\n- They remain internet-connected services, introducing network attack vectors\n\n- They depend on third-party security (as demonstrated by the [LastPass breach](https://blog.lastpass.com/posts/notice-of-recent-security-incident))\n\n- They typically require additional authentication that could be compromised\n\n- They may have regulatory and compliance implications\n\nFor organizations that must use these services, additional protections should be implemented, such as:\n- Multi-factor authentication\n- Access control policies\n- Audit logging\n- Key splitting/sharding across multiple systems\n- Regular security reviews\n\nIndividual users are generally better served by hardware wallets and physical backups, which provide stronger security with less complexity."
+            ]
+        }
     },
+    // TODO: Make this realistic. If you delegate to another EOA, it doesn't multi hop. 
+    //     {
+    //         question: "Execute or reject this transaction.",
+    //         questionContext: `Whew! You've solved so many of these. You just want to send your friend 50 USDC on the Ethereum network. Assume your wallet is \`${YOUR_WALLET}\` and your friend's wallet is \`${FRIEND_WALLET}\`. And you're going to send it using an EIP-7702 transaction now that you understand it.
+
+    // For this question`,
+    //         type: "signOrReject",
+    //         expectedAction: "reject",
+    //         walletType: "metamask",
+    //         interactionButtonText: "Send Tokens",
+    //         fakeWebsiteType: "SendToken",
+    //         wrongAnswerPopupContent: "Oh no!\nYou just gave North Korea access to all your funds and all your tokens are drained to 0!",
+    //         feedbackContent: {
+    //             pages: [`Most wallets don't allow this functionality, but with EIP-7702, you can "upgrade" your wallet to a smart contract wallet. Essentially this means that you "give" your wallet some code. when you upgrade your wallet to a smart contract wallet, you must be absolutely sure the code that you've given is safe. In our wallet, we saw this at the top:
+
+    // \`\`\`
+    // Type: Smart Account
+    // ${NORTH_KOREA}
+    // Function:execute((address,uint256,bytes))
+    // \`\`\`
+
+    // This means that our wallet is upgrading to a "smart wallet" and our contract is being given the code from \`${NORTH_KOREA}\`
+
+    // In our In this case, ${NORTH_KOREA} was the wallet associated with the Bybit hack, and is a[North Korean Hacker controlled address](https://etherscan.io/address/0x47666fab8bd0ac7003bce3f5c3585383f09486e2).
+    //                 To protect against this, you have two options:
+
+    //                     1. Use wallets that force you to upgrade to "safer" EIP-7702 wallets(like Metamask)
+    // 2. Make sure your verify the smart contract wallet you're upgrading to.`,
+
+    //                 `But, remember, even if the smart contract wallet is "safe" the transactions could still be malicious. Always be diligent to check!`]
+    //         },
+    //         transactionOrSignatureData: {
+    //             networkName: "Ethereum",
+    //             fromAccount: YOUR_WALLET,
+    //             toAccount: YOUR_WALLET,
+    //             amount: "0 ETH",
+    //             estimatedFee: {
+    //                 usd: "$0.12",
+    //                 eth: "0.00124ETH"
+    //             },
+    //             functionName: "execute((address,uint256,bytes))",
+    //             contracts: [ETH_USDC_ADDRESS],
+    //             data: [`0xa9059cbb000000000000000000000000d8da6bf26964af9d7eed9e03e53415d37aa960450000000000000000000000000000000000000000000000000000000002faf080`],
+    //             upgradeAccount: `${NORTH_KOREA}`,
+    //         },
+    //         otherData: ["50"],
+    //     },
     {
         question: "Sign or reject this signature.",
-        questionContext: `Assume your wallet address is ${YOUR_WALLET}, and you are a signer on a valid mutlisig wallet at address ${MULTI_SIGNATURE_WALLET}. You are attempting to send 1 WETH to address: ${FRIEND_WALLET} on the Arbitrum network. Please sign or reject this transaction, if doing so will bring you closer to executing.`,
+        questionContext: `Assume your wallet address is ${YOUR_WALLET}, and you are a signer on a valid mutlisig wallet at address ${MULTI_SIGNATURE_WALLET} using safe version ${SAFE_VERSION}. You are attempting to send 1 WETH to address: ${FRIEND_WALLET} on the Arbitrum network. Please sign or reject this transaction, if doing so will bring you closer to executing.`,
         type: "signOrReject",
         expectedAction: "sign",
         walletType: "metamask",
@@ -570,7 +619,7 @@ This decodes to:
         question: "Sign or reject this signature.",
         questionContext: `Now, you'll have to verify the same transaction, but with a hardware wallet! But are you sure this one is correct?
         
-Assume your wallet address is ${YOUR_WALLET}, and you are a signer on a valid mutlisig wallet at address ${MULTI_SIGNATURE_WALLET}. You are attempting to send 1 WETH to address: ${FRIEND_WALLET} on the Arbitrum network. Please sign or reject this transaction, if doing so will bring you closer to executing.`,
+Assume your wallet address is ${YOUR_WALLET}, and you are a signer on a valid mutlisig wallet at address ${MULTI_SIGNATURE_WALLET} using safe version ${SAFE_VERSION}. You are attempting to send 1 WETH to address: ${FRIEND_WALLET} on the Arbitrum network. Please sign or reject this transaction, if doing so will bring you closer to executing.`,
         type: "signOrReject",
         expectedAction: "sign",
         walletType: "trezor",
@@ -599,9 +648,11 @@ Assume your wallet address is ${YOUR_WALLET}, and you are a signer on a valid mu
             pages: [
                 `This is a valid EIP-712 structured message for a multisig transaction with Safe{Wallet} (formerly Gnosis Safe) that matches your intention to send 1 WETH to your friend's address.
 
-This resembles a real hardware wallet, where most hardware wallets have the screen so small that you have to scroll through a ton of pages. This can lead to [security fatigue](https://www.nist.gov/news-events/news/2016/10/security-fatigue-can-cause-computer-users-feel-hopeless-and-act-recklessly), so it's better to use a wallet that has a domain, message, and eip-712 hash since that is much fater to check if it's correct. 
+What's frustratintg about this, is that getting the data off your trezor/hardware wallet can be difficult.
 
-Our next question will force you to actually check the hashes 😈`,
+This resembles a real hardware wallet, where most hardware wallets have the screen so small that you have to scroll through a ton of pages. This can lead to [security fatigue](https://www.nist.gov/news-events/news/2016/10/security-fatigue-can-cause-computer-users-feel-hopeless-and-act-recklessly), so it's better to use a wallet that has a domain, message, and eip-712 hash since that is much faster to check if it's correct. 
+
+Let's practice, our next question will not have the full JSON data, but only the domain and message hashes.`,
             ]
         }
     },
@@ -609,13 +660,13 @@ Our next question will force you to actually check the hashes 😈`,
         question: "Sign or reject this signature.",
         questionContext: `Verifying the massive JSON data on your hardware wallet can be a nightmare, as you'll have to scroll through many many screens to see all the data, which can lead to [security fatigue](https://www.nist.gov/news-events/news/2016/10/security-fatigue-can-cause-computer-users-feel-hopeless-and-act-recklessly). So you should get good at verifying using only the domain and message hash (or, the EIP-712 hash).
 
-Assume your wallet address is ${YOUR_WALLET}, and you are a signer on a valid mutlisig wallet at address ${MULTI_SIGNATURE_WALLET}. You are attempting to deposit 0.1 ETH to the ZKsync Aave token pool. Please sign this transaction if doing so will bring you closer to executing, otherwise reject it.
+Assume your wallet address is ${YOUR_WALLET}, and you are a signer on a valid mutlisig wallet at address ${MULTI_SIGNATURE_WALLET} using safe version ${SAFE_VERSION}. You are attempting to deposit 0.1 ETH to the ZKsync Aave token pool. Please sign this transaction if doing so will bring you closer to executing, otherwise reject it.
 
  Also assume, you have the settings of your hardware wallet set to show ONLY the Domain and Message hash, and not the entire JSON data. So when you see the \`Message\` page, you know that this is showing you the message hash and domain hash (domain separator) and not the actual JSON message.
 
-Hint: Here is the starting JSON data that is being signed:
+Hint: Check out the tools page for a website that can help you out! Or... Here is the starting JSON data that is being signed if you want it:
 
-
+\`\`\`json
 {
     "types": {
         "SafeTx": [
@@ -679,7 +730,8 @@ Hint: Here is the starting JSON data that is being signed:
     "message": {
         // Fill me in!
     }
-}`,
+}
+\`\`\``,
         wrongAnswerPopupContent: "Oh no!\n\nYou were just hit with a similar attack to what happened to Bybit ($1.4B loss!)",
         type: "signOrReject",
         expectedAction: "reject",
@@ -693,7 +745,41 @@ Hint: Here is the starting JSON data that is being signed:
 - [safe-tx-hashes-utils](https://github.com/pcaversaccio/safe-tx-hashes-util)
 - [safeutils.openzeppelin.com](https://safeutils.openzeppelin.com/)
 
-Something else to note, is that on wallets with small screens, it can be really difficult to verify pages and pages of data. The data that we are signing is much bigger here than just sending tokens, so it's often just easier to just compare the hashes of the data we are signing instead of inspecting the entire data on our wallet.`, `No matter what tool we use, the first thing we need to do is inspect/create the JSON object that is being signed. In this case, based on the data from the Safe UI, we should be signing:
+On wallets with small screens, it can be really difficult to verify pages and pages of data. The data that we are signing is much bigger here than just sending tokens, so it's often just easier to just compare the hashes of the data we are signing instead of inspecting the entire data on our wallet. Which is what we will be doing here!
+
+Let's start with [safeutils.openzeppelin.com](https://safeutils.openzeppelin.com/).`,
+
+                `So before doing anything, we want to make sure our \`data\` is correct. We can use any of the tools (ie. [swiss-knife](https://calldata.swiss-knife.xyz/decoder), [foundry's cast](https://book.getfoundry.sh/) or [deth tools](https://tools.deth.net/calldata-decoder)) to decode the data.
+
+If we used foundry, we can copy the calldata from the Safe websites (ie, \`data\`) and make sure it matches what we'd expect:
+
+\`\`\`bash
+# This command will brute-force try to figure out the function signature, and then decode the data
+cast 4byte-calldata  0x474cf53d0000000000000000000000004087d2046a7435911fc26dcfac1c2db26957ab720000000000000000000000004087d2046a7435911fc26dcfac1c2db26957ab720000000000000000000000000000000000000000000000000000000000000000
+
+### Results
+# 1) "depositETH(address,address,uint16)"
+# 0x4087d2046A7435911fC26DCFac1c2Db26957Ab72
+# 0x4087d2046A7435911fC26DCFac1c2Db26957Ab72
+# 0
+\`\`\`
+                
+And now that we are happy with the calldata, we can input it and the rest of the data into [safeutils.openzeppelin.com](https://safeutils.openzeppelin.com/):
+                
+![img1](/questionImages/safeUtils1.png) ![img2](/questionImages/safeUtils2.png) ![img3](/questionImages/safeUtils3.png)
+
+But you'll see, the outputted \`message hash\` of the SafeUtils website is different than what we saw on our Trezor wallet!
+
+\`\`\`
+# Different message hashes
+0xb2498e7f8d82ce5d628accdcc7d7bb245557a93f420c3b8baeab1df0c11d0886 # Trezor wallet & Safe Website
+0xfac0c15391856b749f37c979c6068dac6e6264b182501425aaff9dac190a2daa # SafeUtils
+\`\`\`
+
+This could be evidence that our computer, or the Safe website itself is compromised!
+`,
+
+                `This is just one way we could verify the data, another way would be to generate the EIP-712 JSON object, and check it ourselves. In this case, based on the data from the Safe UI, we should be signing the following object:
 
 \`\`\`json
 {
@@ -792,7 +878,7 @@ We get an output of:
 
 This is different that what we saw in our Trezor wallet!!`, `It turned out, in this case, the Safe UI was compromised, and it showed us an evil hash, and sent our wallet the evil hash. They had turned the \`operation\` from a \`0\` to a \`1\`, which changed our transaction from a \`call\` to a \`delegateCall\`.
 
-If you update your \`file.json\` to have the \`operation\` as a \`1\`, and run the same command, you will get the same hash as our Trezor wallet.`
+If you update your \`file.json\` to have the \`operation\` as a \`1\`, or update the [SafeUtils](https://safeutils.openzeppelin.com/) to use a \`DELEGATECALL\` instead of a \`CALL\` and rerun, you will get the same hash as our Trezor wallet - the malicious one!`
             ]
         },
         otherData: [{
@@ -808,7 +894,7 @@ If you update your \`file.json\` to have the \`operation\` as a \`1\`, and run t
             "targetContract": "WrappedTokenGatewayV3",
             "targetFunction": "depositETH",
             "domainHash": "0xe0392d263ff13e09757bfce9b182ead6ceabd9d1b404aa7df77e65b304969130",
-            "messageHash": "0x02def9296d874a88cd65d1adfdb9c220a186f812113ae9a6080836932e3df670",
+            "messageHash": "0xb2498e7f8d82ce5d628accdcc7d7bb245557a93f420c3b8baeab1df0c11d0886",
             "eip712Hash": "0x87414b6a2a5c6664ddbc9b79392a2fd4ac5a294a6b807b70b28641b3b8af297b",
             "signers": "2/10"
         }],
@@ -823,7 +909,7 @@ If you update your \`file.json\` to have the \`operation\` as a \`1\`, and run t
         question: "Sign or reject this signature.",
         questionContext: `Now, can you sign a safe transaction where the signer is another safe? Let's find out...
 
-We are attempting to send 0.01 WETH from our multi-sig wallet ${MULTI_SIGNATURE_WALLET} to ${FRIEND_WALLET} on the Arbitrum network. Assume the Safe Wallet version is 1.4.1. Our main signer is another safe wallet at address ${MULTI_SIGNATURE_SIGNER_WALLET}.
+We are attempting to send 0.01 WETH from our valiud multi-sig wallet ${MULTI_SIGNATURE_WALLET} to ${FRIEND_WALLET} on the Arbitrum network. You are using safe version ${SAFE_VERSION}. Our main signer is another safe wallet at address ${MULTI_SIGNATURE_SIGNER_WALLET} using safe version ${SAFE_VERSION}.
 
 Please sign this transaction if doing so will bring you closer to executing, otherwise reject it. `,
         type: "signOrReject",
@@ -891,7 +977,7 @@ Please sign this transaction if doing so will bring you closer to executing, oth
     },
     "domain": {
         "chainId": "0xa4b1",
-        "verifyingContract": "${MULTI_SIGNATURE_SIGNER_WALLET}
+        "verifyingContract": "${MULTI_SIGNATURE_SIGNER_WALLET}"
     },
     "primaryType": "SafeTx",
     "message": {
@@ -949,10 +1035,8 @@ Please sign this transaction if doing so will bring you closer to executing, oth
                 
 Using [safe-hash](https://github.com/Cyfrin/safe-hash-rs) we could either try:
 
-\`\`\`
 1. --nested-safe-address
 2. Manually calculate both hashes 
-\`\`\`
 
 Let's start with the easiest way`, `If we did the following:
 
@@ -1013,7 +1097,7 @@ safe-hash tx --safe-address ${MULTI_SIGNATURE_SIGNER_WALLET} --nonce 5 --safe-ve
         question: "Execute or reject this transaction.",
         questionContext: `And now, we tie it all together! Will this transaction execute? Sign if you think so... Otherwise reject it. This is the same transaction from a previous one Except this time, we are executing it.
 
-Assume your wallet address is ${YOUR_WALLET}, and you are a signer on a valid mutlisig wallet at address ${MULTI_SIGNATURE_WALLET}. You are attempting to deposit 0.1 ETH to the ZKsync Aave token pool. Please execute this transaction if you think it will not revert based on the calldata.`,
+Assume your wallet address is ${YOUR_WALLET}, and you are a signer on a valid mutlisig wallet at address ${MULTI_SIGNATURE_WALLET} using safe version ${SAFE_VERSION}. You are attempting to deposit 0.1 ETH to the ZKsync Aave token pool. \n\nPlease execute this transaction if you think it will not revert based on the calldata, and if it will do what we think it should.`,
         type: "signOrReject",
         expectedAction: "reject",
         walletType: "metamask",

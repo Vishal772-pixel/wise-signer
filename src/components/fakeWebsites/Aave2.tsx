@@ -21,12 +21,10 @@ export default function Aave2({
     // State
     const [inputAmount] = useState(DEFAULT_INPUT_AMOUNT);
     const [usdValue] = useState(DEFAULT_USD_VALUE);
-    const [isLoading, setIsLoading] = useState(false);
 
     // Handle supply button click
     const handleSupply = () => {
         if (onPrimaryButtonClick) {
-            setIsLoading(true);
             onPrimaryButtonClick();
         }
     };
@@ -109,20 +107,13 @@ export default function Aave2({
                 {/* Supply Button */}
                 <ChainButton
                     onClick={handleSupply}
-                    disabled={buttonDisabled || isLoading}
-                    className={`w-full mt-6 py-4 rounded-lg font-semibold text-center ${buttonDisabled || isLoading
+                    disabled={buttonDisabled}
+                    className={`w-full mt-6 py-4 rounded-lg font-semibold text-center ${buttonDisabled
                         ? 'bg-gray-700 text-gray-400 cursor-not-allowed'
                         : 'bg-gray-200 text-gray-800 hover:bg-gray-300'
                         }`}
                 >
-                    {isLoading ? (
-                        <div className="flex items-center justify-center">
-                            <div className="mr-2 h-5 w-5 border-t-2 border-r-2 border-blue-500 rounded-full animate-spin"></div>
-                            Supplying USDC
-                        </div>
-                    ) : (
-                        primaryButtonText
-                    )}
+                    {primaryButtonText}
                 </ChainButton>
             </div>
         </div>

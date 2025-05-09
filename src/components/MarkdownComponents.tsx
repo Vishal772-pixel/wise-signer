@@ -1,5 +1,6 @@
 "use client"
 
+import React from 'react';
 import { type ComponentPropsWithoutRef } from 'react';
 import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter';
 import { oneDark } from 'react-syntax-highlighter/dist/esm/styles/prism';
@@ -81,14 +82,38 @@ const markdownComponents = {
         );
     },
 
-    // Enhanced paragraph component
-    p: (props: ComponentPropsWithoutRef<'p'>) => {
-        // Get the content as a string
-        const content = props.children?.toString() || '';
+    // Enhanced paragraph component with special handling for image groups
+    p: ({ children, ...props }: ComponentPropsWithoutRef<'p'>) => {
+        // Handle the case where we're trying to get a string from children
+        const contentString = typeof children === 'string' ? children : '';
 
         // Special handling for non-breaking space paragraphs
-        if (content.trim() === '&nbsp;') {
+        if (contentString.trim() === '&nbsp;') {
             return <div className="h-4" aria-hidden="true" />;
+        }
+
+        // If this is a paragraph with only images (without other content between them),
+        // add a special class to make them display side by side
+        const childrenArray = React.Children.toArray(children);
+        const imageNodes = childrenArray.filter(child =>
+            React.isValidElement(child) &&
+            typeof child.type === 'string' &&
+            child.type === 'img'
+        );
+
+        const hasOnlyImages =
+            imageNodes.length > 1 &&
+            childrenArray.length === imageNodes.length;
+
+        if (hasOnlyImages) {
+            return (
+                <p
+                    className="image-group flex flex-wrap justify-center items-center gap-4 my-6"
+                    {...props}
+                >
+                    {children}
+                </p>
+            );
         }
 
         return (
@@ -99,6 +124,29 @@ const markdownComponents = {
                     overflowWrap: 'break-word'
                 }}
                 {...props}
+            >
+                {children}
+            </p>
+        );
+    },
+
+    // Add image component with responsive styling
+    img: (props: ComponentPropsWithoutRef<'img'>) => {
+        // Get the parent element to see if this is in an image group
+        const isInImageGroup =
+            props.className &&
+            typeof props.className === 'string' &&
+            props.className.includes('image-group');
+
+        return (
+            <img
+                {...props}
+                className={`rounded-md ${isInImageGroup ? 'inline-block max-w-[30%] m-2' : 'block max-w-full mx-auto my-4'} hover:shadow-lg transition-shadow duration-200 ${props.className || ''}`}
+                alt={props.alt || ""}
+                style={{
+                    ...(props.style || {}),
+                    verticalAlign: isInImageGroup ? 'middle' : undefined
+                }}
             />
         );
     },
@@ -117,14 +165,14 @@ const markdownComponents = {
     br: () => <div className="h-4" aria-hidden="true" />,
 
     // Handle consecutive newlines in text nodes
-    text: (props: { children?: React.ReactNode }) => {
-        const content = props.children?.toString() || '';
+    text: ({ children }: { children?: React.ReactNode }) => {
+        const content = typeof children === 'string' ? children : '';
 
         if (content.includes('&nbsp;')) {
             return <>{content.replace(/&nbsp;/g, ' ')}</>;
         }
 
-        return <>{props.children}</>;
+        return <>{children}</>;
     },
 
     // Add list item component
@@ -195,6 +243,11 @@ const markdownComponents = {
     // Add horizontal rule
     hr: (props: ComponentPropsWithoutRef<'hr'>) => (
         <hr className="my-6 border-t border-gray-300" {...props} />
+    ),
+
+    // Support for divs
+    div: (props: ComponentPropsWithoutRef<'div'>) => (
+        <div {...props} />
     )
 };
 
