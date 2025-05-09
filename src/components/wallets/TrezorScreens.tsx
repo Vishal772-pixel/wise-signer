@@ -145,7 +145,7 @@ const TrezorScreens = ({
                         </div>
                         <div>
                             <div className="text-gray-400 text-sm">Derivation path</div>
-                            <div className="text-white text-base font-mono">m/44'/0'/0'/0/0</div>
+                            <div className="text-white text-base font-mono">m/44'/60'/0'/0/0</div>
                         </div>
                     </div>
                 );
