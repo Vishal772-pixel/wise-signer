@@ -76,7 +76,7 @@ const QuizSummaryComponent = ({ onRestartQuiz }: QuizSummaryProps) => {
     };
 
     // Generate tweet text based on score
-    const tweetText = `I scored ${summary.correct} out of ${summary.total} on the @cyfrinaudits wise-signer!\n\nTest your knowledge of crypto wallet security.`;
+    const tweetText = `I scored ${summary.correct} out of ${summary.total} on the @cyfrinaudits wise-signer!\n\nTest your knowledge of crypto wallet security.\n\nhttps://wise-signer.cyfrin.io/`;
     const tweetUrl = `https://twitter.com/intent/tweet?text=${encodeURIComponent(tweetText)}`;
 
     const getScoreMessage = () => {
