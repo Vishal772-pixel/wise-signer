@@ -543,13 +543,12 @@ To protect against this, you have two options:
                 `It's correct to sign this transaction. This is a valid EIP-712 structured message for a multisig transaction with Safe{Wallet} (formerly Gnosis Safe) that matches your intention to send 1 WETH to your friend's address.
 When reviewing multisig transactions, you should check the EIP-712 data generated in your wallet (in this case, metamask) which all aligned in this case:
 
-\`\`\`
+
 1. The transaction originates from a legitimate source (app.safe.global)
 2. The verifyingContract matches your multisig wallet address
 3. The correct network (Arbitrum) is specified in the chainId
 4. The transaction data matches your intent (sending 1 WETH)
-5. There are no suspicious parameters like operation, gasToken, or refundReceiver
-\`\`\``,
+5. There are no suspicious parameters like operation, gasToken, or refundReceiver`,
 
 
                 `The transaction data field contains encoded information that can be decoded with tools like Foundry's cast:
