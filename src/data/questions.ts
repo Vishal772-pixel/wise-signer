@@ -755,7 +755,7 @@ If we used foundry, we can copy the calldata from the Safe websites (ie, \`data\
 
 ![img1](/questionImages/copyMe.png) 
 
-and make sure it matches what we'd expect:
+and make sure it matches what we'd expect using one of our calldata decoding tools. In this example, we used [foundry's cast](https://book.getfoundry.sh/):
 
 \`\`\`bash
 # This command will brute-force try to figure out the function signature, and then decode the data
