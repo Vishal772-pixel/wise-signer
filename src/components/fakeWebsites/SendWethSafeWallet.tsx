@@ -67,6 +67,10 @@ export default function SafeWallet({
         }
     }, [localQuestionId]);
 
+    const handleBack = () => {
+        setShowConfirmation(false);
+    };
+
     // Handle primary button click (Next)
     const handleNext = () => {
         if (!showConfirmation) {
@@ -475,9 +479,7 @@ export default function SafeWallet({
 
                                 <div className="flex justify-between mt-8">
                                     <button
-                                        onClick={() => {
-                                            setLocalQuestionId(questionId)
-                                        }}
+                                        onClick={() => { handleBack() }}
                                         className="px-8 py-3 bg-[#222] hover:bg-[#333] rounded-lg cursor-pointer"
                                     >
                                         Back

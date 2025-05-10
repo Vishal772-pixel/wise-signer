@@ -565,14 +565,15 @@ export default function SafeWallet({
                                 </div>
                             ) : (
                                 <div className="flex justify-between mt-8">
-                                    <button
+                                    {otherDataNumber === 1 && (<button
                                         onClick={() => {
                                             setOtherDataNumber(0)
                                         }}
                                         className="px-8 py-3 bg-[#222] hover:bg-[#333] rounded-lg cursor-pointer"
                                     >
                                         Back
-                                    </button>
+                                    </button>)}
+
 
                                     <ChainButton
                                         onClick={onPrimaryButtonClick}
