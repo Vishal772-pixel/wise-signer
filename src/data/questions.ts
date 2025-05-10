@@ -770,7 +770,9 @@ cast 4byte-calldata  0x474cf53d0000000000000000000000004087d2046a7435911fc26dcfa
                 
 And now that we are happy with the calldata, we can input it and the rest of the data into [safeutils.openzeppelin.com](https://safeutils.openzeppelin.com/):
                 
-![img1](/questionImages/safeUtils1.png) ![img2](/questionImages/safeUtils2.png) ![img3](/questionImages/safeUtils3.png)
+![img0](/questionImages/safeUtils0.png) ![img1](/questionImages/safeUtils1.png) 
+
+![img2](/questionImages/safeUtils2.png) ![img3](/questionImages/safeUtils3.png)
 
 But you'll see, the outputted \`message hash\` of the SafeUtils website is different than what we saw on our Trezor wallet!
 
