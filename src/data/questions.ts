@@ -751,7 +751,11 @@ Let's start with [safeutils.openzeppelin.com](https://safeutils.openzeppelin.com
 
                 `So before doing anything, we want to make sure our \`data\` is correct. We can use any of the tools (ie. [swiss-knife](https://calldata.swiss-knife.xyz/decoder), [foundry's cast](https://book.getfoundry.sh/) or [deth tools](https://tools.deth.net/calldata-decoder)) to decode the data.
 
-If we used foundry, we can copy the calldata from the Safe websites (ie, \`data\`) and make sure it matches what we'd expect:
+If we used foundry, we can copy the calldata from the Safe websites (ie, \`data\`) by hitting the copy button here:
+
+![img1](/questionImages/copyMe.png) 
+
+and make sure it matches what we'd expect:
 
 \`\`\`bash
 # This command will brute-force try to figure out the function signature, and then decode the data
