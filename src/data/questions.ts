@@ -90,7 +90,7 @@ export const questions: QuestionData[] = [
         "type": "multi",
         "options": [
             { "id": "A", "text": "Multi-signature wallets enhance security by requiring multiple approvals for transactions, preventing a single compromised key from causing loss of funds." },
-            { "id": "B", "text": "Multi-signature wallets only work on a single blockchain, whereas hardware and software wallets often have a private key that works across multiple chains." },
+            { "id": "B", "text": "Multi-signature wallets only work on the blockchains they are deployed on, and therefore can often have different addresses, whereas hardware and software wallets often have a private key that by default works across multiple chains with the same address." },
             { "id": "C", "text": "Multi-signature wallets eliminate the need for key backup procedures as the distributed nature of keys means individual key loss doesn't compromise the wallet." },
             { "id": "D", "text": "Multi-signature wallets can introduce delays in transaction processing due to the requirement for multiple parties to approve transactions." }
         ],
