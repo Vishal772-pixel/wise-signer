@@ -5,6 +5,8 @@
   <h3>Train your wallet security skills in a safe environment</h3>
 </div>
 
+*Learn more at [Cyfrin Updraft](https://updraft.cyfrin.io/)*
+
 ## About
 
 Wise Signer is an educational platform designed to help Web3 users develop critical security skills for interacting with cryptocurrency wallets. Through interactive challenges and simulations, users learn to identify and avoid common security threats, phishing attempts, and deceptive transactions.
