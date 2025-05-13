@@ -9,9 +9,9 @@ export default function Home() {
           Train Your Wallet Security Skills
         </h1>
         <p className="text-xl text-gray-300 mb-8">
-          Wise Signer challenges you to identify safe and dangerous wallet transactions
-          before signing them. Master multi-sig and hardware wallet security in a
-          safe environment.
+          Wise Signer challenges you to identify safe and dangerous wallet
+          transactions before signing them. Master multi-sig and hardware wallet
+          security in a safe environment.
         </p>
         <a
           href="/simulated/questions/1"
@@ -23,7 +23,9 @@ export default function Home() {
 
       {/* How to Play Section */}
       <div className="max-w-5xl w-full">
-        <h2 className="text-3xl font-bold mb-10 text-center">Choose Your Challenge Mode</h2>
+        <h2 className="text-3xl font-bold mb-10 text-center">
+          Choose Your Challenge Mode
+        </h2>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
           <div className="bg-zinc-900 rounded-xl p-6 border border-zinc-800 hover:border-green-500 transition">
@@ -32,11 +34,13 @@ export default function Home() {
                 <FaWallet size={28} className="text-green-500" />
               </div>
             </div>
-            <h3 className="text-xl font-semibold mb-3 text-center">Simulated Wallet</h3>
+            <h3 className="text-xl font-semibold mb-3 text-center">
+              Simulated Wallet
+            </h3>
             <p className="text-gray-400">
-              A simplified experience without real network connections.
-              Practice making sign/reject decisions in quick, focused challenges
-              to build your transaction safety intuition.
+              A simplified experience without real network connections. Practice
+              making sign/reject decisions in quick, focused challenges to build
+              your transaction safety intuition.
             </p>
             <div className="mt-4 text-center">
               <a
@@ -63,11 +67,13 @@ export default function Home() {
                   <FaMicrochip size={28} className="text-gray-500" />
                 </div>
               </div>
-              <h3 className="text-xl font-semibold mb-3 text-center text-gray-400">Tenderly Virtualnet</h3>
+              <h3 className="text-xl font-semibold mb-3 text-center text-gray-400">
+                Tenderly Virtualnet
+              </h3>
               <p className="text-gray-500">
-                We spin up a Tenderly virtual testnet (a remote fork) to create a realistic
-                environment where you can practice with actual blockchain interactions without
-                risking real assets.
+                We spin up a Tenderly virtual testnet (a remote fork) to create
+                a realistic environment where you can practice with actual
+                blockchain interactions without risking real assets.
               </p>
               <div className="mt-4 text-center">
                 <span className="text-gray-500 font-medium cursor-not-allowed">
@@ -83,10 +89,10 @@ export default function Home() {
       <div className="max-w-4xl text-center">
         <h2 className="text-3xl font-bold mb-6">Why Train With Wise Signer?</h2>
         <p className="text-xl text-gray-300">
-          Smart contract and wallet safety is critical in Web3. Wise Signer teaches you
-          to recognize common attacks and deceptive transactions before they compromise
-          your assets. Build confidence in managing multi-sig wallets and hardware wallets
-          through hands-on practice.
+          Smart contract and wallet safety is critical in Web3. Wise Signer
+          teaches you to recognize common attacks and deceptive transactions
+          before they compromise your assets. Build confidence in managing
+          multi-sig wallets and hardware wallets through hands-on practice.
         </p>
       </div>
     </div>

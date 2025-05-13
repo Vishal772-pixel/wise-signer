@@ -3,19 +3,19 @@
 import Link from "next/link";
 import React, { ReactNode, ElementType } from "react";
 import {
-  ShieldCheck,
-  ArrowLeftRight,
-  FileSignature,
-  CheckCircle,
-  AlertTriangle,
-  Lock,
-  ExternalLink,
-  ListChecks,
-  Info,
-  Eye,
-  FileCode,
-  Network,
-} from "lucide-react";
+  FaShieldAlt,
+  FaExchangeAlt,
+  FaFileSignature,
+  FaCheckCircle,
+  FaExclamationTriangle,
+  FaLock,
+  FaExternalLinkAlt,
+  FaListAlt,
+  FaInfoCircle,
+  FaEye,
+  FaFileCode,
+  FaNetworkWired,
+} from "react-icons/fa";
 
 interface SectionCardProps {
   id: string;
@@ -40,9 +40,8 @@ const SectionCard = ({
     <div className="flex items-center gap-3 sm:gap-4 mb-6">
       <Icon size={32} className={titleColor} />
       <h2
-        className={`text-2xl sm:text-3xl font-bold ${
-          titleColor === "text-green-400" ? "text-zinc-100" : titleColor
-        }`}
+        className={`text-2xl sm:text-3xl font-bold ${titleColor === "text-green-400" ? "text-zinc-100" : titleColor
+          }`}
       >
         {title}
       </h2>
@@ -80,7 +79,7 @@ interface DetailListItemProps {
 // Helper for general list items
 const DetailListItem = ({ children, strongPrefix }: DetailListItemProps) => (
   <li className="flex items-start gap-2">
-    <Info size={18} className="text-sky-400 mt-1 shrink-0 opacity-70" />
+    <FaInfoCircle size={18} className="text-sky-400 mt-1 shrink-0 opacity-70" />
     <span>
       {strongPrefix && <strong className="text-sky-300">{strongPrefix}</strong>}
       {children}
@@ -95,7 +94,7 @@ interface CheckListItemProps {
 // Helper for checklist items
 const CheckListItem = ({ children }: CheckListItemProps) => (
   <li className="flex items-start gap-2">
-    <CheckCircle size={18} className="text-green-500 mt-1 shrink-0" />
+    <FaCheckCircle size={18} className="text-green-500 mt-1 shrink-0" />
     <span>{children}</span>
   </li>
 );
@@ -107,7 +106,7 @@ interface RedFlagListItemProps {
 // Helper for red flag list items
 const RedFlagListItem = ({ children }: RedFlagListItemProps) => (
   <li className="flex items-start gap-2">
-    <AlertTriangle size={18} className="text-red-500 mt-1 shrink-0" />
+    <FaExclamationTriangle size={18} className="text-red-500 mt-1 shrink-0" />
     <span>{children}</span>
   </li>
 );
@@ -122,9 +121,9 @@ const VerifyInteractionsPage = () => {
           <header className="text-center space-y-6">
             <div className="flex justify-center mb-6">
               <div className="relative">
-                <ShieldCheck size={72} className="text-green-400" />
+                <FaShieldAlt size={72} className="text-green-400" />
                 <div className="absolute inset-0 text-green-400 blur-xl opacity-50">
-                  <ShieldCheck size={72} />
+                  <FaShieldAlt size={72} />
                 </div>
               </div>
             </div>
@@ -145,21 +144,21 @@ const VerifyInteractionsPage = () => {
                 href="#transactions"
                 className="flex items-center gap-2 px-4 py-2 rounded-lg bg-zinc-800/50 border border-zinc-700 hover:bg-zinc-700/50 transition-all text-sm sm:text-base"
               >
-                <ArrowLeftRight size={16} />
+                <FaExchangeAlt size={16} />
                 <span>Transactions</span>
               </a>
               <a
                 href="#signatures"
                 className="flex items-center gap-2 px-4 py-2 rounded-lg bg-zinc-800/50 border border-zinc-700 hover:bg-zinc-700/50 transition-all text-sm sm:text-base"
               >
-                <FileSignature size={16} />
+                <FaFileSignature size={16} />
                 <span>Signatures</span>
               </a>
               <a
                 href="#checklist"
                 className="flex items-center gap-2 px-4 py-2 rounded-lg bg-zinc-800/50 border border-zinc-700 hover:bg-zinc-700/50 transition-all text-sm sm:text-base"
               >
-                <ListChecks size={16} />
+                <FaListAlt size={16} />
                 <span>Security Checklist</span>
               </a>
             </div>
@@ -169,18 +168,18 @@ const VerifyInteractionsPage = () => {
           <SectionCard
             id="transactions"
             title="Verifying Transactions (On-Chain)"
-            icon={ArrowLeftRight}
+            icon={FaExchangeAlt}
           >
             <p className="mb-6">
               Transactions are actions that get recorded on the blockchain. They
               involve sending assets or interacting with smart contracts.
             </p>
-            <SubSection title="Key Components to Check" icon={Eye}>
+            <SubSection title="Key Components to Check" icon={FaEye}>
               <ul className="space-y-2">
                 <DetailListItem strongPrefix="Recipient Address (`to`): ">
                   Is this the intended contract or person? Verify on block
                   explorers (Etherscan, Polygonscan, etc.). Look for verified
-                  contracts, official labels, and transaction history.
+                  contracts, official labels, official documentation, and transaction history.
                 </DetailListItem>
                 <DetailListItem strongPrefix="Value (`value`): ">
                   Is this the correct amount of native currency (ETH, MATIC)
@@ -218,8 +217,60 @@ const VerifyInteractionsPage = () => {
             </SubSection>
 
             <SubSection
+              title="EIP-7702 Transactions (Set Code)"
+              icon={FaFileCode}
+            >
+              <p className="mb-3 text-zinc-300">
+                EIP-7702 allows an Externally Owned Account (EOA) to temporarily
+                act like a smart contract for a single transaction by setting
+                its `code`. This is a powerful feature that requires careful
+                verification:
+              </p>
+              <ul className="space-y-2">
+                <DetailListItem strongPrefix="The `code` being set: ">
+                  This is the MOST CRITICAL part. What smart contract logic will
+                  your EOA execute?
+                  <ul className="list-disc list-inside space-y-1 pl-6 mt-2 text-zinc-400">
+                    <li>
+                      This code should ideally be from a trusted, audited
+                      source.
+                    </li>
+                    <li>
+                      Understand its functionality. Does it perform actions you
+                      expect and consent to (e.g., batching transactions,
+                      specific contract calls)?
+                    </li>
+                  </ul>
+                </DetailListItem>
+                <DetailListItem strongPrefix="The subsequent call: ">
+                  After the `code` is set, your EOA will make a call using this
+                  new code. Verify this call as you would any other smart
+                  contract interaction (recipient, value, calldata).
+                </DetailListItem>
+                <DetailListItem strongPrefix="Wallet UI: ">
+                  Your wallet should clearly indicate this is an EIP-7702
+                  transaction and ideally provide a way to inspect or understand
+                  the `code` being set (e.g., by showing its hash, linking to a
+                  known source, or decoding its intended actions).
+                </DetailListItem>
+                <DetailListItem strongPrefix="Security Implication: ">
+                  Your EOA gains smart contract capabilities for one
+                  transaction. Ensure the `code` is safe and does exactly what
+                  you intend, as it operates with your EOA's full authority and
+                  assets. Malicious `code` could drain your wallet.
+                </DetailListItem>
+              </ul>
+              <p className="mt-4 p-3 bg-yellow-500/10 border border-yellow-500/30 rounded-md text-sm text-yellow-300">
+                <FaInfoCircle size={16} className="inline mr-2 mb-0.5" />
+                Think of it as temporarily lending your account's "keys" to a
+                piece of code for one specific job. Make absolutely sure that
+                code is trustworthy and will only do that job.
+              </p>
+            </SubSection>
+
+            <SubSection
               title="Common Transaction Types & Specific Checks"
-              icon={Network}
+              icon={FaNetworkWired}
             >
               <ul className="space-y-3">
                 <li>
@@ -285,72 +336,7 @@ const VerifyInteractionsPage = () => {
               </ul>
             </SubSection>
 
-            <SubSection title="Verifying Contract Addresses" icon={CheckCircle}>
-              <ul className="space-y-2">
-                <DetailListItem>
-                  Use block explorers: Check for verified source code (green
-                  checkmark), transaction history, and official labels.
-                </DetailListItem>
-                <DetailListItem>
-                  Cross-reference addresses with official project websites,
-                  documentation, and community channels. Beware of fake sites.
-                </DetailListItem>
-              </ul>
-            </SubSection>
-
-            <SubSection
-              title="EIP-7702 Transactions (Set Code)"
-              icon={FileCode}
-            >
-              <p className="mb-3 text-zinc-300">
-                EIP-7702 allows an Externally Owned Account (EOA) to temporarily
-                act like a smart contract for a single transaction by setting
-                its `code`. This is a powerful feature that requires careful
-                verification:
-              </p>
-              <ul className="space-y-2">
-                <DetailListItem strongPrefix="The `code` being set: ">
-                  This is the MOST CRITICAL part. What smart contract logic will
-                  your EOA execute?
-                  <ul className="list-disc list-inside space-y-1 pl-6 mt-2 text-zinc-400">
-                    <li>
-                      This code should ideally be from a trusted, audited
-                      source.
-                    </li>
-                    <li>
-                      Understand its functionality. Does it perform actions you
-                      expect and consent to (e.g., batching transactions,
-                      specific contract calls)?
-                    </li>
-                  </ul>
-                </DetailListItem>
-                <DetailListItem strongPrefix="The subsequent call: ">
-                  After the `code` is set, your EOA will make a call using this
-                  new code. Verify this call as you would any other smart
-                  contract interaction (recipient, value, calldata).
-                </DetailListItem>
-                <DetailListItem strongPrefix="Wallet UI: ">
-                  Your wallet should clearly indicate this is an EIP-7702
-                  transaction and ideally provide a way to inspect or understand
-                  the `code` being set (e.g., by showing its hash, linking to a
-                  known source, or decoding its intended actions).
-                </DetailListItem>
-                <DetailListItem strongPrefix="Security Implication: ">
-                  Your EOA gains smart contract capabilities for one
-                  transaction. Ensure the `code` is safe and does exactly what
-                  you intend, as it operates with your EOA's full authority and
-                  assets. Malicious `code` could drain your wallet.
-                </DetailListItem>
-              </ul>
-              <p className="mt-4 p-3 bg-yellow-500/10 border border-yellow-500/30 rounded-md text-sm text-yellow-300">
-                <Info size={16} className="inline mr-2 mb-0.5" />
-                Think of it as temporarily lending your account's "keys" to a
-                piece of code for one specific job. Make absolutely sure that
-                code is trustworthy and will only do that job.
-              </p>
-            </SubSection>
-
-            <SubSection title="Transaction Red Flags" icon={AlertTriangle}>
+            <SubSection title="Transaction Red Flags" icon={FaExclamationTriangle}>
               <ul className="space-y-2">
                 <RedFlagListItem>
                   Interacting with unverified contracts or addresses with
@@ -382,7 +368,7 @@ const VerifyInteractionsPage = () => {
           <SectionCard
             id="signatures"
             title="Verifying Signatures (Off-Chain Messages)"
-            icon={FileSignature}
+            icon={FaFileSignature}
           >
             <p className="mb-6">
               Signatures are off-chain confirmations. They don't immediately
@@ -396,7 +382,7 @@ const VerifyInteractionsPage = () => {
 
             <SubSection
               title="Common Signature Types & What to Check"
-              icon={Eye}
+              icon={FaEye}
             >
               <ul className="space-y-3">
                 <li>
@@ -442,6 +428,12 @@ const VerifyInteractionsPage = () => {
                           </strong>{" "}
                           The actual values being signed. Read every field.
                         </li>
+                        <li>
+                          <strong className="text-sky-300">
+                            EIP-712 Raw Data:
+                          </strong>{" "}
+                          The combination of the domain and message hash, this is exactly what is being signed.
+                        </li>
                       </ul>
                     </li>
                     <li>
@@ -464,7 +456,7 @@ const VerifyInteractionsPage = () => {
 
             <SubSection
               title="Verifying the Requesting dApp/Origin"
-              icon={CheckCircle}
+              icon={FaCheckCircle}
             >
               <ul className="space-y-2">
                 <DetailListItem>
@@ -478,7 +470,7 @@ const VerifyInteractionsPage = () => {
               </ul>
             </SubSection>
 
-            <SubSection title="Signature Red Flags" icon={AlertTriangle}>
+            <SubSection title="Signature Red Flags" icon={FaExclamationTriangle}>
               <ul className="space-y-2">
                 <RedFlagListItem>
                   Vague, unclear, or obfuscated messages.
@@ -507,7 +499,7 @@ const VerifyInteractionsPage = () => {
           <SectionCard
             id="checklist"
             title="Wallet Security Checklist"
-            icon={ListChecks}
+            icon={FaListAlt}
           >
             <ul className="space-y-3">
               <CheckListItem>
@@ -579,7 +571,7 @@ const VerifyInteractionsPage = () => {
           <SectionCard
             id="key-takeaway"
             title="Key Takeaway: Your Vigilance is Key"
-            icon={Lock}
+            icon={FaLock}
             titleColor="text-sky-400"
           >
             <p className="text-lg text-zinc-200">
@@ -596,7 +588,7 @@ const VerifyInteractionsPage = () => {
                 href="/tools"
                 className="text-sky-400 hover:text-sky-300 underline font-semibold inline-flex items-center gap-1"
               >
-                Tools & Resources page <ExternalLink size={16} />
+                Tools & Resources page <FaExternalLinkAlt size={16} />
               </Link>
               .
             </p>

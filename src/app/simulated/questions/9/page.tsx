@@ -1,7 +1,7 @@
-"use client"
+"use client";
 
 import QuestionPage from "@/components/QuestionPage";
 
 export default function NumberedQuestionPage() {
-    return <QuestionPage questionId={9} />;
+  return <QuestionPage questionId={9} />;
 }

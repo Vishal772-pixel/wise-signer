@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import "./globals.css";
-import { NetworkProvider } from '@/components/NetworkProvider';
+import { NetworkProvider } from "@/components/NetworkProvider";
 
 export const metadata: Metadata = {
   title: "Wise Signer",

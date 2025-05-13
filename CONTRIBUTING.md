@@ -78,10 +78,13 @@ Have an idea to improve Wise Signer? We'd love to hear it!
 ### Pull Requests
 
 1. **Create a new branch** for your changes:
+
    ```bash
    git checkout -b feature/your-feature-name
    ```
+
    or
+
    ```bash
    git checkout -b fix/bug-description
    ```
@@ -89,11 +92,13 @@ Have an idea to improve Wise Signer? We'd love to hear it!
 2. **Make your changes** and commit them with descriptive commit messages
 
 3. **Push your changes** to your fork:
+
    ```bash
    git push origin feature/your-feature-name
    ```
 
 4. **Create a Pull Request** from your fork to the main repository:
+
    - Use a clear title and description
    - Reference related issues using #issue-number
    - Fill out the PR template if one exists
