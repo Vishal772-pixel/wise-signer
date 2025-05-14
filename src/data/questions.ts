@@ -778,7 +778,7 @@ But you'll see, the outputted \`message hash\` of the SafeUtils website is diffe
 
 \`\`\`
 # Different message hashes
-0xb2498e7f8d82ce5d628accdcc7d7bb245557a93f420c3b8baeab1df0c11d0886 # Trezor wallet & Safe Website
+0x02def9296d874a88cd65d1adfdb9c220a186f812113ae9a6080836932e3df670 # Trezor wallet & Safe Website
 0xfac0c15391856b749f37c979c6068dac6e6264b182501425aaff9dac190a2daa # SafeUtils
 \`\`\`
 
@@ -900,14 +900,14 @@ If you update your \`file.json\` to have the \`operation\` as a \`1\`, or update
             "targetContract": "WrappedTokenGatewayV3",
             "targetFunction": "depositETH",
             "domainHash": "0xe0392d263ff13e09757bfce9b182ead6ceabd9d1b404aa7df77e65b304969130",
-            "messageHash": "0xb2498e7f8d82ce5d628accdcc7d7bb245557a93f420c3b8baeab1df0c11d0886",
+            "messageHash": "0x02def9296d874a88cd65d1adfdb9c220a186f812113ae9a6080836932e3df670",
             "eip712Hash": "0x87414b6a2a5c6664ddbc9b79392a2fd4ac5a294a6b807b70b28641b3b8af297b",
             "signers": "2/10"
         }],
         transactionOrSignatureData: {
             networkName: "ZKsync Era",
             requestFrom: "https://app.safe.global/",
-            message: `Domain Hash: 0xe0392d263ff13e09757bfce9b182ead6ceabd9d1b404aa7df77e65b304969130\n\nMessage Hash: 0xb2498e7f8d82ce5d628accdcc7d7bb245557a93f420c3b8baeab1df0c11d0886`
+            message: `Domain Hash: 0xe0392d263ff13e09757bfce9b182ead6ceabd9d1b404aa7df77e65b304969130\n\nMessage Hash: 0x02def9296d874a88cd65d1adfdb9c220a186f812113ae9a6080836932e3df670`
         }
     },
     {
