@@ -359,11 +359,11 @@ export default function SafeWallet({
                                                 <div className="px-16 flex items-center px-6">
                                                     <div className="w-7 h-7 bg-gradient-to-r from-green-400 to-blue-500 rounded-full mr-2"></div>
                                                     <span className="text-base">
-                                                        <span className="ml-1 text-white">{questions[questionId - 1].otherData![otherDataNumber].eip712Hash!}</span>
+                                                        <span className="ml-1 text-white">{questions[questionId - 1].otherData![0].eip712Hash!}</span>
                                                     </span>
                                                     <button
                                                         className="ml-2 text-gray-400 hover:text-gray-300 cursor-pointer"
-                                                        onClick={() => copyToClipboard(questions[questionId - 1].otherData![otherDataNumber].eip712Hash!)}
+                                                        onClick={() => copyToClipboard(questions[questionId - 1].otherData![0].eip712Hash!)}
                                                     >
                                                         <FaCopy size={16} />
                                                     </button>
