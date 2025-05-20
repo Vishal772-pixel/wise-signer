@@ -867,7 +867,7 @@ And this _seems_ great, but is it? So we should be signing the hash associated w
 `, `If we save this to a file (\`file.json\`), and using the safe-hash-rs tool we run:
 
 \`\`\`bash
-safe-hash typed --file file.json
+safe-hash typed --file file.json --standalone
 \`\`\`
 
 We get an output of:
