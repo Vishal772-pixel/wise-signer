@@ -49,6 +49,11 @@ const Tools = () => {
             "Rust implementation for Safe transaction hash verification",
         },
         {
+          name: "Chain Tools",
+          url: "https://tools.cyfrin.io/safe-hash",
+          description: "Online tool for Safe transaction hash verification",
+        },
+        {
           name: "Safe TX Hashes Util",
           url: "https://github.com/pcaversaccio/safe-tx-hashes-util",
           description: "Utility for Safe transaction hash verification",
