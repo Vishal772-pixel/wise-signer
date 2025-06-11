@@ -373,10 +373,10 @@ This could happen if the Aave UI is compromised. Website interfaces compromises 
 0x474cf53d000000000000000000000000f39fd6e51aad88f6f4ce6ab8827279cfffb9226600000000000000000000000023618e81e3f5cdf7f54c3d65f7fbc0abf5b21e8f0000000000000000000000000000000000000000000000000000000000000000
 \`\`\` 
 
-For non technical people, we could put this calldata into a calldata-decoder like [swiss-knife](https://calldata.swiss-knife.xyz/decoder) or [deth tools](https://tools.deth.net/calldata-decoder).
+For non technical people, we could put this calldata into a calldata-decoder like [tools.cyfrin.io](https://tools.cyfrin.io/abi-encoding), [swiss-knife](https://calldata.swiss-knife.xyz/decoder) or [deth tools](https://tools.deth.net/calldata-decoder).
 
 If you've never decoded calldata before, do the following:
-1. Go to [swiss-knife](https://calldata.swiss-knife.xyz/decoder)
+1. Go to [tools.cyfrin.io](https://tools.cyfrin.io/abi-encoding)
 2. Paste the data above into the website, and you'll see the parameters that this calldata represents.
 
 You'll get something like:
@@ -445,7 +445,7 @@ Function:execute((address,uint256,bytes))
 
 Most wallets don't show this, but the code at address \`${METAMASK_DELEGATOR}\` is the code your wallet is being set to. Wallets like MetaMask automatically set this code to be the ${METAMASK_DELEGATOR} code, which isnot malicious. However, you still want to verify the list of transactions as someone could still trick you into signing soething you shouldn't.`,
 
-            `With this power, we can batch transactions together, like how we saw a list of transactions in our wallet. If you decode the two transactions using some of the tools we've learned (ie, [swiss-knife](https://calldata.swiss-knife.xyz/decoder), [foundry's cast](https://book.getfoundry.sh/) or [deth tools](https://tools.deth.net/calldata-decoder)), you'll see:
+            `With this power, we can batch transactions together, like how we saw a list of transactions in our wallet. If you decode the two transactions using some of the tools we've learned (ie, [tools.cyfrin.io](https://tools.cyfrin.io/abi-encoding), [swiss-knife](https://calldata.swiss-knife.xyz/decoder), [foundry's cast](https://book.getfoundry.sh/) or [deth tools](https://tools.deth.net/calldata-decoder)), you'll see:
 
 \`\`\`bash
 #  Transaction #1
@@ -743,13 +743,14 @@ Hint: Check out the tools page for a website that can help you out! Or... Here i
 
 - [safe-hash-rs](https://github.com/Cyfrin/safe-hash-rs)
 - [safe-tx-hashes-utils](https://github.com/pcaversaccio/safe-tx-hashes-util)
+- [tools.cyfrin.io](https://tools.cyfrin.io/safe-hash)
 - [safeutils.openzeppelin.com](https://safeutils.openzeppelin.com/)
 
 On wallets with small screens, it can be really difficult to verify pages and pages of data. The data that we are signing is much bigger here than just sending tokens, so it's often just easier to just compare the hashes of the data we are signing instead of inspecting the entire data on our wallet. Which is what we will be doing here!
 
 Let's start with [safeutils.openzeppelin.com](https://safeutils.openzeppelin.com/).`,
 
-                `So before doing anything, we want to make sure our \`data\` is correct. We can use any of the tools (ie. [swiss-knife](https://calldata.swiss-knife.xyz/decoder), [foundry's cast](https://book.getfoundry.sh/) or [deth tools](https://tools.deth.net/calldata-decoder)) to decode the data.
+                `So before doing anything, we want to make sure our \`data\` is correct. We can use any of the tools (ie. [tools.cyfrin.io](https://tools.cyfrin.io/abi-encoding), [swiss-knife](https://calldata.swiss-knife.xyz/decoder), [foundry's cast](https://book.getfoundry.sh/) or [deth tools](https://tools.deth.net/calldata-decoder)) to decode the data.
 
 If we used foundry, we can copy the calldata from the Safe websites (ie, \`data\`) by hitting the copy button here:
 
@@ -768,7 +769,7 @@ cast 4byte-calldata  0x474cf53d0000000000000000000000004087d2046a7435911fc26dcfa
 # 0
 \`\`\`
                 
-And now that we are happy with the calldata, we can input it and the rest of the data into [safeutils.openzeppelin.com](https://safeutils.openzeppelin.com/):
+And now that we are happy with the calldata, we can input it and the rest of the data into [safeutils.openzeppelin.com](https://safeutils.openzeppelin.com/) (you can also try [tools.cyfrin.io](https://tools.cyfrin.io/safe-hash)):
                 
 ![img0](/questionImages/safeUtils0.png) ![img1](/questionImages/safeUtils1.png) 
 
@@ -779,7 +780,7 @@ But you'll see, the outputted \`message hash\` of the SafeUtils website is diffe
 \`\`\`
 # Different message hashes
 0x02def9296d874a88cd65d1adfdb9c220a186f812113ae9a6080836932e3df670 # Trezor wallet & Safe Website
-0xfac0c15391856b749f37c979c6068dac6e6264b182501425aaff9dac190a2daa # SafeUtils
+0xfac0c15391856b749f37c979c6068dac6e6264b182501425aaff9dac190a2daa # SafeUtils/tools.cyfrin.io
 \`\`\`
 
 This could be evidence that our computer, or the Safe website itself is compromised!
@@ -884,7 +885,7 @@ We get an output of:
 
 This is different that what we saw in our Trezor wallet!!`, `It turned out, in this case, the Safe UI was compromised, and it showed us an evil hash, and sent our wallet the evil hash. They had turned the \`operation\` from a \`0\` to a \`1\`, which changed our transaction from a \`call\` to a \`delegateCall\`.
 
-If you update your \`file.json\` to have the \`operation\` as a \`1\`, or update the [SafeUtils](https://safeutils.openzeppelin.com/) to use a \`DELEGATECALL\` instead of a \`CALL\` and rerun, you will get the same hash as our Trezor wallet - the malicious one!`
+If you update your \`file.json\` to have the \`operation\` as a \`1\`, or update the [SafeUtils](https://safeutils.openzeppelin.com/) (or [tools.cyfrin.io](https://tools.cyfrin.io/safe-hash)) to use a \`DELEGATECALL\` instead of a \`CALL\` and rerun, you will get the same hash as our Trezor wallet - the malicious one!`
             ]
         },
         otherData: [{
