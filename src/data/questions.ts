@@ -916,7 +916,7 @@ If you update your \`file.json\` to have the \`operation\` as a \`1\`, or update
         question: "Sign or reject this signature.",
         questionContext: `Now, can you sign a safe transaction where the signer is another safe? Let's find out...
 
-We are attempting to send 0.01 WETH from our valiud multi-sig wallet ${MULTI_SIGNATURE_WALLET} to ${FRIEND_WALLET} on the Arbitrum network. You are using safe version ${SAFE_VERSION}. Our main signer is another safe wallet at address ${MULTI_SIGNATURE_SIGNER_WALLET} using safe version ${SAFE_VERSION}.
+We are attempting to send 0.01 WETH from our valid multi-sig wallet ${MULTI_SIGNATURE_WALLET} to ${FRIEND_WALLET} on the Arbitrum network. You are using safe version ${SAFE_VERSION}. Our main signer is another safe wallet at address ${MULTI_SIGNATURE_SIGNER_WALLET} using safe version ${SAFE_VERSION}.
 
 Please sign this transaction if doing so will bring you closer to executing, otherwise reject it. `,
         type: "signOrReject",
