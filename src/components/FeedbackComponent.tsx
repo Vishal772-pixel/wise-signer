@@ -40,7 +40,8 @@ const FeedbackComponent: React.FC<FeedbackComponentProps> = ({
 
 
     return (
-        <div className={`bg-blue-50 border border-blue-200 rounded-lg p-6 ${className}`}>
+        <div className={isCorrect ? `bg-green-100 border border-green-500 rounded-lg p-6 ${className}`
+        : `bg-red-100 border border-red-500 rounded-lg p-6 ${className}`}>
             <div className="flex items-start">
                 <FaLightbulb className="text-yellow-500 mt-1 flex-shrink-0" />
                 <div className="ml-4">
@@ -78,8 +79,9 @@ const FeedbackComponent: React.FC<FeedbackComponentProps> = ({
                         {feedbackPage < feedbackContent.pages.length && (
                             <button
                                 onClick={nextFeedbackPage}
-                                className="px-3 py-1 bg-blue-600 rounded-md text-sm text-white hover:bg-blue-700 cursor-pointer"
-                            >
+                                 className = {isCorrect ? className="px-3 py-1 bg-green-500 rounded-md text-sm text-white hover:bg-green-700 cursor-pointer" 
+                                    : className="px-3 py-1 bg-red-500 rounded-md text-sm text-white hover:bg-red-700 cursor-pointer" } 
+                                >
                                 <FaChevronRight />
                             </button>
                         )}
