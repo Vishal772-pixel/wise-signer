@@ -275,11 +275,11 @@ export default function SafeWallet({
                                                 <div className="flex items-center px-6">
                                                     <div className="w-7 h-7 bg-gradient-to-r from-green-400 to-blue-500 rounded-full mr-2"></div>
                                                     <span className="text-base">
-                                                        <span className="ml-1 text-white">{recipientAddress}</span>
+                                                        <span className="ml-1 text-white">{chainPrefix + ":" + MULTI_SIGNATURE_WALLET}</span>
                                                     </span>
                                                     <button
                                                         className="ml-2 text-gray-400 hover:text-gray-300 cursor-pointer"
-                                                        onClick={() => copyToClipboard(recipientAddress)}
+                                                        onClick={() => copyToClipboard(MULTI_SIGNATURE_WALLET)}
                                                     >
                                                         <FaCopy size={16} />
                                                     </button>
@@ -290,11 +290,11 @@ export default function SafeWallet({
                                                 <div className="flex items-center px-6">
                                                     <div className="w-7 h-7 bg-gradient-to-r from-green-400 to-blue-500 rounded-full mr-2"></div>
                                                     <span className="text-base">
-                                                        <span className="ml-1 text-white">{chainPrefix + ":" + YOUR_WALLET}</span>
+                                                        <span className="ml-1 text-white">{chainPrefix + ":" + MULTI_SIGNATURE_WALLET}</span>
                                                     </span>
                                                     <button
                                                         className="ml-2 text-gray-400 hover:text-gray-300 cursor-pointer"
-                                                        onClick={() => copyToClipboard(YOUR_WALLET)}
+                                                        onClick={() => copyToClipboard(MULTI_SIGNATURE_WALLET)}
                                                     >
                                                         <FaCopy size={16} />
                                                     </button>
