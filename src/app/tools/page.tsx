@@ -118,6 +118,17 @@ const Tools = () => {
         },
       ],
     },
+    {
+      title: "Certifications",
+      tools: [
+        {
+          name: "Qualified Web3 Signer",
+          url: "https://updraft.cyfrin.io/certifications/qualified-web3-signer",
+          description:
+            "Certification for Web3 transaction signing best practices and security",
+        },
+      ],
+    },
   ];
 
   return (
