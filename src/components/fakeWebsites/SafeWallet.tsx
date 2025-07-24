@@ -29,6 +29,7 @@ export default function SafeWallet({
     const [zeroAddress, setZeroAddress] = useState<string>('');
     const [rawDataSize, setRawDataSize] = useState<string>('');
     const [wadValue, setWadValue] = useState<string>('');
+    const [wethWadValue, setWethWadValue] = useState<string>('');
     const [title, setTitle] = useState<string>('');
     const [nonce, setNonce] = useState<number>(0);
     const [targetContract, setTargetContract] = useState<string>('');
@@ -53,6 +54,7 @@ export default function SafeWallet({
             setZeroAddress(questions[questionId - 1].otherData![otherDataNumber].chainPrefix + ":0x0000000000000000000000000000000000000000");
             setRawDataSize(questions[questionId - 1].otherData![otherDataNumber].rawDataSize);
             setWadValue(questions[questionId - 1].otherData![otherDataNumber].wadValue);
+            setWethWadValue(questions[questionId - 1].otherData![otherDataNumber].wethWadValue);
             setTitle(questions[questionId - 1].otherData![otherDataNumber].title);
             setNonce(questions[questionId - 1].otherData![otherDataNumber].nonce);
             setTargetContract(questions[questionId - 1].otherData![otherDataNumber].targetContract);
@@ -339,11 +341,11 @@ export default function SafeWallet({
                                                 <div className="flex items-center px-6">
                                                     <div className="w-7 h-7 bg-gradient-to-r from-green-400 to-blue-500 rounded-full mr-2"></div>
                                                     <span className="text-base">
-                                                        <span className="ml-1 text-white">{wadValue}</span>
+                                                        <span className="ml-1 text-white">{wethWadValue}</span>
                                                     </span>
                                                     <button
                                                         className="ml-2 text-gray-400 hover:text-gray-300 cursor-pointer"
-                                                        onClick={() => copyToClipboard(wadValue)}
+                                                        onClick={() => copyToClipboard(wethWadValue)}
                                                     >
                                                         <FaCopy size={16} />
                                                     </button>

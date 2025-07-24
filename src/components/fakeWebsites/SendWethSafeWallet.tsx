@@ -30,6 +30,7 @@ export default function SafeWallet({
     const [zeroAddress, setZeroAddress] = useState<string>('');
     const [rawDataSize, setRawDataSize] = useState<string>('');
     const [wadValue, setWadValue] = useState<string>('');
+    const [wethWadValue, setWethWadValue] = useState<string>('0');
     const [title, setTitle] = useState<string>('');
     const [nonce, setNonce] = useState<number>(0);
     const [targetContract, setTargetContract] = useState<string>('');
@@ -55,6 +56,7 @@ export default function SafeWallet({
             setZeroAddress(questions[localQuestionId - 1].otherData![0].chainPrefix + ":0x0000000000000000000000000000000000000000");
             setRawDataSize(questions[localQuestionId - 1].otherData![0].rawDataSize);
             setWadValue(questions[localQuestionId - 1].otherData![0].wadValue);
+            setWethWadValue(questions[localQuestionId - 1].otherData![0].wethWadValue);
             setTitle(questions[localQuestionId - 1].otherData![0].title);
             setNonce(questions[localQuestionId - 1].otherData![0].nonce);
             setTargetContract(questions[localQuestionId - 1].otherData![0].targetContract);
@@ -411,10 +413,10 @@ export default function SafeWallet({
                                             <div className="flex justify-between items-center mb-4">
                                                 <span className="text-gray-400">wad(uint256):</span>
                                                 <div className="flex items-center">
-                                                    <span>{wadValue}</span>
+                                                    <span>{wethWadValue}</span>
                                                     <button
                                                         className="ml-2 text-gray-400 hover:text-gray-300 cursor-pointer"
-                                                        onClick={() => copyToClipboard(wadValue)}
+                                                        onClick={() => copyToClipboard(wethWadValue)}
                                                     >
                                                         <FaCopy size={14} />
                                                     </button>
